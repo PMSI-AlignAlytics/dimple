@@ -46,7 +46,7 @@ a small {
 }
 
 .wrapper {
-  width:860px;
+  width:960px;
   margin:0 auto;
 }
 
@@ -71,15 +71,11 @@ pre {
   overflow-x: auto;
 }
 
-table {
-  width:100%;
-  border-collapse:collapse;
-}
-
-th, td {
-  text-align:left;
-  padding:5px 10px;
-  border-bottom:1px solid #e5e5e5;
+.chartWindow {
+  border-radius:5px;
+  border:1px solid #e5e5e5;
+  margin-bottom: 15px;
+  overflow-x: auto;
 }
 
 dt {
@@ -160,7 +156,7 @@ header ul a strong {
 }
 
 section {
-  width:500px;
+  width:600px;
   float:right;
   padding-bottom:50px;
 }
@@ -183,7 +179,17 @@ footer {
   bottom:50px;
 }
 
-@media print, screen and (max-width: 960px) {
+div#examples img {
+  border-radius:5px;
+  border:1px solid #d2d2d2;
+  margin-left:0px;
+  margin-right:5px;
+  margin-top:0px;
+  margin-bottom:0px;
+  padding:5px;
+}
+
+@media print, screen and (max-width: 1060px) {
   
   div.wrapper {
     width:auto;
@@ -194,10 +200,6 @@ footer {
     float:none;
     position:static;
     width:auto;
-  }
-  
-  header {
-    padding-right:320px;
   }
   
   section {
@@ -218,7 +220,7 @@ footer {
   }
 }
 
-@media print, screen and (max-width: 720px) {
+@media print, screen and (max-width: 820px) {
   body {
     word-wrap:break-word;
   }
@@ -236,7 +238,7 @@ footer {
   }
 }
 
-@media print, screen and (max-width: 480px) {
+@media print, screen and (max-width: 680px) {
   body {
     padding:15px;
   }

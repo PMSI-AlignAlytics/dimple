@@ -5,72 +5,131 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>dimple by PMSI-AlignAlytics</title>
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/pygment_trac.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script type="application/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   </head>
   <body>
+    <div class="banner">
+    </div>
     <div class="wrapper">
       <header>
         <h1>dimple</h1>
-        <p>An object-oriented API for business analytics</p>
-
-        <p class="view"><a href="https://github.com/PMSI-AlignAlytics/dimple">View the Project on GitHub <small>PMSI-AlignAlytics/dimple</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/PMSI-AlignAlytics/dimple/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/PMSI-AlignAlytics/dimple/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/PMSI-AlignAlytics/dimple">View On <strong>GitHub</strong></a></li>
-        </ul>
+        <p>An object-oriented API for business analytics powered by d3.</p>
+        <h3>Libraries</h3>
+        <p>
+        <a href="/dist/dimple.v1.js">Full Javascript Library With Comments</a><br/>
+        <a href="/dist/dimple.v1.min.js">Minified Javascript Library</a><br/>
+        <a href="https://github.com/PMSI-AlignAlytics/dimple/zipball/master">Zip File</a><br/>
+        <a href="https://github.com/PMSI-AlignAlytics/dimple/tarball/master">Tar Ball</a><br/>
+        </p>
+        <h3>Resources</h3>
+        <p>
+          <a href="/examples_index.html">Examples</a><br/>
+          <a href="https://github.com/PMSI-AlignAlytics/dimple">View On GitHub</a><br/>
+          <a href="https://github.com/PMSI-AlignAlytics/dimple/wiki">Full API Documentation</a><br/>
+        </p>
       </header>
       <section>
-        <h3>Welcome to GitHub Pages.</h3>
+        <h3>Simple Is As Simple Does</h3>
+        <p>
+          The aim of dimple is to open up the power and flexibility of d3 to analysts. It aims to give a gentle learning curve and minimal code to achieve something productive. It also exposes the d3 objects so you can pick them up and run to create some really cool stuff.
+        </p>
+        <h3>Examples</h3>
+        <p>
+          <div id="examples">
+          </div>
+          <a href="examples_index.html">See More Examples</a>
+        </p> 
+        <h3>Getting Started</h3>
+        <p>
+          Before you can do anything, you must link d3.  Simply add the following to your html:
+        </p>
+        <pre><code>&lt;script src="http://d3js.org/d3.v3.min.js"&gt;&lt;/script&gt;</code></pre>
+        <p>
+          That's the organ grinder taken care of, next you need the monkey.  Add dimple as follows:
+        </p>
+        <pre><code>&lt;script src="http://dimplejs.org/dist/dimple.v1.min.js"&gt;&lt;/script&gt;</code></pre>
+        <p>
+          That's it, you're ready to get creative!  If you don't know where to start, why not create a blank text document, drop the following in and save it as an html.
+        </p>
+        <pre><code>&lt;head&gt;
+  &lt;script src="http://d3js.org/d3.v3.min.js"&gt;&lt;/script&gt;
+  &lt;script src="http://dimplejs.org/dist/dimple.v1.min.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script type="text/javascript"&gt;
+    var svg = dimple.newSvg("body", 800, 600);
+    var data = [
+      { "Word":"Hello", "Awesomeness":2000 },
+      { "Word":"World", "Awesomeness":3000 }
+    ];
+    var chart = new dimple.chart(svg, data);
+    chart.addCategoryAxis("x", "Word");
+    chart.addMeasureAxis("y", "Awesomeness");
+    chart.addSeries(null, dimple.plot.bar);
+    chart.draw();
+  &lt;/script&gt;
+&lt;/body&gt;</code></pre>
+        <p>
+          Congratulations, you are now the proud owner of a dimple bar chart! Start playing and see where you end up.  You might get some extra inspiration from the <a href="examples_index.html">examples</a> section.
+        </p>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
-
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
-
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
-
-<h3>Designer Templates</h3>
-
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+        <h3>What's up Doc(umentation)!</h3>
+        <p>
+          To understand how to use a particular dimple object or method please see the <a href="https://github.com/PMSI-AlignAlytics/dimple/wiki">Full API Documentation</a><br/>
+        </p>
+        
+        <h3>Authors and Contributors</h3>
+        
+        <p>John Kiernander (<a href="https://twitter.com/jkiernander" class="user-mention">@jkiernander</a>)</p>
+        
       </section>
       <footer>
-        <p>This project is maintained by <a href="https://github.com/PMSI-AlignAlytics">PMSI-AlignAlytics</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+        <p>
+          This is an open-source project by <br/>
+          <a href="http://www.pmsi-consulting.com">PMSI-AlignAlytics</a>
+        </p>
       </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-              <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-41100937-1");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
-
+    <script type="text/javascript">
+        $.getJSON("/examples_meta.json", function(data) {
+        // Get 6 random charts
+        var chartCount = 6;
+        // Limit the array to the max length of the data
+        chartCount = (chartCount < data.length ? chartCount : data.length);
+        // Shuffle the reports
+        for (var i = 0; i < chartCount; i++) {
+          var j = i + Math.round(Math.random() * (data.length - (i + 1)));
+          var s = data[i];
+          data[i] = data[j];
+          data[j] = s;
+        }
+        // Chop the array to the correct length
+        data = data.slice(0, chartCount);
+        // Add the elements in the new random array
+        data.forEach(function (spec, i) {
+          $("#examples").append("<a class=\"example\" href=\"/examples_viewer.html?id=" + spec.id + "\"><img src=\"/images/" + spec.id + ".png\"></a>");
+        });
+      });
+    </script>
+    <script src="/javascripts/scale.fix.js"></script>
+    <script type="text/javascript">
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+      try {
+        var pageTracker = _gat._getTracker("UA-40370019-1");
+        pageTracker._trackPageview();
+      } catch(err) {}
+    </script>
+    <a href="https://github.com/PMSI-AlignAlytics/dimple/fork">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub">
+    </a>
   </body>
 </html>
