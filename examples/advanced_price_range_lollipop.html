@@ -1,0 +1,22 @@
+<div id="chartContainer">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="/dist/dimple.v1.min.js"></script>
+  <script type="text/javascript">
+    var svg = dimple.newSvg("#chartContainer", 590, 400);
+      d3.tsv("/data/example_data.tsv", function (data) {
+        data = dimple.filterData(data, "Month", "Dec-12");
+        data = dimple.filterData(data, "Channel", "Hypermarkets");
+        var myChart = new dimple.chart(svg, data);
+        myChart.setBounds(40, 30, 420, 320)
+        var x = myChart.addCategoryAxis("x", "Brand");
+        var y1 = myChart.addMeasureAxis("y", "Price");
+        var y2 = myChart.addMeasureAxis("y", "Sales Value");
+        myChart.assignColor("Sales", "#222222", "#000000", 0.1);
+        myChart.addSeries("Sales", dimple.plot.bar, [x, y2]);
+        myChart.addSeries("Min", dimple.plot.bubble, [x, y1]).aggregate = dimple.aggregateMethod.min;
+        myChart.addSeries("Avg", dimple.plot.bubble, [x, y1]).aggregate = dimple.aggregateMethod.avg;
+        myChart.addSeries("Max", dimple.plot.bubble, [x, y1]).aggregate = dimple.aggregateMethod.max;
+        myChart.draw();
+      });
+  </script>
+</div>
