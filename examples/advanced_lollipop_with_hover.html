@@ -1,0 +1,79 @@
+<div id="chartContainer">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="/dist/dimple.v1.min.js"></script>
+  <style type="text/css">
+    .hoverBox {
+      fill: #FFFFE2;
+      stroke: #808080;
+      shape-rendering: crispEdges;
+    }
+    .hoverText {
+      font-family: sans-serif;
+      font-size: 10px;
+      shape-rendering: crispEdges;
+    }
+  </style>
+  <script type="text/javascript">
+    var hoverBoxDuration = 200;
+    var barOpacity = 0.6;
+    var box = null;
+    var label = null;
+    var svg = dimple.newSvg("#chartContainer", 590, 400);
+    d3.tsv("/data/example_data.tsv", function (data) {
+      var myChart = new dimple.chart(svg, data);
+      var x = myChart.addCategoryAxis("x", "Brand");
+      var y = myChart.addMeasureAxis("y", "Unit Sales");
+      var z = myChart.addMeasureAxis("z", "Sales Value");
+      var s = myChart.addSeries("SKU", dimple.plot.bubble);
+      s.addEventHandler("mouseover", onHover);
+      s.addEventHandler("mouseleave", onLeave);
+      myChart.draw();
+      s.shapes.attr("opacity", barOpacity);
+    });
+        
+    function onHover(e) {
+      e.selectedShape
+        .transition()
+        .duration(hoverBoxDuration)
+        .attr("opacity", 1);
+      if (label == null) {
+        box = svg.append("rect").attr("class", "hoverBox");
+        label = svg.append("text").attr("class", "hoverText");
+      }
+      label.attr("x", parseInt(e.selectedShape.attr("cx")) + 25)
+        .attr("y", parseInt(e.selectedShape.attr("cy")) + 25)
+        .attr("opacity", 0)
+        .text(e.seriesValue);
+      box.attr("x", parseInt(e.selectedShape.attr("cx")) + 20)
+        .attr("y", parseInt(e.selectedShape.attr("cy")) + 14)
+        .attr("opacity", 0)
+        .attr("width", label.node().getComputedTextLength() + 10)
+        .attr("height", 15);
+      label
+        .transition()
+        .duration(hoverBoxDuration)
+        .attr("opacity", 1);
+      box
+        .transition()
+        .duration(hoverBoxDuration)
+        .attr("opacity", 1);
+    };
+    
+    function onLeave(e) {
+      e.seriesShapes
+        .transition()
+        .duration(hoverBoxDuration)
+        .attr("opacity", barOpacity);
+      if (label != null) {
+        label
+          .transition()
+          .duration(hoverBoxDuration)
+          .attr("opacity", 0);
+        box
+          .transition()
+          .duration(hoverBoxDuration)
+          .attr("opacity", 0);
+      }
+    };
+  </script>
+</div>

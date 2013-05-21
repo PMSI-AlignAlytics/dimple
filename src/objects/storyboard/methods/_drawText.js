@@ -1,0 +1,26 @@
+// Copyright: 2013 PMSI-AlignAlytics
+// License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+// Source: /src/objects/storyboard/methods/drawText.js
+this._drawText = function (duration) {
+    if (this.storyLabel == null || this.storyLabel == undefined) {
+        var chart = this;
+        this.storyLabel = this.chart.svg.append("text")
+            .attr("x", this.chart.x + this.chart.width * 0.01)
+            .attr("y", this.chart.y + (this.chart.height / 35 > 10 ? this.chart.height / 35 : 10) * 1.25)
+            .call(function () {
+                if (!chart.noFormats) {
+                    this.style("font-family", "sans-serif")
+                        .style("font-size", (chart.height / 35 > 10 ? chart.height / 35 : 10) + "px");
+                }
+            });
+    }
+    this.storyLabel
+        .transition().duration(duration * 0.2)
+        .attr("opacity", 0);
+    this.storyLabel
+        .transition().delay(duration * 0.2)
+        .text(this.categoryFields.join("\\") + ": " + this.getFrameValue())
+        .transition().duration(duration * 0.8)
+        .attr("opacity", 1);
+};
+
