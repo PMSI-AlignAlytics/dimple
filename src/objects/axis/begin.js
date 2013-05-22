@@ -28,6 +28,8 @@ this.shapes = null;
 this.showGridlines = null;
 // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-gridlineShapes
 this.gridlineShapes = null;
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-titleShape
+this.titleShape = null;
 
 // The scale determined by the update method
 this._scale = null;
