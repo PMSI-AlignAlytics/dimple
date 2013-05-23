@@ -88,8 +88,8 @@ dimple.plot.bubble = {
     // Handle the mouse enter event
     enterEventHandler: function (e, shape, chart, series, duration) {
       
-        // The margin between the edge of the circle and the ring
-        const ringMargin = 5;
+        // The margin between the text and the box
+        const textMargin = 5;
         // The margin between the ring and the popup
         const popupMargin = 10;
         
@@ -100,22 +100,20 @@ dimple.plot.bubble = {
         var cy = parseFloat(selectedShape.attr("cy"));
         var r = parseFloat(selectedShape.attr("r"));
         var opacity = selectedShape.attr("opacity");
-        
-        // Color the highlight ring to match the fill of the bubble
-        var ringColor = selectedShape.attr("fill");
+        var fill = selectedShape.attr("fill");
         
         // Fade the popup stroke mixing the shape fill with 60% white
         var popupStrokeColor = d3.rgb(
-                    d3.rgb(ringColor).r + 0.6 * (255 - d3.rgb(ringColor).r),
-                    d3.rgb(ringColor).g + 0.6 * (255 - d3.rgb(ringColor).g),
-                    d3.rgb(ringColor).b + 0.6 * (255 - d3.rgb(ringColor).b)
+                    d3.rgb(fill).r + 0.6 * (255 - d3.rgb(fill).r),
+                    d3.rgb(fill).g + 0.6 * (255 - d3.rgb(fill).g),
+                    d3.rgb(fill).b + 0.6 * (255 - d3.rgb(fill).b)
                 );
         
         // Fade the popup fill mixing the shape fill with 80% white
         var popupFillColor = d3.rgb(
-                    d3.rgb(ringColor).r + 0.8 * (255 - d3.rgb(ringColor).r),
-                    d3.rgb(ringColor).g + 0.8 * (255 - d3.rgb(ringColor).g),
-                    d3.rgb(ringColor).b + 0.8 * (255 - d3.rgb(ringColor).b)
+                    d3.rgb(fill).r + 0.8 * (255 - d3.rgb(fill).r),
+                    d3.rgb(fill).g + 0.8 * (255 - d3.rgb(fill).g),
+                    d3.rgb(fill).b + 0.8 * (255 - d3.rgb(fill).b)
                 );
         
         // Create a group for the hover objects
@@ -126,9 +124,9 @@ dimple.plot.bubble = {
         g.append("circle")
             .attr("cx", cx)
             .attr("cy", cy)
-            .attr("r", r + ringMargin - 1)
+            .attr("r", r + 4)
             .attr("fill", "none")
-            .attr("stroke", ringColor)
+            .attr("stroke", fill)
             .attr("stroke-width", 2);
         
         // Add a group for text
@@ -155,7 +153,7 @@ dimple.plot.bubble = {
         }
         else {
             // Add the axis measure value
-            rows.push(series.x.measure + ": " + series.x._getFormat()(e.xValue));
+            rows.push(series.x.measure + ": " + series.x._getFormat()(e.cx));
         }
         
         if (series.y._hasCategories()) {
@@ -166,7 +164,7 @@ dimple.plot.bubble = {
         }
         else {
             // Add the axis measure value
-            rows.push(series.y.measure + ":" + series.y._getFormat()(e.yValue));
+            rows.push(series.y.measure + ":" + series.y._getFormat()(e.cy));
         }
         
         if (series.z != null && series.z != undefined) {
@@ -215,10 +213,10 @@ dimple.plot.bubble = {
                 });
                         
         // Draw the box with a margin around the text
-        box.attr("x", -ringMargin)
-           .attr("y", -ringMargin)
-           .attr("height", Math.floor(y + ringMargin) - 0.5)
-           .attr("width", w + 2 * ringMargin)
+        box.attr("x", -textMargin)
+           .attr("y", -textMargin)
+           .attr("height", Math.floor(y + textMargin) - 0.5)
+           .attr("width", w + 2 * textMargin)
            .attr("rx", 5)
            .attr("ry", 5)
            .style("fill", popupFillColor)
@@ -227,12 +225,12 @@ dimple.plot.bubble = {
            .style("opacity", 0.95);
         
         // Shift the ring margin left or right depending on whether it will overlap the edge
-        var overlap = cx + r + ringMargin + popupMargin + w > parseFloat(svg.attr("width"));
+        var overlap = cx + r + textMargin + popupMargin + w > parseFloat(svg.attr("width"));
         
         // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
         t.attr("transform", "translate(" +
-               (overlap ? cx - (r + ringMargin + popupMargin + w) : cx + r + ringMargin + popupMargin) + " , " +
-               (cy - ((y - (h - 5)) / 2)) +
+               (overlap ? cx - (r + textMargin + popupMargin + w) : cx + r + textMargin + popupMargin) + " , " +
+               (cy - ((y - (h - textMargin)) / 2)) +
             ")");
     },
     
