@@ -2,8 +2,14 @@
 // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
 // Source: /src/objects/plot/bubble.js
 dimple.plot.bubble = {
+    
+    // By default the bubble values are not stacked
     stacked: false,
+    
+    // The axis positions affecting the bubble series
     supportedAxes: ["x", "y", "z", "c"],
+    
+    // Draw the axis
     draw: function (chart, series, duration) {
         
         // Get self pointer for inner functions
@@ -39,10 +45,10 @@ dimple.plot.bubble = {
             .attr("r", 0 )
             .attr("opacity", function (d) { return _helpers.opacity(d, chart, series); })
             .on("mouseover", function (e) {
-                self.enterEvent(e, this, chart, series, duration)
+                self.enterEventHandler(e, this, chart, series, duration)
             })
             .on("mouseleave", function (e) {
-                self.leaveEvent(e, this, chart, series, duration)
+                self.leaveEventHandler(e, this, chart, series, duration)
             })
             .call(function () {
                 if (!chart.noFormats) {
@@ -79,105 +85,161 @@ dimple.plot.bubble = {
         series.shapes = theseShapes;
     },
         
-    enterEvent: function (e, shape, chart, series, duration) {
+    // Handle the mouse enter event
+    enterEventHandler: function (e, shape, chart, series, duration) {
       
+        // The margin between the edge of the circle and the ring
+        const ringMargin = 5;
+        // The margin between the ring and the popup
+        const popupMargin = 10;
+        
+        // Collect some facts about the highlighted bubble
         var svg = chart.svg;
         var selectedShape = d3.select(shape);
         var cx = parseFloat(selectedShape.attr("cx"));
         var cy = parseFloat(selectedShape.attr("cy"));
         var r = parseFloat(selectedShape.attr("r"));
+        var opacity = selectedShape.attr("opacity");
+        
+        // Color the highlight ring to match the fill of the bubble
         var ringColor = selectedShape.attr("fill");
+        
+        // Fade the popup stroke mixing the shape fill with 60% white
         var popupStrokeColor = d3.rgb(
                     d3.rgb(ringColor).r + 0.6 * (255 - d3.rgb(ringColor).r),
                     d3.rgb(ringColor).g + 0.6 * (255 - d3.rgb(ringColor).g),
                     d3.rgb(ringColor).b + 0.6 * (255 - d3.rgb(ringColor).b)
                 );
+        
+        // Fade the popup fill mixing the shape fill with 80% white
         var popupFillColor = d3.rgb(
                     d3.rgb(ringColor).r + 0.8 * (255 - d3.rgb(ringColor).r),
                     d3.rgb(ringColor).g + 0.8 * (255 - d3.rgb(ringColor).g),
                     d3.rgb(ringColor).b + 0.8 * (255 - d3.rgb(ringColor).b)
                 );
-        var opacity = selectedShape.attr("opacity");
         
+        // Create a group for the hover objects
         var g = svg.append("g")
             .attr("class", "hoverShapes");
-                
+        
+        // Add a ring around the data point
         g.append("circle")
             .attr("cx", cx)
             .attr("cy", cy)
-            .attr("r", r + 4)
+            .attr("r", r + ringMargin - 1)
             .attr("fill", "none")
             .attr("stroke", ringColor)
             .attr("stroke-width", 2);
-            
+        
+        // Add a group for text
         var t = g.append("g");
+        // Create a box for the popup in the text group
         var box = t.append("rect");
+        // Get the rows for the text
         var rows = [];
+        
+        // Add the series categories
         if (series.categoryFields != null && series.categoryFields != undefined && series.categoryFields.length > 0) {
             series.categoryFields.forEach(function (c, i) {
-                rows.push(c + ": " + e.aggField[i])
+                // If the category name and value match don't display the category name
+                rows.push(c + (e.aggField != c ? ": " + e.aggField[i] : ""))
             }, this);
         }
+        
         if (series.x._hasCategories()) {
+            // Add the x axis categories
             series.x.categoryFields.forEach(function (c, i) {
-                rows.push(c + ": " + e.xField[i]);
+                // If the category name and value match don't display the category name
+                rows.push(c + (e.xField != c ? ": " + e.xField[i] : ""));
             }, this);
         }
         else {
+            // Add the axis measure value
             rows.push(series.x.measure + ": " + series.x._getFormat()(e.xValue));
         }
+        
         if (series.y._hasCategories()) {
+            // Add the y axis categories
             series.y.categoryFields.forEach(function (c, i) {
-                rows.push(c + ": " + e.yField[i]);
+                rows.push(c + (e.yField != c ? ": " + e.yField[i] : ""));
             }, this);
         }
         else {
+            // Add the axis measure value
             rows.push(series.y.measure + ":" + series.y._getFormat()(e.yValue));
         }
+        
         if (series.z != null && series.z != undefined) {
+            // Add the axis measure value
             rows.push(series.z.measure + ": " + series.z._getFormat()(e.zValue));
         }
+        
         if (series.c != null && series.c != undefined) {
+            // Add the axis measure value
             rows.push(series.c.measure+ ": " + series.c._getFormat()(e.cValue));
         }
-        // Get distinct values
+        
+        // Get distinct text rows to deal with cases where 2 axes have the same dimensionality
         rows = rows.filter(function(elem, pos) {
             return rows.indexOf(elem) == pos;
         })
+        
+        // Create a text object for every row in the popup
         t.selectAll(".textHoverShapes").data(rows).enter()
             .append("text")
                 .text(function (d) { return d; })
                 .style("font-family", "sans-serif")
                 .style("font-size", "10px");
-                
+        
+        // The running y value for the text elements
         var y = 0;
+        // The maximum bounds of the text elements
         var w = 0;
-        // Get the bounds of the hover object
+        var h = 0;
+        
+        // Get the max height and width of the text items
         t.each(function (d) {
-            w = (this.getBBox().width > w ? this.getBBox().width : w)
+            w = (this.getBBox().width > w ? this.getBBox().width : w);
+            h = (this.getBBox().width > h ? this.getBBox().height : h);
         });
+        
+        // Position the text relatve to the bubble, the absolute positioning
+        // will be done by translating the group
         t.selectAll("text")
+                .attr("x", 0)
                 .attr("y", function (d, i) {
+                    // Increment the y position
                     y += this.getBBox().height;
+                    // Position the text at the centre point
                     return y - (this.getBBox().height / 2);
-                })
-                .attr("x", function (d, i) {
-                    return (cx + r + 15 + w > parseFloat(svg.attr("width")) ? -1 * (r + 15 + w) : r + 15);
                 });
-        box.attr("x", (cx + r + 15 + w > parseFloat(svg.attr("width")) ? -1 * (r + 20 + w) : r + 10))
-           .attr("y", -5)
-           .attr("height", Math.floor(y + 5) - 0.5)
-           .attr("width", w + 10)
+                        
+        // Draw the box with a margin around the text
+        box.attr("x", -ringMargin)
+           .attr("y", -ringMargin)
+           .attr("height", Math.floor(y + ringMargin) - 0.5)
+           .attr("width", w + 2 * ringMargin)
            .attr("rx", 5)
            .attr("ry", 5)
            .style("fill", popupFillColor)
            .style("stroke", popupStrokeColor)
            .style("stroke-width", 2)
            .style("opacity", 0.95);
-        t.attr("transform", "translate(" + cx + " , " + (cy - ((y - 8) / 2)) + ")");
+        
+        // Shift the ring margin left or right depending on whether it will overlap the edge
+        var overlap = cx + r + ringMargin + popupMargin + w > parseFloat(svg.attr("width"));
+        
+        // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
+        t.attr("transform", "translate(" +
+               (overlap ? cx - (r + ringMargin + popupMargin + w) : cx + r + ringMargin + popupMargin) + " , " +
+               (cy - ((y - (h - 5)) / 2)) +
+            ")");
     },
     
-    leaveEvent: function (e, shape, chart, series, duration) {
+        
+    // Handle the mouse leave event
+    leaveEventHandler: function (e, shape, chart, series, duration) {
+        // Clear all hover shapes
         chart.svg
             .selectAll(".hoverShapes")
             .remove();
