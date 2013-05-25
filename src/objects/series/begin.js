@@ -29,6 +29,8 @@ this.barGap = 0.2;
 this.clusterBarGap = 0.1;
 // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-lineWeight
 this.lineWeight = 2;
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-lineMarkers
+this.lineMarkers = false;
 
 // Any event handlers joined to this series
 this._eventHandlers = [];

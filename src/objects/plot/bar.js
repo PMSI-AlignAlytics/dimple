@@ -92,11 +92,11 @@ dimple.plot.bar = {
     enterEventHandler: function (e, shape, chart, series, duration) {
       
         // The margin between the text and the box
-        const textMargin = 5;
+        var textMargin = 5;
         // The margin between the ring and the popup
-        const popupMargin = 10;
+        var popupMargin = 10;
         // The popup animation duration in ms
-        const animDuration = 500;
+        var animDuration = 750;
         
         // Collect some facts about the highlighted bubble
         var svg = chart.svg;
