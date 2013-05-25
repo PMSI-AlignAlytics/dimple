@@ -92,6 +92,8 @@ dimple.plot.bubble = {
         const textMargin = 5;
         // The margin between the ring and the popup
         const popupMargin = 10;
+        // The popup animation duration in ms
+        const animDuration = 500;
         
         // Collect some facts about the highlighted bubble
         var svg = chart.svg;
@@ -124,10 +126,51 @@ dimple.plot.bubble = {
         g.append("circle")
             .attr("cx", cx)
             .attr("cy", cy)
-            .attr("r", r + 4)
-            .attr("fill", "none")
-            .attr("stroke", fill)
-            .attr("stroke-width", 2);
+            .attr("r", r)
+            .attr("opacity", 0)
+            .style("fill", "none")
+            .style("stroke", fill)
+            .style("stroke-width", 1)
+            .transition()
+                .duration(animDuration / 2)
+                .ease("linear")
+                    .attr("opacity", 1)
+                    .attr("r", r + 4)
+                    .style("stroke-width", 2);
+    
+        // Add a drop line to the x axis
+        g.append("line")
+            .attr("x1", cx)
+            .attr("y1", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
+            .attr("x2", cx)
+            .attr("y2", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
+            .style("fill", "none")
+            .style("stroke", fill)
+            .style("stroke-width", 2)
+            .style("stroke-dasharray", ("3, 3"))
+	    .style("opacity", opacity)
+            .transition()
+                .delay(animDuration / 2)
+                .duration(animDuration / 2)
+                .ease("linear")
+                    .attr("y2", series.y._origin);
+        
+        // Add a drop line to the y axis
+        g.append("line")
+            .attr("x1", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
+            .attr("y1", cy)
+            .attr("x2", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
+            .attr("y2", cy)
+            .style("fill", "none")
+            .style("stroke", fill)
+            .style("stroke-width", 2)
+            .style("stroke-dasharray", ("3, 3"))
+	    .style("opacity", opacity)
+            .transition()
+                .delay(animDuration / 2)
+                .duration(animDuration / 2)
+                .ease("linear")
+                    .attr("x2", series.x._origin);
         
         // Add a group for text
         var t = g.append("g");

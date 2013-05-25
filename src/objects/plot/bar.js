@@ -95,6 +95,8 @@ dimple.plot.bar = {
         const textMargin = 5;
         // The margin between the ring and the popup
         const popupMargin = 10;
+        // The popup animation duration in ms
+        const animDuration = 500;
         
         // Collect some facts about the highlighted bubble
         var svg = chart.svg;
@@ -123,21 +125,64 @@ dimple.plot.bar = {
         // Create a group for the hover objects
         var g = svg.append("g")
             .attr("class", "hoverShapes");
-        
-        // Add a highlight around the data point but only if the data point
-	// is big enough to take it.  Otherwise the ring interferes with the
-	// hover event
-	if (height > 4 && width > 4) {
-	    g.append("rect")
-		.attr("x", x + 1)
-		.attr("y", y + 1)
-		.attr("width", width - 2)
-		.attr("height", height - 2)
-		.attr("fill", "none")
-		.attr("stroke", d3.rgb(fill).darker(0.1))
-		.attr("stroke-width", 3);
-        }
-        
+//        
+//        // Add a highlight around the data point but only if the data point
+//	// is big enough to take it.  Otherwise the ring interferes with the
+//	// hover event
+//	if (height > 4 && width > 4) {
+//	    g.append("rect")
+//		.attr("x", x + 1)
+//		.attr("y", y + 1)
+//		.attr("width", width - 2)
+//		.attr("height", height - 2)
+//		.attr("fill", "none")
+//		.attr("stroke", d3.rgb(fill).darker(0.1))
+//		.attr("stroke-width", 3)
+//		.attr("opacity", 0)
+//		.transition()
+//		.duration(animDuration / 2)
+//		    .attr("opacity", 1);
+//        }
+		
+    
+	// Add a drop line to the x axis
+	if (!series.x._hasCategories()) {
+	    g.append("line")
+		.attr("x1", (x < series.x._origin ? x : x + width ) - 1)
+		.attr("y1", (y < series.y._origin ? y + height : y ))
+		.attr("x2", (x < series.x._origin ? x : x + width ) - 1)
+		.attr("y2", (y < series.y._origin ? y + height : y ))
+		.style("fill", "none")
+		.style("stroke", fill)
+		.style("stroke-width", 2)
+		.style("stroke-dasharray", ("3, 3"))
+		.style("opacity", opacity)
+		.transition()
+		    .delay(animDuration / 2)
+		    .duration(animDuration / 2)
+		    .ease("linear")
+			.attr("y2", series.y._origin);
+	}
+
+        // Add a drop line to the y axis
+	if (!series.y._hasCategories()) {
+	    g.append("line")
+		.attr("x1", (x < series.x._origin ? x + width : x ))
+		.attr("y1", (y < series.y._origin ? y : y + height ) + 1)
+		.attr("x2", (x < series.x._origin ? x + width : x ))
+		.attr("y2", (y < series.y._origin ? y : y + height ) + 1)
+		.style("fill", "none")
+		.style("stroke", fill)
+		.style("stroke-width", 2)
+		.style("stroke-dasharray", ("3, 3"))
+		.style("opacity", opacity)
+		.transition()
+		    .delay(animDuration / 2)
+		    .duration(animDuration / 2)
+		    .ease("linear")
+			.attr("x2", series.x._origin);
+	}
+	
 	// Add a group for text
         var t = g.append("g");
         // Create a box for the popup in the text group
@@ -230,27 +275,31 @@ dimple.plot.bar = {
         
         // Shift the popup around to avoid overlapping the svg edge
         if (x + width + textMargin + popupMargin + w < parseFloat(svg.attr("width"))) {
+	    // Draw centre right
 	    t.attr("transform", "translate(" +
                (x + width + textMargin + popupMargin) + " , " +
                (y + (height / 2) - ((yRunning - (h - textMargin)) / 2)) +
             ")");	
 	}
 	else if (x - (textMargin + popupMargin + w) > 0) {
+	    // Draw centre left
 	    t.attr("transform", "translate(" +
                (x - (textMargin + popupMargin + w)) + " , " +
                (y + (height / 2) - ((yRunning - (h - textMargin)) / 2)) +
             ")");
 	}
-	else if (y - yRunning - textMargin > 10) {
+	else if (y + height + yRunning + popupMargin + textMargin < parseFloat(svg.attr("height"))) {
+	    // Draw centre below
 	    t.attr("transform", "translate(" +
-               (x + textMargin) + " , " +
-               (y - yRunning - (h - textMargin)) +
+               (x + (width / 2) - (2 * textMargin + w) / 2) + " , " +
+               (y + height + 2 * textMargin) +
             ")");
 	}
 	else {
+	    // Draw centre above
 	    t.attr("transform", "translate(" +
-               (x + textMargin) + " , " +
-               (y + height + 2 * textMargin) +
+               (x + (width / 2) - (2 * textMargin + w) / 2) + " , " +
+               (y - yRunning - (h - textMargin)) +
             ")");
 	}
     },
