@@ -1756,24 +1756,6 @@ dimple.plot.area = {
                         .attr("stroke", function (d) { return _helpers.stroke(d, chart, series); });    
                 }    
             });
-	    
-	// Deal with single point lines if there are no markers
-	if (!series.lineMarkers) {
-	    chart.svg.selectAll(".fill")
-		.data(fillIns)
-		.enter()
-		.append("circle")
-		.attr("cx", function (d) { return d.cx; })
-		.attr("cy", function (d) { return d.cy; })
-		.attr("r", series.lineWeight )
-		.attr("opacity", function (d) { return d.opacity; })
-		.call(function () {
-		    if (!chart.noFormats) {
-			this.attr("fill", function (d) { return d.color; })
-			    .attr("stroke", "none");    
-		    }    
-		});
-	}
     },
         
     // Handle the mouse enter event
