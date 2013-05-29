@@ -1386,6 +1386,66 @@ this._axisBounds = function (position) {
 
 // Copyright: 2013 PMSI-AlignAlytics
 // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+// Source: /src/objects/series/methods/_dropLineOrigin.js
+this._dropLineOrigin = function() {
+    
+    // Get the origin co-ordinates for axis drop lines
+    var xIndex = 0,
+        yIndex = 0,
+        // This contains the drop line destinations
+        coord = {
+            // The x co-ordinate for a y-axis drop line
+            x: null,
+            // The y co-ordinate for an x-axis drop line
+            y: null
+        },
+        // The origin of the first axes
+        firstOrig = {
+            x: null,
+            y: null
+        };
+    // Get the first x and y first of all
+    this.chart.axes.forEach(function (axis) {
+        if (axis.position == "x" && firstOrig.x === null) {
+            firstOrig.x = axis._origin;
+        }
+        else if (axis.position == "y" && firstOrig.y === null) {
+            firstOrig.y = axis._origin;
+        }
+    }, this);
+    // Get the axis position based on the axis index
+    this.chart.axes.forEach(function (axis) {
+        if (axis.position == "x" && !this.x.hidden) {
+            if (axis === this.x) {
+                // Set the y co-ordinate for the x axis 
+                if (xIndex == 0) {
+                    coord.y = firstOrig.y;
+                }
+                else if (xIndex == 1) {
+                    coord.y = this.chart.y;
+                }
+            }
+            xIndex++;
+        }
+        else if (axis.position == "y" && !this.y.hidden) {
+            if (axis === this.y) {
+                // Set the x co-ordinate for the y axis 
+                if (yIndex == 0) {
+                    coord.x = firstOrig.x;
+                }
+                else if (yIndex == 1) {
+                    coord.x = this.chart.x + this.chart.width;
+                }                
+            }
+            yIndex++;
+        }
+    }, this);
+    
+    // Return the co-ordinate
+    return coord;
+}
+// Copyright: 2013 PMSI-AlignAlytics
+// License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
 // Source: /src/objects/series/methods/addEventHandler.js
 // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-addEventHandler
 this.addEventHandler = function (event, handler) {
@@ -1776,6 +1836,7 @@ dimple.plot.area = {
         var r = parseFloat(selectedShape.attr("r"));
         var opacity = _helpers.opacity(e, chart, series);
         var fill = _helpers.fill(e, chart, series);
+	var dropDest = series._dropLineOrigin();
         
 	// On hover make the line marker visible immediately
 	selectedShape.style("opacity", 1);
@@ -1815,39 +1876,43 @@ dimple.plot.area = {
                     .style("stroke-width", 2);
     
         // Add a drop line to the x axis
-        g.append("line")
-            .attr("x1", cx)
-            .attr("y1", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .attr("x2", cx)
-            .attr("y2", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", ("3, 3"))
-	    .style("opacity", opacity)
-            .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                    .attr("y2", series.y._origin);
-        
+	if (dropDest.y !== null) {
+	    g.append("line")
+		.attr("x1", cx)
+		.attr("y1", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+		.attr("x2", cx)
+		.attr("y2", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+		.style("fill", "none")
+		.style("stroke", fill)
+		.style("stroke-width", 2)
+		.style("stroke-dasharray", ("3, 3"))
+		.style("opacity", opacity)
+		.transition()
+		    .delay(animDuration / 2)
+		    .duration(animDuration / 2)
+		    .ease("linear")
+			.attr("y2", dropDest.y);
+        }
+	
         // Add a drop line to the y axis
-        g.append("line")
-            .attr("x1", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
-            .attr("y1", cy)
-            .attr("x2", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
-            .attr("y2", cy)
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", ("3, 3"))
-	    .style("opacity", opacity)
-            .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                    .attr("x2", series.x._origin);
-        
+	if (dropDest.x !== null) {
+	    g.append("line")
+		.attr("x1", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+		.attr("y1", cy)
+		.attr("x2", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+		.attr("y2", cy)
+		.style("fill", "none")
+		.style("stroke", fill)
+		.style("stroke-width", 2)
+		.style("stroke-dasharray", ("3, 3"))
+		.style("opacity", opacity)
+		.transition()
+		    .delay(animDuration / 2)
+		    .duration(animDuration / 2)
+		    .ease("linear")
+    			.attr("x2", dropDest.x);
+	}
+	
         // Add a group for text
         var t = g.append("g");
         // Create a box for the popup in the text group
@@ -2049,7 +2114,7 @@ dimple.plot.bar = {
             .attr("width", function (d) { return _helpers.width(d, chart, series); })
             .attr("height", function (d) { return _helpers.height(d, chart, series); })
             .each("end", function () {
-                this.remove();    
+                d3.select(this).remove();    
             })
                         
         // Save the shapes to the series array
@@ -2075,6 +2140,7 @@ dimple.plot.bar = {
         var height = parseFloat(selectedShape.attr("height"));
         var opacity = selectedShape.attr("opacity");
         var fill = selectedShape.attr("fill");
+	var dropDest = series._dropLineOrigin();
         
         // Fade the popup stroke mixing the shape fill with 60% white
         var popupStrokeColor = d3.rgb(
@@ -2093,33 +2159,14 @@ dimple.plot.bar = {
         // Create a group for the hover objects
         var g = svg.append("g")
             .attr("class", "hoverShapes");
-//        
-//        // Add a highlight around the data point but only if the data point
-//	// is big enough to take it.  Otherwise the ring interferes with the
-//	// hover event
-//	if (height > 4 && width > 4) {
-//	    g.append("rect")
-//		.attr("x", x + 1)
-//		.attr("y", y + 1)
-//		.attr("width", width - 2)
-//		.attr("height", height - 2)
-//		.attr("fill", "none")
-//		.attr("stroke", d3.rgb(fill).darker(0.1))
-//		.attr("stroke-width", 3)
-//		.attr("opacity", 0)
-//		.transition()
-//		.duration(animDuration / 2)
-//		    .attr("opacity", 1);
-//        }
-		
     
 	// Add a drop line to the x axis
-	if (!series.x._hasCategories()) {
+	if (!series.x._hasCategories() && dropDest.y !== null) {
 	    g.append("line")
-		.attr("x1", (x < series.x._origin ? x : x + width ) - 1)
-		.attr("y1", (y < series.y._origin ? y + height : y ))
-		.attr("x2", (x < series.x._origin ? x : x + width ) - 1)
-		.attr("y2", (y < series.y._origin ? y + height : y ))
+		.attr("x1", (x < series.x._origin ? x + 1 : x + width - 1))
+		.attr("y1", (y < dropDest.y ? y + height : y ))
+		.attr("x2", (x < series.x._origin ? x + 1 : x + width - 1))
+		.attr("y2", (y < dropDest.y ? y + height : y ))
 		.style("fill", "none")
 		.style("stroke", fill)
 		.style("stroke-width", 2)
@@ -2129,16 +2176,16 @@ dimple.plot.bar = {
 		    .delay(animDuration / 2)
 		    .duration(animDuration / 2)
 		    .ease("linear")
-			.attr("y2", series.y._origin);
+			.attr("y2", dropDest.y);
 	}
 
         // Add a drop line to the y axis
-	if (!series.y._hasCategories()) {
+	if (!series.y._hasCategories() && dropDest.x !== null) {
 	    g.append("line")
-		.attr("x1", (x < series.x._origin ? x + width : x ))
-		.attr("y1", (y < series.y._origin ? y : y + height ) + 1)
-		.attr("x2", (x < series.x._origin ? x + width : x ))
-		.attr("y2", (y < series.y._origin ? y : y + height ) + 1)
+		.attr("x1", (x < dropDest.x ? x + width : x ))
+		.attr("y1", (y < series.y._origin ? y + 1 : y + height - 1 ))
+		.attr("x2", (x < dropDest.x ? x + width : x ))
+		.attr("y2", (y < series.y._origin ? y + 1 : y + height - 1 ))
 		.style("fill", "none")
 		.style("stroke", fill)
 		.style("stroke-width", 2)
@@ -2148,7 +2195,7 @@ dimple.plot.bar = {
 		    .delay(animDuration / 2)
 		    .duration(animDuration / 2)
 		    .ease("linear")
-			.attr("x2", series.x._origin);
+			.attr("x2", dropDest.x);
 	}
 	
 	// Add a group for text
@@ -2363,7 +2410,7 @@ dimple.plot.bubble = {
             .attr("cx", function (d) { return series.x._origin; })
             .attr("cy", function (d) { return series.y._origin; })
             .each("end", function () {
-                this.remove();    
+                d3.select(this).remove();    
             })
             
         // Save the shapes to the series array
@@ -2388,6 +2435,7 @@ dimple.plot.bubble = {
         var r = parseFloat(selectedShape.attr("r"));
         var opacity = selectedShape.attr("opacity");
         var fill = selectedShape.attr("fill");
+	var dropDest = series._dropLineOrigin();
         
         // Fade the popup stroke mixing the shape fill with 60% white
         var popupStrokeColor = d3.rgb(
@@ -2424,38 +2472,42 @@ dimple.plot.bubble = {
                     .style("stroke-width", 2);
     
         // Add a drop line to the x axis
-        g.append("line")
-            .attr("x1", cx)
-            .attr("y1", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .attr("x2", cx)
-            .attr("y2", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", ("3, 3"))
-	    .style("opacity", opacity)
-            .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                    .attr("y2", series.y._origin);
+        if (dropDest.y !== null) {
+            g.append("line")
+                .attr("x1", cx)
+                .attr("y1", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+                .attr("x2", cx)
+                .attr("y2", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+                .style("fill", "none")
+                .style("stroke", fill)
+                .style("stroke-width", 2)
+                .style("stroke-dasharray", ("3, 3"))
+                .style("opacity", opacity)
+                .transition()
+                    .delay(animDuration / 2)
+                    .duration(animDuration / 2)
+                    .ease("linear")
+                        .attr("y2", dropDest.y);
+        }
         
         // Add a drop line to the y axis
-        g.append("line")
-            .attr("x1", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
-            .attr("y1", cy)
-            .attr("x2", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
-            .attr("y2", cy)
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", ("3, 3"))
-	    .style("opacity", opacity)
-            .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                    .attr("x2", series.x._origin);
+        if (dropDest.x !== null) {
+            g.append("line")
+                .attr("x1", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+                .attr("y1", cy)
+                .attr("x2", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+                .attr("y2", cy)
+                .style("fill", "none")
+                .style("stroke", fill)
+                .style("stroke-width", 2)
+                .style("stroke-dasharray", ("3, 3"))
+                .style("opacity", opacity)
+                .transition()
+                    .delay(animDuration / 2)
+                    .duration(animDuration / 2)
+                    .ease("linear")
+                        .attr("x2", dropDest.x);  
+        }
         
         // Add a group for text
         var t = g.append("g");
@@ -2656,7 +2708,7 @@ dimple.plot.line = {
 				opacity: chart.getColor(d[d.length - 1]).opacity,
 				color: chart.getColor(d[d.length - 1]).stroke
 				});
-		    this.remove();
+		    d3.select(this).remove();
 		}
 		return line(seriesData);
 	    })
@@ -2702,7 +2754,9 @@ dimple.plot.line = {
                 if (!chart.noFormats) {
                     this.attr("fill", "white") 
 			.style("stroke-width", series.lineWeight)
-                        .attr("stroke", function (d) { return _helpers.stroke(d, chart, series); });    
+                        .attr("stroke", function (d) {
+			    return (graded ? "url(#fill-line-gradient-" + d.aggField.replace(" ", "") + ")" : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
+			    });    
                 }    
             });
 	    
@@ -2742,8 +2796,9 @@ dimple.plot.line = {
         var cy = parseFloat(selectedShape.attr("cy"));
         var r = parseFloat(selectedShape.attr("r"));
         var opacity = _helpers.opacity(e, chart, series);
-        var fill = _helpers.fill(e, chart, series);
-        
+        var fill = selectedShape.attr("stroke");
+	var dropDest = series._dropLineOrigin();
+    		
 	// On hover make the line marker visible immediately
 	selectedShape.style("opacity", 1);
 	
@@ -2782,39 +2837,43 @@ dimple.plot.line = {
                     .style("stroke-width", 2);
     
         // Add a drop line to the x axis
-        g.append("line")
-            .attr("x1", cx)
-            .attr("y1", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .attr("x2", cx)
-            .attr("y2", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", ("3, 3"))
-	    .style("opacity", opacity)
-            .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                    .attr("y2", series.y._origin);
-        
+	if (dropDest.y !== null) {
+	    g.append("line")
+		.attr("x1", cx)
+		.attr("y1", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+		.attr("x2", cx)
+		.attr("y2", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+		.style("fill", "none")
+		.style("stroke", fill)
+		.style("stroke-width", 2)
+		.style("stroke-dasharray", ("3, 3"))
+		.style("opacity", opacity)
+		.transition()
+		    .delay(animDuration / 2)
+		    .duration(animDuration / 2)
+		    .ease("linear")
+			    .attr("y2", dropDest.y);
+	}
+	
         // Add a drop line to the y axis
-        g.append("line")
-            .attr("x1", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
-            .attr("y1", cy)
-            .attr("x2", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
-            .attr("y2", cy)
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", ("3, 3"))
-	    .style("opacity", opacity)
-            .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                    .attr("x2", series.x._origin);
-        
+	if (dropDest.x !== null) {
+	    g.append("line")
+		.attr("x1", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+		.attr("y1", cy)
+		.attr("x2", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+		.attr("y2", cy)
+		.style("fill", "none")
+		.style("stroke", fill)
+		.style("stroke-width", 2)
+		.style("stroke-dasharray", ("3, 3"))
+		.style("opacity", opacity)
+		.transition()
+		    .delay(animDuration / 2)
+		    .duration(animDuration / 2)
+		    .ease("linear")
+			.attr("x2", dropDest.x);
+	}
+	
         // Add a group for text
         var t = g.append("g");
         // Create a box for the popup in the text group
@@ -2850,7 +2909,7 @@ dimple.plot.line = {
         }
         else {
             // Add the axis measure value
-            rows.push(series.y.measure + ":" + series.y._getFormat()(e.cy));
+            rows.push(series.y.measure + ": " + series.y._getFormat()(e.cy));
         }
         
         if (series.z != null && series.z != undefined) {
