@@ -107,6 +107,7 @@ dimple.plot.bar = {
         var height = parseFloat(selectedShape.attr("height"));
         var opacity = selectedShape.attr("opacity");
         var fill = selectedShape.attr("fill");
+	var dropDest = series._dropLineOrigin();
         
         // Fade the popup stroke mixing the shape fill with 60% white
         var popupStrokeColor = d3.rgb(
@@ -127,12 +128,12 @@ dimple.plot.bar = {
             .attr("class", "hoverShapes");
     
 	// Add a drop line to the x axis
-	if (!series.x._hasCategories()) {
+	if (!series.x._hasCategories() && dropDest.y !== null) {
 	    g.append("line")
-		.attr("x1", (x < series.x._origin ? x : x + width ) - 1)
-		.attr("y1", (y < series.y._origin ? y + height : y ))
-		.attr("x2", (x < series.x._origin ? x : x + width ) - 1)
-		.attr("y2", (y < series.y._origin ? y + height : y ))
+		.attr("x1", (x < series.x._origin ? x + 1 : x + width - 1))
+		.attr("y1", (y < dropDest.y ? y + height : y ))
+		.attr("x2", (x < series.x._origin ? x + 1 : x + width - 1))
+		.attr("y2", (y < dropDest.y ? y + height : y ))
 		.style("fill", "none")
 		.style("stroke", fill)
 		.style("stroke-width", 2)
@@ -142,16 +143,16 @@ dimple.plot.bar = {
 		    .delay(animDuration / 2)
 		    .duration(animDuration / 2)
 		    .ease("linear")
-			.attr("y2", series.y._origin);
+			.attr("y2", dropDest.y);
 	}
 
         // Add a drop line to the y axis
-	if (!series.y._hasCategories()) {
+	if (!series.y._hasCategories() && dropDest.x !== null) {
 	    g.append("line")
-		.attr("x1", (x < series.x._origin ? x + width : x ))
-		.attr("y1", (y < series.y._origin ? y : y + height ) + 1)
-		.attr("x2", (x < series.x._origin ? x + width : x ))
-		.attr("y2", (y < series.y._origin ? y : y + height ) + 1)
+		.attr("x1", (x < dropDest.x ? x + width : x ))
+		.attr("y1", (y < series.y._origin ? y + 1 : y + height - 1 ))
+		.attr("x2", (x < dropDest.x ? x + width : x ))
+		.attr("y2", (y < series.y._origin ? y + 1 : y + height - 1 ))
 		.style("fill", "none")
 		.style("stroke", fill)
 		.style("stroke-width", 2)
@@ -161,7 +162,7 @@ dimple.plot.bar = {
 		    .delay(animDuration / 2)
 		    .duration(animDuration / 2)
 		    .ease("linear")
-			.attr("x2", series.x._origin);
+			.attr("x2", dropDest.x);
 	}
 	
 	// Add a group for text

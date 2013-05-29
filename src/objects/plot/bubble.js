@@ -103,6 +103,7 @@ dimple.plot.bubble = {
         var r = parseFloat(selectedShape.attr("r"));
         var opacity = selectedShape.attr("opacity");
         var fill = selectedShape.attr("fill");
+	var dropDest = series._dropLineOrigin();
         
         // Fade the popup stroke mixing the shape fill with 60% white
         var popupStrokeColor = d3.rgb(
@@ -139,38 +140,42 @@ dimple.plot.bubble = {
                     .style("stroke-width", 2);
     
         // Add a drop line to the x axis
-        g.append("line")
-            .attr("x1", cx)
-            .attr("y1", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .attr("x2", cx)
-            .attr("y2", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", ("3, 3"))
-	    .style("opacity", opacity)
-            .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                    .attr("y2", series.y._origin);
+        if (dropDest.y !== null) {
+            g.append("line")
+                .attr("x1", cx)
+                .attr("y1", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+                .attr("x2", cx)
+                .attr("y2", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+                .style("fill", "none")
+                .style("stroke", fill)
+                .style("stroke-width", 2)
+                .style("stroke-dasharray", ("3, 3"))
+                .style("opacity", opacity)
+                .transition()
+                    .delay(animDuration / 2)
+                    .duration(animDuration / 2)
+                    .ease("linear")
+                        .attr("y2", dropDest.y);
+        }
         
         // Add a drop line to the y axis
-        g.append("line")
-            .attr("x1", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
-            .attr("y1", cy)
-            .attr("x2", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
-            .attr("y2", cy)
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", ("3, 3"))
-	    .style("opacity", opacity)
-            .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                    .attr("x2", series.x._origin);
+        if (dropDest.x !== null) {
+            g.append("line")
+                .attr("x1", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+                .attr("y1", cy)
+                .attr("x2", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+                .attr("y2", cy)
+                .style("fill", "none")
+                .style("stroke", fill)
+                .style("stroke-width", 2)
+                .style("stroke-dasharray", ("3, 3"))
+                .style("opacity", opacity)
+                .transition()
+                    .delay(animDuration / 2)
+                    .duration(animDuration / 2)
+                    .ease("linear")
+                        .attr("x2", dropDest.x);  
+        }
         
         // Add a group for text
         var t = g.append("g");
