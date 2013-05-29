@@ -1,5 +1,11 @@
 [
     {
+        "id":"advanced_price_range_lollipop",
+        "title":"Price Changes",
+        "shortTitle":"Price Changes",
+        "desc":"This examples demonstrates multiple series, multiple axes, different aggregations and a storyboard"
+    },
+    {
         "id":"advanced_lollipop_with_hover",
         "title":"Tooltip Charts",
         "shortTitle":"Tooltip Charts",
