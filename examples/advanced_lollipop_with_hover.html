@@ -14,15 +14,15 @@
       var popup = null;
       
       // Position the main chart
-      myChart.setBounds(60, 30, 490, 290);
+      myChart.setBounds(70, 30, 490, 290);
       
       // Add the main chart axes
       myChart.addCategoryAxis("x", "Brand");
       myChart.addMeasureAxis("y", "Unit Sales");
       myChart.addMeasureAxis("z", "Sales Value");
       
-      // Draw bubbles by SKU
-      var s = myChart.addSeries("SKU", dimple.plot.bubble);
+      // Draw bubbles by SKU colored by brand
+      var s = myChart.addSeries(["SKU", "Brand"], dimple.plot.bubble);
       
       // Handle the hover event - overriding the default behaviour
       s.addEventHandler("mouseover", onHover);
@@ -45,8 +45,12 @@
         // Set the size and position of the popup
         var width = 150,
             height = 100,
-            x = (cx + r + width + 10 < svg.attr("width") ? cx + r + 10 : cx - r - width - 20);
-            y = (cy - height / 2 < 0 ? 15 : cy - height / 2);
+            x = (cx + r + width + 10 < svg.attr("width") ?
+                  cx + r + 10 :
+                  cx - r - width - 20);
+            y = (cy - height / 2 < 0 ?
+                  15 :
+                  cy - height / 2);
                 
         // Fade the popup fill mixing the shape fill with 80% white
         var popupFillColor = d3.rgb(
@@ -76,7 +80,7 @@
           .append("text")
           .attr("x", x + 10)
           .attr("y", y + 10)
-          .text(e.seriesValue)
+          .text(e.seriesValue[0])
           .style("font-family", "sans-serif")
           .style("font-size", 10)
           .style("fill", stroke);

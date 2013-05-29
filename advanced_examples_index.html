@@ -16,9 +16,9 @@
   <body>
     <div class="wrapper">
       <header>
-        <h2>Examples</h2>
+        <h2>Advanced Examples</h2>
         <p>
-          Examples of dimple in action.
+          Going beyond standard functionality in dimple.
         </p>
         <table style="width:100%">
           <tr>
@@ -54,17 +54,14 @@
       </footer>
     <script type="text/javascript">
       // Show all the examples
-      $.getJSON("/examples_meta.json", function(data) {
+      $.getJSON("/advanced_examples_meta.json", function(data) {
         // Set the next links
         if (data.length > 0) {
-          $("#next").attr("href","/examples_viewer.html?id=" + data[0].id);
+          $("#next").attr("href","/advanced_examples_viewer.html?id=" + data[0].id);
           $("#next").text(data[0].shortTitle + " >");
         }
         data.forEach(function (spec, i) {
-          if (i == 0 || spec.group != data[i-1].group) {
-            $("#examples").append("<h3><br/>" + spec.group + "</h3>");
-          }
-          $("#examples").append("<a class=\"example\" href=\"/examples_viewer.html?id=" + spec.id + "\"><img src=\"/images/" + spec.id + ".png\"></a>");
+          $("#examples").append("<a class=\"example\" href=\"/advanced_examples_viewer.html?id=" + spec.id + "\"><img src=\"/images/" + spec.id + ".png\"></a>");
         });
       });
     </script>

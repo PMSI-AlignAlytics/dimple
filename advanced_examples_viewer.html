@@ -77,7 +77,7 @@
       var id = queryStringObj().id;
       // Prompt if no query string is passed.  Mainly useful for debugging.
       if (id == undefined) { id = window.prompt("Please enter an example id","bars_vertical"); }
-      $.getJSON("/examples_meta.json", function(data) {
+      $.getJSON("/advanced_examples_meta.json", function(data) {
         data.forEach(function (spec, i) {
           if (spec.id == id) {
             // Set the text elements
@@ -91,11 +91,11 @@
             });
             // Set the previous links
             if (i == 0) {
-              $("#prev").attr("href","/examples_index.html");
-              $("#prev").text("< Examples Index");
+              $("#prev").attr("href","/advanced_examples_index.html");
+              $("#prev").text("< Advanced Index");
             }
             else {
-              $("#prev").attr("href","/examples_viewer.html?id=" + data[i-1].id);
+              $("#prev").attr("href","/advanced_examples_viewer.html?id=" + data[i-1].id);
               $("#prev").text("< " + data[i-1].shortTitle);
             }
             // Set the next links
@@ -103,7 +103,7 @@
               $("#next").remove();
             }
             else {
-              $("#next").attr("href","/examples_viewer.html?id=" + data[i+1].id);
+              $("#next").attr("href","/advanced_examples_viewer.html?id=" + data[i+1].id);
               $("#next").text(data[i+1].shortTitle + " >");
             }
            }
