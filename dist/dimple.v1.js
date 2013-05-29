@@ -250,6 +250,8 @@ this.titleShape = null;
 // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-shapes
 this.shapes = null;
 
+// The group within which to put all of this chart's objects
+this._group = svg.append("g");
 // Colors assigned to chart contents.  E.g. a series value.
 this._assignedColors = {};
 // The next colour index to use, this value is cycled around for all default colours
@@ -764,7 +766,7 @@ this.draw = function (duration) {
         if (axis.gridlineShapes == null) {
             if (axis.showGridlines || (axis.showGridlines == null && !axis._hasCategories() && ((!xGridSet && axis.position == "x") || (!yGridSet && axis.position == "y")))) {
                 // Add a group for the gridlines to allow css formatting
-                axis.gridlineShapes = this.svg.append("g").attr("class", "gridlines")
+                axis.gridlineShapes = this._group.append("g").attr("class", "gridlines")
                 if (axis.position == "x") {
                     xGridSet = true;
                 }
@@ -783,7 +785,7 @@ this.draw = function (duration) {
         }
         if (axis.shapes == null) {
             // Add a group for the axes to allow css formatting
-            axis.shapes = this.svg.append("g").attr("class", "axis");
+            axis.shapes = this._group.append("g").attr("class", "axis");
             firstDraw = true;
         }
         var transform = null;
@@ -938,7 +940,7 @@ this.draw = function (duration) {
             }
             
             // Add a title for the axis
-            axis.titleShape = this.svg.append("text").attr("class", "axis title");
+            axis.titleShape = this._group.append("text").attr("class", "axis title");
             var chart = this;
             axis.titleShape
                 .attr("x", titleX)
@@ -1129,7 +1131,7 @@ this._draw = function (duration) {
     // Create an empty hidden group for every legend entry
     // the selector here must not pick up any legend entries being removed by the
     // transition above
-    var theseShapes = chart.svg
+    var theseShapes = chart._group
         .selectAll(".dontSelectAny")
         .data(legendArray)
         .enter()
@@ -1492,7 +1494,7 @@ this._cachedCategoryFields = [];
 this._drawText = function (duration) {
     if (this.storyLabel == null || this.storyLabel == undefined) {
         var chart = this;
-        this.storyLabel = this.chart.svg.append("text")
+        this.storyLabel = this.chart._group.append("text")
             .attr("x", this.chart.x + this.chart.width * 0.01)
             .attr("y", this.chart.y + (this.chart.height / 35 > 10 ? this.chart.height / 35 : 10) * 1.25)
             .call(function () {
@@ -1691,7 +1693,7 @@ dimple.plot.area = {
 			.y(function (d) { return _helpers.cy(d, chart, series); });
 	
 	if (series.shapes == null || series.shapes == undefined) {
-	    series.shapes = chart.svg.selectAll(".area")
+	    series.shapes = chart._group.selectAll(".area")
 		.data(uniqueValues)
 		.enter()
 		    .append("svg:path")
@@ -1780,7 +1782,7 @@ dimple.plot.area = {
 	    });
 		
 	// Add line markers.  
-	var markers = chart.svg.selectAll(".markers")
+	var markers = chart._group.selectAll(".markers")
             .data(data)
 	    .enter()
 	
@@ -1829,7 +1831,6 @@ dimple.plot.area = {
         var animDuration = 750;
         
         // Collect some facts about the highlighted bubble
-        var svg = chart.svg;
         var selectedShape = d3.select(shape);
         var cx = parseFloat(selectedShape.attr("cx"));
         var cy = parseFloat(selectedShape.attr("cy"));
@@ -1856,7 +1857,7 @@ dimple.plot.area = {
                 );
         
         // Create a group for the hover objects
-        var g = svg.append("g")
+        var g = chart._group.append("g")
             .attr("class", "hoverShapes");
         
         // Add a ring around the data point
@@ -2009,7 +2010,7 @@ dimple.plot.area = {
            .style("opacity", 0.95);
         
         // Shift the ring margin left or right depending on whether it will overlap the edge
-        var overlap = cx + r + textMargin + popupMargin + w > parseFloat(svg.attr("width"));
+        var overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.attr("width"));
         
         // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
         t.attr("transform", "translate(" +
@@ -2024,7 +2025,7 @@ dimple.plot.area = {
 	// Return the opacity of the marker
         d3.select(shape).style("opacity", (series.lineMarkers ? _helpers.opacity(e, chart, series) : 0));
         // Clear all hover shapes
-        chart.svg
+        chart._group
             .selectAll(".hoverShapes")
             .remove();
     }
@@ -2049,7 +2050,7 @@ dimple.plot.bar = {
         var self = this;
         
         // Clear any hover gubbins before redrawing so the hover markers aren't left behind
-        chart.svg.selectAll(".hoverShapes")
+        chart._group.selectAll(".hoverShapes")
             .transition()
             .duration(duration / 4)
             .style("opacity", 0)
@@ -2062,7 +2063,7 @@ dimple.plot.bar = {
         var theseShapes = null;
         var className = "series" + chart.series.indexOf(series);
         if (series.shapes == null || series.shapes == undefined) {
-            theseShapes = chart.svg.selectAll("." + className).data(chartData);}
+            theseShapes = chart._group.selectAll("." + className).data(chartData);}
         else {
             theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
         }
@@ -2074,7 +2075,7 @@ dimple.plot.bar = {
             .attr("id", function (d) { return d.key; })
             .attr("class", function (d) { return className + " bar " + d.aggField.join(" ") + " " + d.xField.join(" ") + " " + d.yField.join(" "); })
             .attr("x", function (d) { return _helpers.x(d, chart, series); })
-            .attr("y", function (d) { return _helpers.y(d, chart, series); })
+            .attr("y", function (d) { return _helpers.y(d, chart, series) + _helpers.height(d, chart, series); })
             .attr("width", function (d) {return (d.xField != null && d.xField.length > 0 ? _helpers.width(d, chart, series) : 0); })
             .attr("height", function (d) {return (d.yField != null && d.yField.length > 0 ? _helpers.height(d, chart, series) : 0); })
             .attr("opacity", function (d) { return _helpers.opacity(d, chart, series); })
@@ -2132,7 +2133,6 @@ dimple.plot.bar = {
         var animDuration = 750;
         
         // Collect some facts about the highlighted bubble
-        var svg = chart.svg;
         var selectedShape = d3.select(shape);
         var x = parseFloat(selectedShape.attr("x"));
         var y = parseFloat(selectedShape.attr("y"));
@@ -2157,7 +2157,7 @@ dimple.plot.bar = {
                 );
         
         // Create a group for the hover objects
-        var g = svg.append("g")
+        var g = chart._group.append("g")
             .attr("class", "hoverShapes");
     
 	// Add a drop line to the x axis
@@ -2289,7 +2289,7 @@ dimple.plot.bar = {
            .style("opacity", 0.95);
         
         // Shift the popup around to avoid overlapping the svg edge
-        if (x + width + textMargin + popupMargin + w < parseFloat(svg.attr("width"))) {
+        if (x + width + textMargin + popupMargin + w < parseFloat(chart.svg.attr("width"))) {
 	    // Draw centre right
 	    t.attr("transform", "translate(" +
                (x + width + textMargin + popupMargin) + " , " +
@@ -2303,7 +2303,7 @@ dimple.plot.bar = {
                (y + (height / 2) - ((yRunning - (h - textMargin)) / 2)) +
             ")");
 	}
-	else if (y + height + yRunning + popupMargin + textMargin < parseFloat(svg.attr("height"))) {
+	else if (y + height + yRunning + popupMargin + textMargin < parseFloat(chart.svg.attr("height"))) {
 	    // Draw centre below
 	    t.attr("transform", "translate(" +
                (x + (width / 2) - (2 * textMargin + w) / 2) + " , " +
@@ -2323,7 +2323,7 @@ dimple.plot.bar = {
     // Handle the mouse leave event
     leaveEventHandler: function (e, shape, chart, series, duration) {
         // Clear all hover shapes
-        chart.svg
+        chart._group
             .selectAll(".hoverShapes")
             .remove();
     }
@@ -2348,7 +2348,7 @@ dimple.plot.bubble = {
         var self = this;
         
         // Clear any hover gubbins before redrawing so the hover markers aren't left behind
-        chart.svg.selectAll(".hoverShapes")
+        chart._group.selectAll(".hoverShapes")
             .transition()
             .duration(duration / 4)
             .style("opacity", 0)
@@ -2361,7 +2361,7 @@ dimple.plot.bubble = {
         var theseShapes = null;
         var className = "series" + chart.series.indexOf(series);
         if (series.shapes == null || series.shapes == undefined) {
-            theseShapes = chart.svg.selectAll("." + className).data(chartData);}
+            theseShapes = chart._group.selectAll("." + className).data(chartData);}
         else {
             theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
         }
@@ -2428,7 +2428,6 @@ dimple.plot.bubble = {
         var animDuration = 750;
         
         // Collect some facts about the highlighted bubble
-        var svg = chart.svg;
         var selectedShape = d3.select(shape);
         var cx = parseFloat(selectedShape.attr("cx"));
         var cy = parseFloat(selectedShape.attr("cy"));
@@ -2452,7 +2451,7 @@ dimple.plot.bubble = {
                 );
         
         // Create a group for the hover objects
-        var g = svg.append("g")
+        var g = chart._group.append("g")
             .attr("class", "hoverShapes");
         
         // Add a ring around the data point
@@ -2605,7 +2604,7 @@ dimple.plot.bubble = {
            .style("opacity", 0.95);
         
         // Shift the ring margin left or right depending on whether it will overlap the edge
-        var overlap = cx + r + textMargin + popupMargin + w > parseFloat(svg.attr("width"));
+        var overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.attr("width"));
         
         // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
         t.attr("transform", "translate(" +
@@ -2618,7 +2617,7 @@ dimple.plot.bubble = {
     // Handle the mouse leave event
     leaveEventHandler: function (e, shape, chart, series, duration) {
         // Clear all hover shapes
-        chart.svg
+        chart._group
             .selectAll(".hoverShapes")
             .remove();
     }
@@ -2669,7 +2668,7 @@ dimple.plot.line = {
 			.x(function (d) { return _helpers.cx(d, chart, series); })
 			.y(function (d) { return _helpers.cy(d, chart, series); });
 	if (series.shapes == null || series.shapes == undefined) {
-	    series.shapes = chart.svg.selectAll(".line")
+	    series.shapes = chart._group.selectAll(".line")
 		.data(uniqueValues)
 		.enter()
 		    .append("svg:path")
@@ -2721,7 +2720,7 @@ dimple.plot.line = {
 	    });
 	
 	// Add line markers.  
-	var markers = chart.svg.selectAll(".markers")
+	var markers = chart._group.selectAll(".markers")
             .data(data)
 	    .enter()
 	
@@ -2762,7 +2761,7 @@ dimple.plot.line = {
 	    
 	// Deal with single point lines if there are no markers
 	if (!series.lineMarkers) {
-	    chart.svg.selectAll(".fill")
+	    chart._group.selectAll(".fill")
 		.data(fillIns)
 		.enter()
 		.append("circle")
@@ -2790,7 +2789,6 @@ dimple.plot.line = {
         var animDuration = 750;
         
         // Collect some facts about the highlighted bubble
-        var svg = chart.svg;
         var selectedShape = d3.select(shape);
         var cx = parseFloat(selectedShape.attr("cx"));
         var cy = parseFloat(selectedShape.attr("cy"));
@@ -2817,7 +2815,7 @@ dimple.plot.line = {
                 );
         
         // Create a group for the hover objects
-        var g = svg.append("g")
+        var g = chart._group.append("g")
             .attr("class", "hoverShapes");
         
         // Add a ring around the data point
@@ -2970,7 +2968,7 @@ dimple.plot.line = {
            .style("opacity", 0.95);
         
         // Shift the ring margin left or right depending on whether it will overlap the edge
-        var overlap = cx + r + textMargin + popupMargin + w > parseFloat(svg.attr("width"));
+        var overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.attr("width"));
         
         // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
         t.attr("transform", "translate(" +
@@ -2985,7 +2983,7 @@ dimple.plot.line = {
 	// Return the opacity of the marker
         d3.select(shape).style("opacity", (series.lineMarkers ? _helpers.opacity(e, chart, series) : 0));
         // Clear all hover shapes
-        chart.svg
+        chart._group
             .selectAll(".hoverShapes")
             .remove();
     }
@@ -2996,7 +2994,7 @@ dimple.plot.line = {
 // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
 // Source: /src/methods/_addGradient.js
 var _addGradient = function (seriesValue, id, categoryAxis, data, chart, duration, colorProperty) {
-    var grad = chart.svg.select("#" + id);
+    var grad = chart._group.select("#" + id);
     var cats = [];
     data.forEach(function (d) {
         if (cats.indexOf(d[categoryAxis.categoryFields[0]]) == -1) {
@@ -3007,7 +3005,7 @@ var _addGradient = function (seriesValue, id, categoryAxis, data, chart, duratio
     var transition = true;
     if (grad.node() == null) {
         transition = false;
-        grad = chart.svg.append("linearGradient")
+        grad = chart._group.append("linearGradient")
             .attr("id", id)
             .attr("gradientUnits", "userSpaceOnUse")
             .attr("x1", (categoryAxis.position == "x" ? categoryAxis._scale(cats[0]) + ((chart.width / cats.length) / 2) : 0))
