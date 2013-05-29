@@ -125,25 +125,6 @@ dimple.plot.bar = {
         // Create a group for the hover objects
         var g = svg.append("g")
             .attr("class", "hoverShapes");
-//        
-//        // Add a highlight around the data point but only if the data point
-//	// is big enough to take it.  Otherwise the ring interferes with the
-//	// hover event
-//	if (height > 4 && width > 4) {
-//	    g.append("rect")
-//		.attr("x", x + 1)
-//		.attr("y", y + 1)
-//		.attr("width", width - 2)
-//		.attr("height", height - 2)
-//		.attr("fill", "none")
-//		.attr("stroke", d3.rgb(fill).darker(0.1))
-//		.attr("stroke-width", 3)
-//		.attr("opacity", 0)
-//		.transition()
-//		.duration(animDuration / 2)
-//		    .attr("opacity", 1);
-//        }
-		
     
 	// Add a drop line to the x axis
 	if (!series.x._hasCategories()) {

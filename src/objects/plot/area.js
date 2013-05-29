@@ -169,6 +169,7 @@ dimple.plot.area = {
         var r = parseFloat(selectedShape.attr("r"));
         var opacity = _helpers.opacity(e, chart, series);
         var fill = _helpers.fill(e, chart, series);
+	var dropDest = series._dropLineOrigin();
         
 	// On hover make the line marker visible immediately
 	selectedShape.style("opacity", 1);
@@ -208,22 +209,24 @@ dimple.plot.area = {
                     .style("stroke-width", 2);
     
         // Add a drop line to the x axis
-        g.append("line")
-            .attr("x1", cx)
-            .attr("y1", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .attr("x2", cx)
-            .attr("y2", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", ("3, 3"))
-	    .style("opacity", opacity)
-            .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                    .attr("y2", series.y._origin);
-        
+	if (dropDest.x !== null) {
+	    g.append("line")
+		.attr("x1", cx)
+		.attr("y1", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
+		.attr("x2", cx)
+		.attr("y2", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
+		.style("fill", "none")
+		.style("stroke", fill)
+		.style("stroke-width", 2)
+		.style("stroke-dasharray", ("3, 3"))
+		.style("opacity", opacity)
+		.transition()
+		    .delay(animDuration / 2)
+		    .duration(animDuration / 2)
+		    .ease("linear")
+			.attr("y2", series.y._origin);
+        }
+	
         // Add a drop line to the y axis
         g.append("line")
             .attr("x1", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))

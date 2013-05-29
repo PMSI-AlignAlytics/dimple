@@ -81,7 +81,7 @@ dimple.plot.line = {
 				opacity: chart.getColor(d[d.length - 1]).opacity,
 				color: chart.getColor(d[d.length - 1]).stroke
 				});
-		    this.remove();
+		    d3.select(this).remove();
 		}
 		return line(seriesData);
 	    })
@@ -127,7 +127,9 @@ dimple.plot.line = {
                 if (!chart.noFormats) {
                     this.attr("fill", "white") 
 			.style("stroke-width", series.lineWeight)
-                        .attr("stroke", function (d) { return _helpers.stroke(d, chart, series); });    
+                        .attr("stroke", function (d) {
+			    return (graded ? "url(#fill-line-gradient-" + d.aggField.replace(" ", "") + ")" : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
+			    });    
                 }    
             });
 	    
@@ -167,8 +169,9 @@ dimple.plot.line = {
         var cy = parseFloat(selectedShape.attr("cy"));
         var r = parseFloat(selectedShape.attr("r"));
         var opacity = _helpers.opacity(e, chart, series);
-        var fill = _helpers.fill(e, chart, series);
-        
+        var fill = selectedShape.attr("stroke");
+	var dropDest = series._dropLineOrigin();
+    		
 	// On hover make the line marker visible immediately
 	selectedShape.style("opacity", 1);
 	
@@ -207,39 +210,43 @@ dimple.plot.line = {
                     .style("stroke-width", 2);
     
         // Add a drop line to the x axis
-        g.append("line")
-            .attr("x1", cx)
-            .attr("y1", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .attr("x2", cx)
-            .attr("y2", (cy < series.y._origin ? cy + r + 4 : cy - r - 4 ))
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", ("3, 3"))
-	    .style("opacity", opacity)
-            .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                    .attr("y2", series.y._origin);
-        
+	if (dropDest.y !== null) {
+	    g.append("line")
+		.attr("x1", cx)
+		.attr("y1", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+		.attr("x2", cx)
+		.attr("y2", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+		.style("fill", "none")
+		.style("stroke", fill)
+		.style("stroke-width", 2)
+		.style("stroke-dasharray", ("3, 3"))
+		.style("opacity", opacity)
+		.transition()
+		    .delay(animDuration / 2)
+		    .duration(animDuration / 2)
+		    .ease("linear")
+			    .attr("y2", dropDest.y);
+	}
+	
         // Add a drop line to the y axis
-        g.append("line")
-            .attr("x1", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
-            .attr("y1", cy)
-            .attr("x2", (cx < series.x._origin ? cx + r + 4 : cx - r - 4 ))
-            .attr("y2", cy)
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", ("3, 3"))
-	    .style("opacity", opacity)
-            .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                    .attr("x2", series.x._origin);
-        
+	if (dropDest.x !== null) {
+	    g.append("line")
+		.attr("x1", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+		.attr("y1", cy)
+		.attr("x2", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+		.attr("y2", cy)
+		.style("fill", "none")
+		.style("stroke", fill)
+		.style("stroke-width", 2)
+		.style("stroke-dasharray", ("3, 3"))
+		.style("opacity", opacity)
+		.transition()
+		    .delay(animDuration / 2)
+		    .duration(animDuration / 2)
+		    .ease("linear")
+			.attr("x2", dropDest.x);
+	}
+	
         // Add a group for text
         var t = g.append("g");
         // Create a box for the popup in the text group
@@ -275,7 +282,7 @@ dimple.plot.line = {
         }
         else {
             // Add the axis measure value
-            rows.push(series.y.measure + ":" + series.y._getFormat()(e.cy));
+            rows.push(series.y.measure + ": " + series.y._getFormat()(e.cy));
         }
         
         if (series.z != null && series.z != undefined) {
