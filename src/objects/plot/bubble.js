@@ -78,7 +78,7 @@ dimple.plot.bubble = {
             .attr("cx", function (d) { return series.x._origin; })
             .attr("cy", function (d) { return series.y._origin; })
             .each("end", function () {
-                this.remove();    
+                d3.select(this).remove();    
             })
             
         // Save the shapes to the series array

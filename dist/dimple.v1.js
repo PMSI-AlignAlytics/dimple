@@ -2114,7 +2114,7 @@ dimple.plot.bar = {
             .attr("width", function (d) { return _helpers.width(d, chart, series); })
             .attr("height", function (d) { return _helpers.height(d, chart, series); })
             .each("end", function () {
-                this.remove();    
+                d3.select(this).remove();    
             })
                         
         // Save the shapes to the series array
@@ -2410,7 +2410,7 @@ dimple.plot.bubble = {
             .attr("cx", function (d) { return series.x._origin; })
             .attr("cy", function (d) { return series.y._origin; })
             .each("end", function () {
-                this.remove();    
+                d3.select(this).remove();    
             })
             
         // Save the shapes to the series array
