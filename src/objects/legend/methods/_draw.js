@@ -27,7 +27,7 @@ this._draw = function (duration) {
     // Create an empty hidden group for every legend entry
     // the selector here must not pick up any legend entries being removed by the
     // transition above
-    var theseShapes = chart.svg
+    var theseShapes = chart._group
         .selectAll(".dontSelectAny")
         .data(legendArray)
         .enter()

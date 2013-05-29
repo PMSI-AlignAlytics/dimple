@@ -71,7 +71,7 @@ this.draw = function (duration) {
         if (axis.gridlineShapes == null) {
             if (axis.showGridlines || (axis.showGridlines == null && !axis._hasCategories() && ((!xGridSet && axis.position == "x") || (!yGridSet && axis.position == "y")))) {
                 // Add a group for the gridlines to allow css formatting
-                axis.gridlineShapes = this.svg.append("g").attr("class", "gridlines")
+                axis.gridlineShapes = this._group.append("g").attr("class", "gridlines")
                 if (axis.position == "x") {
                     xGridSet = true;
                 }
@@ -90,7 +90,7 @@ this.draw = function (duration) {
         }
         if (axis.shapes == null) {
             // Add a group for the axes to allow css formatting
-            axis.shapes = this.svg.append("g").attr("class", "axis");
+            axis.shapes = this._group.append("g").attr("class", "axis");
             firstDraw = true;
         }
         var transform = null;
@@ -245,7 +245,7 @@ this.draw = function (duration) {
             }
             
             // Add a title for the axis
-            axis.titleShape = this.svg.append("text").attr("class", "axis title");
+            axis.titleShape = this._group.append("text").attr("class", "axis title");
             var chart = this;
             axis.titleShape
                 .attr("x", titleX)

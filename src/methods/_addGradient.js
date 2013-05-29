@@ -2,7 +2,7 @@
 // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
 // Source: /src/methods/_addGradient.js
 var _addGradient = function (seriesValue, id, categoryAxis, data, chart, duration, colorProperty) {
-    var grad = chart.svg.select("#" + id);
+    var grad = chart._group.select("#" + id);
     var cats = [];
     data.forEach(function (d) {
         if (cats.indexOf(d[categoryAxis.categoryFields[0]]) == -1) {
@@ -13,7 +13,7 @@ var _addGradient = function (seriesValue, id, categoryAxis, data, chart, duratio
     var transition = true;
     if (grad.node() == null) {
         transition = false;
-        grad = chart.svg.append("linearGradient")
+        grad = chart._group.append("linearGradient")
             .attr("id", id)
             .attr("gradientUnits", "userSpaceOnUse")
             .attr("x1", (categoryAxis.position == "x" ? categoryAxis._scale(cats[0]) + ((chart.width / cats.length) / 2) : 0))

@@ -16,7 +16,7 @@ dimple.plot.bubble = {
         var self = this;
         
         // Clear any hover gubbins before redrawing so the hover markers aren't left behind
-        chart.svg.selectAll(".hoverShapes")
+        chart._group.selectAll(".hoverShapes")
             .transition()
             .duration(duration / 4)
             .style("opacity", 0)
@@ -29,7 +29,7 @@ dimple.plot.bubble = {
         var theseShapes = null;
         var className = "series" + chart.series.indexOf(series);
         if (series.shapes == null || series.shapes == undefined) {
-            theseShapes = chart.svg.selectAll("." + className).data(chartData);}
+            theseShapes = chart._group.selectAll("." + className).data(chartData);}
         else {
             theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
         }
@@ -96,7 +96,6 @@ dimple.plot.bubble = {
         var animDuration = 750;
         
         // Collect some facts about the highlighted bubble
-        var svg = chart.svg;
         var selectedShape = d3.select(shape);
         var cx = parseFloat(selectedShape.attr("cx"));
         var cy = parseFloat(selectedShape.attr("cy"));
@@ -120,7 +119,7 @@ dimple.plot.bubble = {
                 );
         
         // Create a group for the hover objects
-        var g = svg.append("g")
+        var g = chart._group.append("g")
             .attr("class", "hoverShapes");
         
         // Add a ring around the data point
@@ -273,7 +272,7 @@ dimple.plot.bubble = {
            .style("opacity", 0.95);
         
         // Shift the ring margin left or right depending on whether it will overlap the edge
-        var overlap = cx + r + textMargin + popupMargin + w > parseFloat(svg.attr("width"));
+        var overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.attr("width"));
         
         // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
         t.attr("transform", "translate(" +
@@ -286,7 +285,7 @@ dimple.plot.bubble = {
     // Handle the mouse leave event
     leaveEventHandler: function (e, shape, chart, series, duration) {
         // Clear all hover shapes
-        chart.svg
+        chart._group
             .selectAll(".hoverShapes")
             .remove();
     }

@@ -31,6 +31,8 @@ this.titleShape = null;
 // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-shapes
 this.shapes = null;
 
+// The group within which to put all of this chart's objects
+this._group = svg.append("g");
 // Colors assigned to chart contents.  E.g. a series value.
 this._assignedColors = {};
 // The next colour index to use, this value is cycled around for all default colours

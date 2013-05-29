@@ -42,7 +42,7 @@ dimple.plot.line = {
 			.x(function (d) { return _helpers.cx(d, chart, series); })
 			.y(function (d) { return _helpers.cy(d, chart, series); });
 	if (series.shapes == null || series.shapes == undefined) {
-	    series.shapes = chart.svg.selectAll(".line")
+	    series.shapes = chart._group.selectAll(".line")
 		.data(uniqueValues)
 		.enter()
 		    .append("svg:path")
@@ -94,7 +94,7 @@ dimple.plot.line = {
 	    });
 	
 	// Add line markers.  
-	var markers = chart.svg.selectAll(".markers")
+	var markers = chart._group.selectAll(".markers")
             .data(data)
 	    .enter()
 	
@@ -135,7 +135,7 @@ dimple.plot.line = {
 	    
 	// Deal with single point lines if there are no markers
 	if (!series.lineMarkers) {
-	    chart.svg.selectAll(".fill")
+	    chart._group.selectAll(".fill")
 		.data(fillIns)
 		.enter()
 		.append("circle")
@@ -163,7 +163,6 @@ dimple.plot.line = {
         var animDuration = 750;
         
         // Collect some facts about the highlighted bubble
-        var svg = chart.svg;
         var selectedShape = d3.select(shape);
         var cx = parseFloat(selectedShape.attr("cx"));
         var cy = parseFloat(selectedShape.attr("cy"));
@@ -190,7 +189,7 @@ dimple.plot.line = {
                 );
         
         // Create a group for the hover objects
-        var g = svg.append("g")
+        var g = chart._group.append("g")
             .attr("class", "hoverShapes");
         
         // Add a ring around the data point
@@ -343,7 +342,7 @@ dimple.plot.line = {
            .style("opacity", 0.95);
         
         // Shift the ring margin left or right depending on whether it will overlap the edge
-        var overlap = cx + r + textMargin + popupMargin + w > parseFloat(svg.attr("width"));
+        var overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.attr("width"));
         
         // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
         t.attr("transform", "translate(" +
@@ -358,7 +357,7 @@ dimple.plot.line = {
 	// Return the opacity of the marker
         d3.select(shape).style("opacity", (series.lineMarkers ? _helpers.opacity(e, chart, series) : 0));
         // Clear all hover shapes
-        chart.svg
+        chart._group
             .selectAll(".hoverShapes")
             .remove();
     }

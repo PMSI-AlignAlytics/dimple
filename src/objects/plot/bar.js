@@ -16,7 +16,7 @@ dimple.plot.bar = {
         var self = this;
         
         // Clear any hover gubbins before redrawing so the hover markers aren't left behind
-        chart.svg.selectAll(".hoverShapes")
+        chart._group.selectAll(".hoverShapes")
             .transition()
             .duration(duration / 4)
             .style("opacity", 0)
@@ -29,7 +29,7 @@ dimple.plot.bar = {
         var theseShapes = null;
         var className = "series" + chart.series.indexOf(series);
         if (series.shapes == null || series.shapes == undefined) {
-            theseShapes = chart.svg.selectAll("." + className).data(chartData);}
+            theseShapes = chart._group.selectAll("." + className).data(chartData);}
         else {
             theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
         }
@@ -41,7 +41,7 @@ dimple.plot.bar = {
             .attr("id", function (d) { return d.key; })
             .attr("class", function (d) { return className + " bar " + d.aggField.join(" ") + " " + d.xField.join(" ") + " " + d.yField.join(" "); })
             .attr("x", function (d) { return _helpers.x(d, chart, series); })
-            .attr("y", function (d) { return _helpers.y(d, chart, series); })
+            .attr("y", function (d) { return _helpers.y(d, chart, series) + _helpers.height(d, chart, series); })
             .attr("width", function (d) {return (d.xField != null && d.xField.length > 0 ? _helpers.width(d, chart, series) : 0); })
             .attr("height", function (d) {return (d.yField != null && d.yField.length > 0 ? _helpers.height(d, chart, series) : 0); })
             .attr("opacity", function (d) { return _helpers.opacity(d, chart, series); })
@@ -99,7 +99,6 @@ dimple.plot.bar = {
         var animDuration = 750;
         
         // Collect some facts about the highlighted bubble
-        var svg = chart.svg;
         var selectedShape = d3.select(shape);
         var x = parseFloat(selectedShape.attr("x"));
         var y = parseFloat(selectedShape.attr("y"));
@@ -124,7 +123,7 @@ dimple.plot.bar = {
                 );
         
         // Create a group for the hover objects
-        var g = svg.append("g")
+        var g = chart._group.append("g")
             .attr("class", "hoverShapes");
     
 	// Add a drop line to the x axis
@@ -256,7 +255,7 @@ dimple.plot.bar = {
            .style("opacity", 0.95);
         
         // Shift the popup around to avoid overlapping the svg edge
-        if (x + width + textMargin + popupMargin + w < parseFloat(svg.attr("width"))) {
+        if (x + width + textMargin + popupMargin + w < parseFloat(chart.svg.attr("width"))) {
 	    // Draw centre right
 	    t.attr("transform", "translate(" +
                (x + width + textMargin + popupMargin) + " , " +
@@ -270,7 +269,7 @@ dimple.plot.bar = {
                (y + (height / 2) - ((yRunning - (h - textMargin)) / 2)) +
             ")");
 	}
-	else if (y + height + yRunning + popupMargin + textMargin < parseFloat(svg.attr("height"))) {
+	else if (y + height + yRunning + popupMargin + textMargin < parseFloat(chart.svg.attr("height"))) {
 	    // Draw centre below
 	    t.attr("transform", "translate(" +
                (x + (width / 2) - (2 * textMargin + w) / 2) + " , " +
@@ -290,7 +289,7 @@ dimple.plot.bar = {
     // Handle the mouse leave event
     leaveEventHandler: function (e, shape, chart, series, duration) {
         // Clear all hover shapes
-        chart.svg
+        chart._group
             .selectAll(".hoverShapes")
             .remove();
     }
