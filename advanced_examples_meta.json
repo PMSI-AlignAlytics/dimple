@@ -6,6 +6,12 @@
         "desc":"This examples demonstrates multiple series, multiple axes, different aggregations and a storyboard"
     },
     {
+        "id":"advanced_pong",
+        "title":"Dimple Pong!",
+        "shortTitle":"Dimple Pong",
+        "desc":"Perhaps not the most useful chart but this is a demonstration of how the storyboard works.  See the \"Price Changes\" chart for a more practical example."
+    },
+    {
         "id":"advanced_lollipop_with_hover",
         "title":"Tooltip Charts",
         "shortTitle":"Tooltip Charts",
