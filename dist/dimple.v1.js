@@ -2661,7 +2661,7 @@ dimple.plot.line = {
 	if (series.c != null && series.c != undefined && ((series.x._hasCategories() && series.y._hasMeasure()) || (series.y._hasCategories() && series.x._hasMeasure()))) {
 	    graded = true;
 	    uniqueValues.forEach(function (seriesValue, i) {
-		_addGradient(seriesValue, "fill-line-gradient-" + seriesValue.replace(" ", ""), (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
+		_addGradient(seriesValue, "fill-line-gradient-" + seriesValue.join("_").replace(" ", ""), (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
 	    }, this);
 	}
 	var line = d3.svg.line()
@@ -2677,7 +2677,7 @@ dimple.plot.line = {
 	series.shapes
 	    .data(uniqueValues)
 	    .transition().duration(duration)
-	    .attr("class", function (d) { return "series line " + d.join("/").replace(" ", ""); })
+	    .attr("class", function (d) { return "series line " + d.join("_").replace(" ", ""); })
 	    .attr("d", function (d) { 
 		var seriesData = [];
 		data.forEach(function (r) {
@@ -2714,7 +2714,9 @@ dimple.plot.line = {
 	    .call(function () {
 		if (!chart.noFormats) {
 		    this.attr("fill", "none")
-			.attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.replace(" ", "") + ")" : chart.getColor(d[d.length - 1]).stroke); })
+			.attr("stroke", function (d) {
+			    return (graded ? "url(#fill-line-gradient-" + d.join("_").replace(" ", "") + ")" : chart.getColor(d[d.length - 1]).stroke);
+			    })
 			.attr("stroke-width", series.lineWeight);
 		}
 	    });
@@ -2754,7 +2756,7 @@ dimple.plot.line = {
                     this.attr("fill", "white") 
 			.style("stroke-width", series.lineWeight)
                         .attr("stroke", function (d) {
-			    return (graded ? "url(#fill-line-gradient-" + d.aggField.replace(" ", "") + ")" : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
+			    return (graded ? _helpers.fill(d, chart, series) : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
 			    });    
                 }    
             });
@@ -2831,16 +2833,16 @@ dimple.plot.line = {
                 .duration(animDuration / 2)
                 .ease("linear")
                     .attr("opacity", 1)
-                    .attr("r", r + 4)
+                    .attr("r", r + series.lineWeight + 2)
                     .style("stroke-width", 2);
     
         // Add a drop line to the x axis
 	if (dropDest.y !== null) {
 	    g.append("line")
 		.attr("x1", cx)
-		.attr("y1", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+		.attr("y1", (cy < dropDest.y ? cy + r + series.lineWeight + 2 : cy - r - series.lineWeight - 2 ))
 		.attr("x2", cx)
-		.attr("y2", (cy < dropDest.y ? cy + r + 4 : cy - r - 4 ))
+		.attr("y2", (cy < dropDest.y ? cy + r + series.lineWeight + 2 : cy - r - series.lineWeight - 2 ))
 		.style("fill", "none")
 		.style("stroke", fill)
 		.style("stroke-width", 2)
@@ -2856,9 +2858,9 @@ dimple.plot.line = {
         // Add a drop line to the y axis
 	if (dropDest.x !== null) {
 	    g.append("line")
-		.attr("x1", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+		.attr("x1", (cx < dropDest.x ? cx + r + series.lineWeight + 2 : cx - r - series.lineWeight - 2 ))
 		.attr("y1", cy)
-		.attr("x2", (cx < dropDest.x ? cx + r + 4 : cx - r - 4 ))
+		.attr("x2", (cx < dropDest.x ? cx + r + series.lineWeight + 2 : cx - r - series.lineWeight - 2 ))
 		.attr("y2", cy)
 		.style("fill", "none")
 		.style("stroke", fill)
@@ -2996,27 +2998,31 @@ dimple.plot.line = {
 var _addGradient = function (seriesValue, id, categoryAxis, data, chart, duration, colorProperty) {
     var grad = chart._group.select("#" + id);
     var cats = [];
+    var field = categoryAxis.position + "Field";
     data.forEach(function (d) {
-        if (cats.indexOf(d[categoryAxis.categoryFields[0]]) == -1) {
-            cats.push(d[categoryAxis.categoryFields[0]]);    
+        if (cats.indexOf(d[field]) == -1) {
+            cats.push(d[field]);    
         }
     }, this);
-    var field = categoryAxis.position + "Field";
     var transition = true;
     if (grad.node() == null) {
         transition = false;
         grad = chart._group.append("linearGradient")
             .attr("id", id)
-            .attr("gradientUnits", "userSpaceOnUse")
-            .attr("x1", (categoryAxis.position == "x" ? categoryAxis._scale(cats[0]) + ((chart.width / cats.length) / 2) : 0))
-            .attr("y1", (categoryAxis.position == "y" ? categoryAxis._scale(cats[0]) - ((chart.height / cats.length) / 2) : 0))
-            .attr("x2", (categoryAxis.position == "x" ? categoryAxis._scale(cats[cats.length - 1]) + ((chart.width / cats.length) / 2) : 0))
-            .attr("y2", (categoryAxis.position == "y" ? categoryAxis._scale(cats[cats.length - 1]) - ((chart.height / cats.length) / 2) : 0));
+            .attr("gradientUnits", "objectBoundingBox")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 1)
+            .attr("y2", 1);
     }
     var colors = [];
     cats.forEach(function (cat, j) {
         var row = {};
-        for (var k = 0; k < data.length; k++) { if (data[k].aggField == seriesValue && data[k][field] == cat) { row = data[k]; break; } }
+        for (var k = 0; k < data.length; k++) {
+            if (data[k].aggField.join("_") == seriesValue.join("_") && data[k][field].join("_") == cat.join("_")) {
+                row = data[k]; break;
+            }
+        }
         colors.push({ offset: Math.round((j / (cats.length - 1)) * 100) + "%", color: row[colorProperty] });
     }, this);
     if (transition) {

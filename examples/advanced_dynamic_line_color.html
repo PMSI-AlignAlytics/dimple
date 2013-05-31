@@ -1,0 +1,21 @@
+<div id="chartContainer">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="/dist/dimple.v1.js"></script>
+  <script type="text/javascript">
+    
+    var svg = dimple.newSvg("#chartContainer", 590, 400);
+    d3.tsv("/data/example_data.tsv", function (data) {
+      data = dimple.filterData(data, "SKU", "Theta 18 Pack Standard");
+      var myChart = new dimple.chart(svg, data);
+      myChart.setBounds(60, 30, 500, 300);
+      myChart.addCategoryAxis("x", "Month");
+      myChart.addMeasureAxis("y", "Unit Sales");
+      myChart.addColorAxis("Price", ["green", "yellow", "red"]);
+      var s = myChart.addSeries(null, dimple.plot.line);
+      s.lineWeight = 4;
+      s.lineMarkers = true;
+      myChart.draw();
+      
+    });
+  </script>
+</div>
