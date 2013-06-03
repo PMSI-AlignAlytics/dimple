@@ -16,5 +16,11 @@
         "title":"Tooltip Charts",
         "shortTitle":"Tooltip Charts",
         "desc":"An extension of a standard bubble chart to show bar charts in tooltips"
+    },
+    {
+        "id":"advanced_dynamic_line_color",
+        "title":"Dynamic Line Colors",
+        "shortTitle":"Dynamic Colors",
+        "desc":"A line chart plotting unit sales, colored by price"
     }
 ]
