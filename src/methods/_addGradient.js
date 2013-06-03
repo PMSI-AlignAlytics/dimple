@@ -10,16 +10,18 @@ var _addGradient = function (seriesValue, id, categoryAxis, data, chart, duratio
             cats.push(d[field]);    
         }
     }, this);
+    cats = cats.sort(function (a, b) { return categoryAxis._scale(a) - categoryAxis._scale(b); })
     var transition = true;
     if (grad.node() == null) {
         transition = false;
         grad = chart._group.append("linearGradient")
             .attr("id", id)
-            .attr("gradientUnits", "objectBoundingBox")
-            .attr("x1", 0)
-            .attr("y1", 0)
-            .attr("x2", 1)
-            .attr("y2", 1);
+            .attr("gradientUnits", "userSpaceOnUse")
+            .attr("x1", (categoryAxis.position == "x" ? categoryAxis._scale(cats[0]) + ((chart.width / cats.length) / 2) : 0))
+            .attr("y1", (categoryAxis.position == "y" ? categoryAxis._scale(cats[0]) - ((chart.height / cats.length) / 2) : 0))
+            .attr("x2", (categoryAxis.position == "x" ? categoryAxis._scale(cats[cats.length - 1]) + ((chart.width / cats.length) / 2) : 0))
+           .attr("y2", (categoryAxis.position == "y" ? categoryAxis._scale(cats[cats.length - 1]) - ((chart.height / cats.length) / 2) : 0));
+
     }
     var colors = [];
     cats.forEach(function (cat, j) {

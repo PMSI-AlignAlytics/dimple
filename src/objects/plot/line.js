@@ -88,9 +88,7 @@ dimple.plot.line = {
 	    .call(function () {
 		if (!chart.noFormats) {
 		    this.attr("fill", "none")
-			.attr("stroke", function (d) {
-			    return (graded ? "url(#fill-line-gradient-" + d.join("_").replace(" ", "") + ")" : chart.getColor(d[d.length - 1]).stroke);
-			    })
+			.attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.join("_").replace(" ", "") + ")" : chart.getColor(d[d.length - 1]).stroke);			    })
 			.attr("stroke-width", series.lineWeight);
 		}
 	    });

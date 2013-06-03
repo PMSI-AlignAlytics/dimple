@@ -10,13 +10,32 @@ dimple.plot.area = {
         var self = this;
 	
 	var data = series._positionData;
-	var uniqueValues = dimple.getUniqueValues(data, "aggField");//.reverse(); // Reverse order so that areas overlap correctly
+	var uniqueValues = [];
+	// If there is a category axis we should draw a line for each aggField.  Otherwise
+	// the first aggField defines the points and the others define the line
+	var firstAgg = 1;
+	if (series.x._hasCategories() || series.y._hasCategories()) {
+	    firstAgg = 0;
+	}
+	data.forEach(function (d, i) {
+	    var filter = [];
+	    var match = false;
+	    for (var k = firstAgg; k < d.aggField.length; k++) {
+		filter.push(d.aggField[k]);
+	    }
+	    uniqueValues.forEach(function (d) {
+		match = match || (d.join("/") == filter.join("/"));
+	    }, this);
+	    if (!match) {
+		uniqueValues.push(filter);
+	    }
+	}, this);
 	var graded = false;
 	if (series.c != null && series.c != undefined && ((series.x._hasCategories() && series.y._hasMeasure()) || (series.y._hasCategories() && series.x._hasMeasure()))) {
 	    graded = true;
 	    uniqueValues.forEach(function (seriesValue, i) {
-		_addGradient(seriesValue, "fill-area-gradient-" + seriesValue.replace(" ", ""), (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
-		_addGradient(seriesValue, "stroke-area-gradient-" + seriesValue.replace(" ", ""), (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "stroke");
+		_addGradient(seriesValue, "fill-area-gradient-" + seriesValue.join("_").replace(" ", ""), (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
+		_addGradient(seriesValue, "stroke-area-gradient-" + seriesValue.join("_").replace(" ", ""), (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "stroke");
 	    }, this);
 	}
 	var line = d3.svg.line()
@@ -34,7 +53,7 @@ dimple.plot.area = {
 	series.shapes
 	    .data(uniqueValues)
 	    .transition().duration(duration)
-	    .attr("class", function (d) { return "series area " + d.replace(" ", ""); })
+	    .attr("class", function (d) { return "series area " + d.join("_").replace(" ", ""); })
 	    .attr("d", function (d, i) {
 		//var startPoint = [{ cy: termBound("y", false), cx: termBound("x", false)}];
 		//var endPoint = [{ cy: termBound("y", true), cx: termBound("x", true)}];
@@ -106,8 +125,8 @@ dimple.plot.area = {
 	    })
 	    .call(function () {
 		if (!chart.noFormats) {
-		    this.attr("fill", function (d) { return (graded ? "url(#fill-area-gradient-" + d.replace(" ", "") + ")" : chart.getColor(d).fill); })
-			.attr("stroke", function (d) { return (graded ? "url(#stroke-area-gradient-" + d.replace(" ", "") + ")" : chart.getColor(d).stroke); })
+		    this.attr("fill", function (d) { return (graded ? "url(#fill-area-gradient-" + d.join("_").replace(" ", "") + ")" : chart.getColor(d).fill); })
+			.attr("stroke", function (d) { return (graded ? "url(#stroke-area-gradient-" + d.join("_").replace(" ", "") + ")" : chart.getColor(d).stroke); })
 			.attr("stroke-width", series.lineWeight);	
 		}
 	    });
