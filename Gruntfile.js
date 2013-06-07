@@ -40,14 +40,38 @@ module.exports = function(grunt) {
                     'dist/<%= pkg.name %>.v1.min.js': ['<%= concat.dist.dest %>']
                 }
             }
-        }
+        },
+	connect: {
+	    server: {
+		options: {
+		    port: 3001,
+		    base: '.'
+		}
+	    }
+	},
+	qunit: {
+	    all: {
+		options: {
+		    urls: [
+			'http://localhost:3001/test/methods/_getOrderedList.html'
+		    ]
+		}
+	    }
+	}//,
+	//jshint: {
+	//    beforeconcat: ['src/**/*.js'],
+	//    afterconcat: ['dist/dimple.v1.js']
+	//}
     });
 
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-qunit');
+   // grunt.loadNpmTasks('grunt-contrib-jshint');
 
     // Default task(s).
-    grunt.registerTask('default', ['concat', 'uglify']);
+    grunt.registerTask('default', ['concat', 'uglify', 'connect', 'qunit']);//, 'jshint']);
 
 };

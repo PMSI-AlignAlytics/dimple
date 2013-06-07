@@ -1046,10 +1046,15 @@ this.setStoryboard = function (categoryFields, tickHandler) {
 // Copyright: 2013 PMSI-AlignAlytics
 // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
 // Source: /src/objects/color/begin.js
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.color
 dimple.color = function (fill, stroke, opacity) {
-    this.fill = fill;
-    this.stroke = (stroke == null || stroke == undefined ? d3.rgb(fill).darker(0.5).toString() : stroke);
-    this.opacity = (opacity == null || opacity == undefined ? 0.8 : opacity);
+    
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.color#wiki-fill
+this.fill = fill;
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.color#wiki-stroke
+this.stroke = (stroke == null || stroke == undefined ? d3.rgb(fill).darker(0.5).toString() : stroke);
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.color#wiki-opacity
+this.opacity = (opacity == null || opacity == undefined ? 0.8 : opacity);
 
     
 };
@@ -1082,6 +1087,8 @@ this.selectedShape = null;
 // End dimple.eventArgs
 
 
+// Copyright: 2013 PMSI-AlignAlytics
+// License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
 // Source: /src/objects/legend/begin.js
 // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend
 dimple.legend = function (chart, x, y, width, height, horizontalAlign, series) {
@@ -1462,22 +1469,23 @@ this.addEventHandler = function (event, handler) {
 // Copyright: 2013 PMSI-AlignAlytics
 // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
 // Source: /src/objects/storyboard/begin.js
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard
 dimple.storyboard = function (chart, categoryFields) {
     
 // Handle an individual string as an array
 if (categoryFields != null && categoryFields != undefined) { categoryFields = [].concat(categoryFields); }
  
-// The parent chart
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-chart
 this.chart = chart
-// The category fields for category type axes
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-categoryFields
 this.categoryFields = categoryFields;
-// Indicates that the animation should start when the chart draws
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-autoplay
 this.autoplay = true;
-// The animation length;
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-frameDuration
 this.frameDuration = 3000;
-// The storyboard label object
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-storyLabel
 this.storyLabel = null;
-// Method associated with the animation tick
+// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-onTick
 this.onTick = null;
 
 // The current frame index
@@ -3064,6 +3072,120 @@ var _addGradient = function (seriesValue, id, categoryAxis, data, chart, duratio
 
 // Copyright: 2013 PMSI-AlignAlytics
 // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+// Source: /src/objects/chart/methods/_getOrderedList.js
+dimple._getOrderedList = function (data, fields, levelDefinitions) {
+    // Force the level definitions into an array
+    if (levelDefinitions == null || levelDefinitions == undefined) {
+        levelDefinitions = [];
+    } 
+    else {
+        levelDefinitions = [].concat(levelDefinitions);
+    }
+    // Add the base case
+    levelDefinitions = levelDefinitions.concat({ ordering: fields, desc: false });
+    // Function for recursively sorting
+    var rollupData = dimple._rollUp(data, fields);
+    // If we go below the leaf stop recursing
+    if (levelDefinitions.length >= 1) {
+        // Build a stack of compare methods
+        var sortStack = []
+        // Iterate each level definition
+        levelDefinitions.forEach(function (def, i) {
+            // Draw ascending by default
+            var desc = (def.desc === null || def.desc === undefined ? false : def.desc);
+            // Get the ordering definition
+            var ordering = def.ordering;
+            // Handle the ordering based on the type set
+            if (typeof ordering == "function") {
+                // Apply the sort predicate directly
+                sortStack.push(function (a, b) {
+                        return (desc ? -1 : 1) * ordering(a, b);
+                });
+            }
+            else if (ordering instanceof Array) {
+                // The order list may be an array of arrays
+                // combine the values with pipe delimiters.
+                // The delimiter is irrelevant as long as it is consistent
+                // with the sort predicate below
+                var orderArray = [];
+                ordering.forEach(function (d) {
+                    orderArray.push(([].concat(d)).join("|"));
+                }, this);
+                // Sort according to the axis position
+                sortStack.push(function (a, b) {
+                    var aStr = "";
+                    var bStr = "";
+                    [].concat(fields).forEach(function (f, i) {
+                        aStr += (i > 0 ? "|" : "") + a[f];
+                        bStr += (i > 0 ? "|" : "") + b[f];
+                    }, this);
+                    // If the value is not found it should go to the end (if descending it
+                    // should go to the start so that it ends up at the back when reversed)
+                    aIx = orderArray.indexOf(aStr);
+                    bIx = orderArray.indexOf(bStr);
+                    var aIx = (aIx < 0 ? (desc ? -1 : orderArray.length) : aIx);
+                    var bIx = (bIx < 0 ? (desc ? -1 : orderArray.length) : bIx);
+                    return (desc ? -1 : 1) * (aIx - bIx);
+                });
+            }
+            else {
+                // If the ordering is a field get it here
+                var field = (typeof ordering == "string" ? ordering : null);
+                // A little helper method for summing sub arrays
+                var sum = function (array) {
+                    var total = 0;
+                    array.forEach(function (n) {
+                        total += n;
+                    });
+                    return total;
+                };
+                // Comparator dealing with parses
+                var compare = function (a, b) {
+                    var result = 0;
+                    if (!isNaN(sum(a)) && !isNaN(sum(b))) {
+                        result = parseFloat(sum(a)) - parseFloat(sum(b));
+                    }
+                    else if (!isNaN(Date.parse(a[0])) && !isNaN(Date.parse(b[0]))) {
+                        result = Date.parse(a[0]) - Date.parse(b[0]);
+                    }  
+                    else if (a[0] < b[0]) {
+                        result = -1;
+                    }
+                    else if (a[0] > b[0]) {
+                        result = 1;
+                    }
+                    return result;
+                }
+                // Sort the data
+                sortStack.push(function (a, b) {
+                    // The result value
+                    var result = 0;
+                    // Find the field
+                    if (a[field] !== undefined && b[field] !== undefined) {
+                        // Compare just the first mapped value
+                        result = compare([].concat(a[field]), [].concat(b[field]));     
+                    }
+                    return (desc ? -1 : 1) * result;
+                });
+            }
+        });
+        rollupData.sort(function (a, b) {
+            var compareIx = 0;
+            var result = 0;
+            while (compareIx < sortStack.length && result == 0) {
+                result = sortStack[compareIx](a, b);
+                compareIx++;
+            }
+            return result;
+        });
+    }       
+    // Return the ordered list
+    return rollupData;
+};
+
+
+// Copyright: 2013 PMSI-AlignAlytics
+// License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
 // Source: /src/methods/_helpers.js
 var _helpers = {
     
@@ -3223,6 +3345,87 @@ var _helpers = {
     
 };
 
+
+// Copyright: 2013 PMSI-AlignAlytics
+// License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+// Source: /src/methods/_rollUp.js
+dimple._rollUp = function (data, fields) {
+    
+    // Get a squashed list. This will have a row
+    // for every distinct combination of fields passed
+    // and each field in the data will be included with an array of
+    // all values in its place.  Therefore
+    //      { "Field 1":"a", "Field 2":"x", "Field 3":"s", "Field 4":13 },
+    //      { "Field 1":"a", "Field 2":"y", "Field 3":"s", "Field 4":14 },
+    //      { "Field 1":"a", "Field 2":"z", "Field 3":"t", "Field 4":15 }
+    
+    // If fields = "Field 1" then this would return:
+    //      { "Field 1":"a", "Field 2":["x","y","z"], "Field 3":["s","s","t"], "Field 4":[12,14,15]}
+    
+    // If fields = "Field 3" then this would return:
+    //      { "Field 3":"s", "Field 1":["a","a"], "Field 2":["x","y"], "Field 4":[12,14]},
+    //      { "Field 3":"t", "Field 1":["a"], "Field 2":["z"], "Field 4":[15]}
+    
+    // If fields = ["Field 1", "Field 3"] then this would return:
+    //      { "Field 1":"a", "Field 3":"s", "Field 2":["x","y"], "Field 4":[12,14]},
+    //      { "Field 1":"a", "Field 3":"t", "Field 2":["z"], "Field 4":[15]}
+        
+    var returnList = [];
+    // Put single values into single value arrays
+    if (fields != null && fields != undefined) {
+        fields = [].concat(fields);
+    }
+    else {
+        fields = [];
+    }
+    // Iterate every row in the data
+    data.forEach(function (d, i) {
+        // The index of the corresponding row in the return list
+        var index = -1;
+        // Find the corresponding value in the return list
+        returnList.forEach(function (r, j) {
+            if (index == -1) {
+                // Indicates a match
+                var match = true;
+                // Iterate the passed fields and compare
+                fields.forEach(function (f, k) {
+                    match = match && d[f] == r[f];
+                }, this);
+                // If this is a match get the index
+                if (match) {
+                    index = j;
+                }
+            }
+        }, this);
+        // The row to manipulate
+        var newRow = {};
+        // Pick up the matched row, or add a new one
+        if (index != -1) {
+            newRow = returnList[index];
+        }
+        else {
+            // Iterate the passed fields and add to the new row
+            fields.forEach(function (f, k) {
+                newRow[f] = d[f];
+            }, this);
+            returnList.push(newRow);
+            index = returnList.length - 1;
+        }
+        // Iterate all the fields in the data
+        for (var f in d) {
+            if (d.hasOwnProperty(f) && fields.indexOf(f) == -1) {
+                if (newRow[f] == undefined) {
+                    newRow[f] = [];
+                }
+                newRow[f] = newRow[f].concat(d[f]);
+            }
+        }
+        // Update the return list
+        returnList[index] = newRow;
+    }, this);
+    // Return the flattened list
+    return returnList;
+};
 
 // Copyright: 2013 PMSI-AlignAlytics
 // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
