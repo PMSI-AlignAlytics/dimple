@@ -1,3 +1,3 @@
-};
-// End dimple.color
+    };
+    // End dimple.color
 

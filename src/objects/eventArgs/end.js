@@ -1,3 +1,3 @@
-};
-// End dimple.eventArgs
+    };
+    // End dimple.eventArgs
 

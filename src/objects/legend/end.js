@@ -1,3 +1,3 @@
-};
-// End dimple.legend
+    };
+    // End dimple.legend
 

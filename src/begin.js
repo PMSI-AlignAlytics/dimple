@@ -11,4 +11,4 @@ var dimple = {
 
 // Wrap all application code in a self-executing function
 (function () {
-   "use strict";
+    "use strict";

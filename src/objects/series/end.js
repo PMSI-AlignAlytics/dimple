@@ -1,3 +1,3 @@
-};
-// End dimple.series
+    };
+    // End dimple.series
 

@@ -1,30 +1,32 @@
-// Copyright: 2013 PMSI-AlignAlytics
-// License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-// Source: /src/objects/storyboard/begin.js
-// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard
-dimple.storyboard = function (chart, categoryFields) {
-    
-// Handle an individual string as an array
-if (categoryFields != null && categoryFields != undefined) { categoryFields = [].concat(categoryFields); }
- 
-// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-chart
-this.chart = chart
-// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-categoryFields
-this.categoryFields = categoryFields;
-// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-autoplay
-this.autoplay = true;
-// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-frameDuration
-this.frameDuration = 3000;
-// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-storyLabel
-this.storyLabel = null;
-// Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-onTick
-this.onTick = null;
+    // Copyright: 2013 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/objects/storyboard/begin.js
+    // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard
+    dimple.storyboard = function (chart, categoryFields) {
 
-// The current frame index
-this._frame = 0;
-// The animation interval
-this._animationTimer = null;
-// The category values
-this._categories = [];
-// The category values when the last cache happened
-this._cachedCategoryFields = [];
+        // Handle an individual string as an array
+        if (categoryFields !== null && categoryFields !== undefined) {
+            categoryFields = [].concat(categoryFields);
+        }
+
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-chart
+        this.chart = chart;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-categoryFields
+        this.categoryFields = categoryFields;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-autoplay
+        this.autoplay = true;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-frameDuration
+        this.frameDuration = 3000;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-storyLabel
+        this.storyLabel = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-onTick
+        this.onTick = null;
+
+        // The current frame index
+        this._frame = 0;
+        // The animation interval
+        this._animationTimer = null;
+        // The category values
+        this._categories = [];
+        // The category values when the last cache happened
+        this._cachedCategoryFields = [];
