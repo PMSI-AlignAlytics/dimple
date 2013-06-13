@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <meta charset="utf-8">
+      <title>Test dimple.js</title>
+      <link rel="stylesheet" href="/lib/qunit/qunit-1.11.0.css">
+    </head>
+    <body>
+      <div id="testDiv"></div>
+      <div id="qunit"></div>
+      <div id="qunit-fixture"></div>
+      <script src="/dist/dimple.v1.js"></script>
+      <script src="/lib/d3.v3.min.js"></script>
+      <script src="/lib/qunit/qunit-1.11.0.js"></script>
+      <script>
+
+        // Flatten the ordered resultset for easy comparison
+        function getResults(selector, width, height) {
+            var retString = "";
+            return retString;
+        }
+
+        test("Add by tag", function() {
+            var svg;
+            dimple.newSvg("body", 200, 100)
+            svg = document.getElementsByTagName("svg");
+            equal(svg.length, 1);
+            equal(document.getElementsByTagName("svg")[0].parentNode.tagName, "BODY");
+            equal(d3.select(svg[0]).attr("width"), "200");
+            equal(d3.select(svg[0]).attr("height"), "100");
+            d3.select(svg[0]).remove();
+            equal(svg.length, 0);
+        });
+
+        test("Add by id", function() {
+            var svg;
+            dimple.newSvg("#testDiv", 200, 100)
+            svg = document.getElementsByTagName("svg");
+            equal(svg.length, 1);
+            equal(document.getElementsByTagName("svg")[0].parentNode.tagName, "DIV");
+            equal(d3.select(svg[0]).attr("width"), "200");
+            equal(d3.select(svg[0]).attr("height"), "100");
+            d3.select(svg[0]).remove();
+        });
+
+        test("Add default parameter", function() {
+            var svg;
+            dimple.newSvg(null, 200, 100)
+            svg = document.getElementsByTagName("svg");
+            equal(svg.length, 1);
+            equal(document.getElementsByTagName("svg")[0].parentNode.tagName, "BODY");
+            equal(d3.select(svg[0]).attr("width"), "200");
+            equal(d3.select(svg[0]).attr("height"), "100");
+            d3.select(svg[0]).remove();
+        });
+
+        test("Check selection exceptions", function() {
+            var svg;
+            raises(function () { dimple.newSvg("random string", 200, 100) });
+            try {
+                dimple.newSvg("random string", 200, 100);
+            } catch(e) {
+                equal(e, "The 'random string' selector did not match any elements.  Please prefix with '#' to select by id or '.' to select by class");
+            }
+            svg = document.getElementsByTagName("svg");
+            equal(svg.length, 0);
+        });
+
+      </script>
+    </body>
+</html>
