@@ -54,7 +54,8 @@ module.exports = function(grunt) {
                 options: {
                     urls: [
                         'http://localhost:3001/test/methods/_getOrderedList.html',
-                        'http://localhost:3001/test/methods/_rollUp.html'
+                        'http://localhost:3001/test/methods/_rollUp.html',
+                        'http://localhost:3001/test/methods/newSvg.html'
                     ]
                 }
             }
