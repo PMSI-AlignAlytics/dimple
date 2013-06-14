@@ -22,7 +22,7 @@
 
         // Flatten the ordered resultset for easy comparison
         function getResults(data, fields) {
-            var rolledUp = dimple._rollUp(data, fields),
+            var rolledUp = dimple._rollUp(data, fields, ["Field 1", "Field 2", "Field 3", "Field 4"]),
                 retString = "";
             rolledUp.forEach(function (d, i) {
                 var addField = function (field) {

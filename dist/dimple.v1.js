@@ -652,11 +652,16 @@ var dimple = {
                             // Limit the bounds of the color value to be within the range.  Users may override the axis bounds and this
                             // allows a 2 color scale rather than blending if the min and max are set to 0 and 0.01 for example negative values
                             // and zero value would be 1 color and positive another.
+                            colorBounds.min = (series.c.overrideMin !== null && series.c.overrideMin !== undefined ? series.c.overrideMin : colorBounds.min);
+                            colorBounds.max = (series.c.overrideMax !== null && series.c.overrideMax !== undefined ? series.c.overrideMax : colorBounds.max);
                             ret.cValue = (ret.cValue > colorBounds.max ? colorBounds.max : (ret.cValue < colorBounds.min ? colorBounds.min : ret.cValue));
                             // Calculate the factors for the calculations
                             scale = d3.scale.linear().range([0, (series.c.colors === null || series.c.colors.length === 1 ? 1 : series.c.colors.length - 1)]).domain([colorBounds.min, colorBounds.max]);
                             colorVal = scale(ret.cValue);
                             floatingPortion = colorVal - Math.floor(colorVal);
+                            if (ret.cValue === colorBounds.max) {
+                                floatingPortion = 1;
+                            }
                             // If there is a single color defined
                             if (series.c.colors !== null && series.c.colors !== undefined && series.c.colors.length === 1) {
                                 baseColor = d3.rgb(series.c.colors[0]);
@@ -1701,10 +1706,17 @@ var dimple = {
         // Source: /src/objects/storyboard/methods/drawText.js
         this._drawText = function (duration) {
             if (this.storyLabel === null || this.storyLabel === undefined) {
-                var chart = this;
+                var chart = this,
+                    xCount = 0;
+                // Check for a secondary x axis
+                this.chart.axes.forEach(function (a) {
+                    if (a.position === "x") {
+                        xCount += 1;
+                    }
+                }, this);
                 this.storyLabel = this.chart._group.append("text")
                     .attr("x", this.chart.x + this.chart.width * 0.01)
-                    .attr("y", this.chart.y + (this.chart.height / 35 > 10 ? this.chart.height / 35 : 10) * 1.25)
+                    .attr("y", this.chart.y + (this.chart.height / 35 > 10 ? this.chart.height / 35 : 10) * (xCount > 1 ? 1.25 : -1))
                     .call(function () {
                         if (!chart.noFormats) {
                             this.style("font-family", "sans-serif")
@@ -3293,9 +3305,24 @@ var dimple = {
         // Add the base case
         levelDefinitions = levelDefinitions.concat({ ordering: mainField, desc: false });
         // Function for recursively sorting
-        var rollupData = dimple._rollUp(data, mainField),
+        var rollupData = [],
             sortStack = [],
-            finalArray = [];
+            finalArray = [],
+            fields = [mainField];
+        // Exclude fields if this does not contain a function
+        levelDefinitions.forEach(function (def) {
+            var field;
+            if (typeof def.ordering === "function") {
+                for (field in data[0]) {
+                    if (data[0].hasOwnProperty(field) && fields.indexOf(field) === -1) {
+                        fields.push(field);
+                    }
+                }
+            } else if (!(def.ordering instanceof Array)) {
+                fields.push(def.ordering);
+            }
+        }, this);
+        rollupData = dimple._rollUp(data, mainField, fields);
         // If we go below the leaf stop recursing
         if (levelDefinitions.length >= 1) {
             // Build a stack of compare methods
@@ -3452,7 +3479,7 @@ var dimple = {
         // Calculate the x gap for clusters within bar type charts
         xClusterGap: function (d, chart, series) {
             var returnXClusterGap = 0;
-            if (series.x.categoryFields !== null && series.x.categoryFields !== undefined && series.x.categoryFields.length >= 2 && series.clusterBarGap > 0) {
+            if (series.x.categoryFields !== null && series.x.categoryFields !== undefined && series.x.categoryFields.length >= 2 && series.clusterBarGap > 0 && !series.x._hasMeasure()) {
                 returnXClusterGap = (d.width * ((chart.width / series.x._max) - (dimple._helpers.xGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
             }
             return returnXClusterGap;
@@ -3470,7 +3497,7 @@ var dimple = {
         // Calculate the y gap for clusters within bar type charts
         yClusterGap: function (d, chart, series) {
             var returnYClusterGap = 0;
-            if (series.y.categoryFields !== null && series.y.categoryFields !== undefined && series.y.categoryFields.length >= 2 && series.clusterBarGap > 0) {
+            if (series.y.categoryFields !== null && series.y.categoryFields !== undefined && series.y.categoryFields.length >= 2 && series.clusterBarGap > 0 && !series.y._hasMeasure()) {
                 returnYClusterGap = (d.height * ((chart.height / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
             }
             return returnYClusterGap;
@@ -3553,7 +3580,7 @@ var dimple = {
     // Copyright: 2013 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_rollUp.js
-    dimple._rollUp = function (data, fields) {
+    dimple._rollUp = function (data, fields, includeFields) {
 
         var returnList = [];
         // Put single values into single value arrays
@@ -3567,8 +3594,7 @@ var dimple = {
             // The index of the corresponding row in the return list
             var index = -1,
                 newRow = {},
-                match = true,
-                field;
+                match = true;
             // Find the corresponding value in the return list
             returnList.forEach(function (r, j) {
                 if (index === -1) {
@@ -3596,14 +3622,14 @@ var dimple = {
                 index = returnList.length - 1;
             }
             // Iterate all the fields in the data
-            for (field in d) {
-                if (d.hasOwnProperty(field) && fields.indexOf(field) === -1) {
+            includeFields.forEach(function (field) {
+                if (fields.indexOf(field) === -1) {
                     if (newRow[field] === undefined) {
                         newRow[field] = [];
                     }
                     newRow[field] = newRow[field].concat(d[field]);
                 }
-            }
+            }, this);
             // Update the return list
             returnList[index] = newRow;
         }, this);

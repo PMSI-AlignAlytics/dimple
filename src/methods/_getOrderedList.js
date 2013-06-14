@@ -11,9 +11,24 @@
         // Add the base case
         levelDefinitions = levelDefinitions.concat({ ordering: mainField, desc: false });
         // Function for recursively sorting
-        var rollupData = dimple._rollUp(data, mainField),
+        var rollupData = [],
             sortStack = [],
-            finalArray = [];
+            finalArray = [],
+            fields = [mainField];
+        // Exclude fields if this does not contain a function
+        levelDefinitions.forEach(function (def) {
+            var field;
+            if (typeof def.ordering === "function") {
+                for (field in data[0]) {
+                    if (data[0].hasOwnProperty(field) && fields.indexOf(field) === -1) {
+                        fields.push(field);
+                    }
+                }
+            } else if (!(def.ordering instanceof Array)) {
+                fields.push(def.ordering);
+            }
+        }, this);
+        rollupData = dimple._rollUp(data, mainField, fields);
         // If we go below the leaf stop recursing
         if (levelDefinitions.length >= 1) {
             // Build a stack of compare methods

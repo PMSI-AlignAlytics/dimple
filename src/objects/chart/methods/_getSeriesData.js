@@ -301,11 +301,16 @@
                             // Limit the bounds of the color value to be within the range.  Users may override the axis bounds and this
                             // allows a 2 color scale rather than blending if the min and max are set to 0 and 0.01 for example negative values
                             // and zero value would be 1 color and positive another.
+                            colorBounds.min = (series.c.overrideMin !== null && series.c.overrideMin !== undefined ? series.c.overrideMin : colorBounds.min);
+                            colorBounds.max = (series.c.overrideMax !== null && series.c.overrideMax !== undefined ? series.c.overrideMax : colorBounds.max);
                             ret.cValue = (ret.cValue > colorBounds.max ? colorBounds.max : (ret.cValue < colorBounds.min ? colorBounds.min : ret.cValue));
                             // Calculate the factors for the calculations
                             scale = d3.scale.linear().range([0, (series.c.colors === null || series.c.colors.length === 1 ? 1 : series.c.colors.length - 1)]).domain([colorBounds.min, colorBounds.max]);
                             colorVal = scale(ret.cValue);
                             floatingPortion = colorVal - Math.floor(colorVal);
+                            if (ret.cValue === colorBounds.max) {
+                                floatingPortion = 1;
+                            }
                             // If there is a single color defined
                             if (series.c.colors !== null && series.c.colors !== undefined && series.c.colors.length === 1) {
                                 baseColor = d3.rgb(series.c.colors[0]);

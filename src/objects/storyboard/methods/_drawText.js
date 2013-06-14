@@ -3,10 +3,17 @@
         // Source: /src/objects/storyboard/methods/drawText.js
         this._drawText = function (duration) {
             if (this.storyLabel === null || this.storyLabel === undefined) {
-                var chart = this;
+                var chart = this,
+                    xCount = 0;
+                // Check for a secondary x axis
+                this.chart.axes.forEach(function (a) {
+                    if (a.position === "x") {
+                        xCount += 1;
+                    }
+                }, this);
                 this.storyLabel = this.chart._group.append("text")
                     .attr("x", this.chart.x + this.chart.width * 0.01)
-                    .attr("y", this.chart.y + (this.chart.height / 35 > 10 ? this.chart.height / 35 : 10) * 1.25)
+                    .attr("y", this.chart.y + (this.chart.height / 35 > 10 ? this.chart.height / 35 : 10) * (xCount > 1 ? 1.25 : -1))
                     .call(function () {
                         if (!chart.noFormats) {
                             this.style("font-family", "sans-serif")
