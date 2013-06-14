@@ -1,7 +1,7 @@
     // Copyright: 2013 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/chart/methods/_getOrderedList.js
-    dimple._getOrderedList = function (data, fields, levelDefinitions) {
+    dimple._getOrderedList = function (data, mainField, levelDefinitions) {
         // Force the level definitions into an array
         if (levelDefinitions === null || levelDefinitions === undefined) {
             levelDefinitions = [];
@@ -9,31 +9,40 @@
             levelDefinitions = [].concat(levelDefinitions);
         }
         // Add the base case
-        levelDefinitions = levelDefinitions.concat({ ordering: fields, desc: false });
+        levelDefinitions = levelDefinitions.concat({ ordering: mainField, desc: false });
         // Function for recursively sorting
-        var rollupData = dimple._rollUp(data, fields),
-            sortStack = [];
+        var rollupData = dimple._rollUp(data, mainField),
+            sortStack = [],
+            finalArray = [];
         // If we go below the leaf stop recursing
         if (levelDefinitions.length >= 1) {
             // Build a stack of compare methods
             // Iterate each level definition
-            levelDefinitions.forEach(function (def, i) {
+            levelDefinitions.forEach(function (def) {
                 // Draw ascending by default
                 var desc = (def.desc === null || def.desc === undefined ? false : def.desc),
                     ordering = def.ordering,
                     orderArray = [],
                     field = (typeof ordering === "string" ? ordering : null),
                     sum = function (array) {
-                        var total = 0;
-                        array.forEach(function (n) {
-                            total += n;
-                        });
+                        var total = 0,
+                            i;
+                        for (i = 0; i < array.length; i += 1) {
+                            if (isNaN(array[i])) {
+                                total = 0;
+                                break;
+                            } else {
+                                total += parseFloat(array[i]);
+                            }
+                        }
                         return total;
                     },
                     compare = function (a, b) {
-                        var result = 0;
-                        if (!isNaN(sum(a)) && !isNaN(sum(b))) {
-                            result = parseFloat(sum(a)) - parseFloat(sum(b));
+                        var result = 0,
+                            sumA = sum(a),
+                            sumB = sum(b);
+                        if (!isNaN(sumA) && sumA !== 0 && !isNaN(sumB) && sumB !== 0) {
+                            result = parseFloat(sumA) - parseFloat(sumB);
                         } else if (!isNaN(Date.parse(a[0])) && !isNaN(Date.parse(b[0]))) {
                             result = Date.parse(a[0]) - Date.parse(b[0]);
                         } else if (a[0] < b[0]) {
@@ -59,14 +68,10 @@
                     }, this);
                     // Sort according to the axis position
                     sortStack.push(function (a, b) {
-                        var aStr = "",
-                            bStr = "",
+                        var aStr = "".concat(a[mainField]),
+                            bStr = "".concat(b[mainField]),
                             aIx,
                             bIx;
-                        [].concat(fields).forEach(function (f) {
-                            aStr += (i > 0 ? "|" : "") + a[f];
-                            bStr += (i > 0 ? "|" : "") + b[f];
-                        }, this);
                         // If the value is not found it should go to the end (if descending it
                         // should go to the start so that it ends up at the back when reversed)
                         aIx = orderArray.indexOf(aStr);
@@ -98,8 +103,13 @@
                 }
                 return result;
             });
+            // Return a simple array if only one field is being returned.
+            // for multiple fields remove extra fields but leave objects
+            rollupData.forEach(function (d) {
+                finalArray.push(d[mainField]);
+            }, this);
         }
         // Return the ordered list
-        return rollupData;
+        return finalArray;
     };
 

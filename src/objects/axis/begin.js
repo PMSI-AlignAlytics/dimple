@@ -40,4 +40,6 @@
         // with transitions
         this._previousOrigin = null;
         this._origin = null;
+        // The order definition array
+        this._orderDefinitions = [];
 

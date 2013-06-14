@@ -7,7 +7,33 @@
                 ticks,
                 step,
                 remainder,
-                origin;
+                origin,
+                getOrderedCategories = function (self, axPos, oppPos) {
+                    var category = self.categoryFields[0],
+                        sortBy = category,
+                        desc = false,
+                        isDate = true,
+                        i,
+                        definitions = [];
+                    // Check whether this field is a date
+                    for (i = 0; i < self.chart.data.length; i += 1) {
+                        if (isNaN(Date.parse(self.chart.data[i][category]))) {
+                            isDate = false;
+                            break;
+                        }
+                    }
+                    if (!isDate) {
+                        // Find the first series which connects this axis to another
+                        self.chart.series.forEach(function (s) {
+                            if (s[axPos] === self && s[oppPos]._hasMeasure()) {
+                                sortBy = s[oppPos].measure;
+                                desc = true;
+                            }
+                        }, this);
+                    }
+                    definitions = self._orderDefinitions.concat({ ordering : sortBy, desc : desc });
+                    return dimple._getOrderedList(self.chart.data, category, definitions);
+                };
 
             // If the axis is a percentage type axis the bounds must be between -1 and 1.  Sometimes
             // binary rounding means it can fall outside that bound so tidy up here
@@ -21,24 +47,27 @@
             // If this is an x axis
             if (this.position.length > 0 && this.position[0] === "x") {
                 if (this.measure === null || this.measure === undefined) {
-                    distinctCats = [];
-                    this.chart.data.forEach(function (d) {
-                        if (distinctCats.indexOf(d[this.categoryFields[0]]) === -1) {
-                            distinctCats.push(d[this.categoryFields[0]]);
-                        }
-                    }, this);
-                    this._scale = d3.scale.ordinal().rangePoints([this.chart.x, this.chart.x + this.chart.width]).domain(distinctCats.concat([""]));
+                    distinctCats = getOrderedCategories(this, "x", "y");
+                    this._scale = d3.scale.ordinal()
+                        .rangePoints([this.chart.x, this.chart.x + this.chart.width])
+                        .domain(distinctCats.concat([""]));
                 } else {
-                    this._scale = d3.scale.linear().range([this.chart.x, this.chart.x + this.chart.width]).domain([this._min, this._max]).nice();
+                    this._scale = d3.scale.linear()
+                        .range([this.chart.x, this.chart.x + this.chart.width])
+                        .domain([this._min, this._max]).nice();
                 }
                 // If it's visible, orient it at the top or bottom if it's first or second respectively
                 if (!this.hidden) {
                     switch (this.chart._axisIndex(this, "x")) {
                     case 0:
-                        this._draw = d3.svg.axis().orient("bottom").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("bottom")
+                            .scale(this._scale);
                         break;
                     case 1:
-                        this._draw = d3.svg.axis().orient("top").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("top")
+                            .scale(this._scale);
                         break;
                     default:
                         break;
@@ -53,27 +82,40 @@
                             distinctCats.push(d[this.categoryFields[0]]);
                         }
                     }, this);
-                    this._scale = d3.scale.ordinal().rangePoints([this.chart.y + this.chart.height, this.chart.y]).domain(distinctCats.concat([""]));
+                    this._scale = d3.scale.ordinal()
+                        .rangePoints([this.chart.y + this.chart.height, this.chart.y])
+                        .domain(distinctCats.concat([""]));
                 } else {
-                    this._scale = d3.scale.linear().range([this.chart.y + this.chart.height, this.chart.y]).domain([this._min, this._max]).nice();
+                    this._scale = d3.scale.linear()
+                        .range([this.chart.y + this.chart.height, this.chart.y])
+                        .domain([this._min, this._max])
+                        .nice();
                 }
                 // if it's visible, orient it at the left or right if it's first or second respectively
                 if (!this.hidden) {
                     switch (this.chart._axisIndex(this, "y")) {
                     case 0:
-                        this._draw = d3.svg.axis().orient("left").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("left")
+                            .scale(this._scale);
                         break;
                     case 1:
-                        this._draw = d3.svg.axis().orient("right").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("right")
+                            .scale(this._scale);
                         break;
                     default:
                         break;
                     }
                 }
             } else if (this.position.length > 0 && this.position[0] === "z") {
-                this._scale = d3.scale.linear().range([this.chart.height / 300, this.chart.height / 10]).domain([this._min, this._max]);
+                this._scale = d3.scale.linear()
+                    .range([this.chart.height / 300, this.chart.height / 10])
+                    .domain([this._min, this._max]);
             } else if (this.position.length > 0 && this.position[0] === "c") {
-                this._scale = d3.scale.linear().range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)]).domain([this._min, this._max]);
+                this._scale = d3.scale.linear()
+                    .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
+                    .domain([this._min, this._max]);
             }
             // Check that the axis ends on a labelled tick
             if ((refactor === null || refactor === undefined || refactor === false) && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0) {

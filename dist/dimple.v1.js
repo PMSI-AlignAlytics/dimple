@@ -55,6 +55,8 @@ var dimple = {
         // with transitions
         this._previousOrigin = null;
         this._origin = null;
+        // The order definition array
+        this._orderDefinitions = [];
 
 
         // Copyright: 2013 PMSI-AlignAlytics
@@ -123,7 +125,33 @@ var dimple = {
                 ticks,
                 step,
                 remainder,
-                origin;
+                origin,
+                getOrderedCategories = function (self, axPos, oppPos) {
+                    var category = self.categoryFields[0],
+                        sortBy = category,
+                        desc = false,
+                        isDate = true,
+                        i,
+                        definitions = [];
+                    // Check whether this field is a date
+                    for (i = 0; i < self.chart.data.length; i += 1) {
+                        if (isNaN(Date.parse(self.chart.data[i][category]))) {
+                            isDate = false;
+                            break;
+                        }
+                    }
+                    if (!isDate) {
+                        // Find the first series which connects this axis to another
+                        self.chart.series.forEach(function (s) {
+                            if (s[axPos] === self && s[oppPos]._hasMeasure()) {
+                                sortBy = s[oppPos].measure;
+                                desc = true;
+                            }
+                        }, this);
+                    }
+                    definitions = self._orderDefinitions.concat({ ordering : sortBy, desc : desc });
+                    return dimple._getOrderedList(self.chart.data, category, definitions);
+                };
 
             // If the axis is a percentage type axis the bounds must be between -1 and 1.  Sometimes
             // binary rounding means it can fall outside that bound so tidy up here
@@ -137,24 +165,27 @@ var dimple = {
             // If this is an x axis
             if (this.position.length > 0 && this.position[0] === "x") {
                 if (this.measure === null || this.measure === undefined) {
-                    distinctCats = [];
-                    this.chart.data.forEach(function (d) {
-                        if (distinctCats.indexOf(d[this.categoryFields[0]]) === -1) {
-                            distinctCats.push(d[this.categoryFields[0]]);
-                        }
-                    }, this);
-                    this._scale = d3.scale.ordinal().rangePoints([this.chart.x, this.chart.x + this.chart.width]).domain(distinctCats.concat([""]));
+                    distinctCats = getOrderedCategories(this, "x", "y");
+                    this._scale = d3.scale.ordinal()
+                        .rangePoints([this.chart.x, this.chart.x + this.chart.width])
+                        .domain(distinctCats.concat([""]));
                 } else {
-                    this._scale = d3.scale.linear().range([this.chart.x, this.chart.x + this.chart.width]).domain([this._min, this._max]).nice();
+                    this._scale = d3.scale.linear()
+                        .range([this.chart.x, this.chart.x + this.chart.width])
+                        .domain([this._min, this._max]).nice();
                 }
                 // If it's visible, orient it at the top or bottom if it's first or second respectively
                 if (!this.hidden) {
                     switch (this.chart._axisIndex(this, "x")) {
                     case 0:
-                        this._draw = d3.svg.axis().orient("bottom").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("bottom")
+                            .scale(this._scale);
                         break;
                     case 1:
-                        this._draw = d3.svg.axis().orient("top").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("top")
+                            .scale(this._scale);
                         break;
                     default:
                         break;
@@ -169,27 +200,40 @@ var dimple = {
                             distinctCats.push(d[this.categoryFields[0]]);
                         }
                     }, this);
-                    this._scale = d3.scale.ordinal().rangePoints([this.chart.y + this.chart.height, this.chart.y]).domain(distinctCats.concat([""]));
+                    this._scale = d3.scale.ordinal()
+                        .rangePoints([this.chart.y + this.chart.height, this.chart.y])
+                        .domain(distinctCats.concat([""]));
                 } else {
-                    this._scale = d3.scale.linear().range([this.chart.y + this.chart.height, this.chart.y]).domain([this._min, this._max]).nice();
+                    this._scale = d3.scale.linear()
+                        .range([this.chart.y + this.chart.height, this.chart.y])
+                        .domain([this._min, this._max])
+                        .nice();
                 }
                 // if it's visible, orient it at the left or right if it's first or second respectively
                 if (!this.hidden) {
                     switch (this.chart._axisIndex(this, "y")) {
                     case 0:
-                        this._draw = d3.svg.axis().orient("left").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("left")
+                            .scale(this._scale);
                         break;
                     case 1:
-                        this._draw = d3.svg.axis().orient("right").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("right")
+                            .scale(this._scale);
                         break;
                     default:
                         break;
                     }
                 }
             } else if (this.position.length > 0 && this.position[0] === "z") {
-                this._scale = d3.scale.linear().range([this.chart.height / 300, this.chart.height / 10]).domain([this._min, this._max]);
+                this._scale = d3.scale.linear()
+                    .range([this.chart.height / 300, this.chart.height / 10])
+                    .domain([this._min, this._max]);
             } else if (this.position.length > 0 && this.position[0] === "c") {
-                this._scale = d3.scale.linear().range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)]).domain([this._min, this._max]);
+                this._scale = d3.scale.linear()
+                    .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
+                    .domain([this._min, this._max]);
             }
             // Check that the axis ends on a labelled tick
             if ((refactor === null || refactor === undefined || refactor === false) && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0) {
@@ -223,6 +267,13 @@ var dimple = {
         };
 
 
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/chart/methods/addAxis.js
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addAxis
+        this.addOrderDefinition = function (ordering, desc) {
+            this._orderDefinitions.push({ ordering : ordering, desc : desc });
+        };
     };
     // End dimple.axis
 
@@ -3154,7 +3205,7 @@ var dimple = {
     // Copyright: 2013 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/chart/methods/_getOrderedList.js
-    dimple._getOrderedList = function (data, fields, levelDefinitions) {
+    dimple._getOrderedList = function (data, mainField, levelDefinitions) {
         // Force the level definitions into an array
         if (levelDefinitions === null || levelDefinitions === undefined) {
             levelDefinitions = [];
@@ -3162,31 +3213,40 @@ var dimple = {
             levelDefinitions = [].concat(levelDefinitions);
         }
         // Add the base case
-        levelDefinitions = levelDefinitions.concat({ ordering: fields, desc: false });
+        levelDefinitions = levelDefinitions.concat({ ordering: mainField, desc: false });
         // Function for recursively sorting
-        var rollupData = dimple._rollUp(data, fields),
-            sortStack = [];
+        var rollupData = dimple._rollUp(data, mainField),
+            sortStack = [],
+            finalArray = [];
         // If we go below the leaf stop recursing
         if (levelDefinitions.length >= 1) {
             // Build a stack of compare methods
             // Iterate each level definition
-            levelDefinitions.forEach(function (def, i) {
+            levelDefinitions.forEach(function (def) {
                 // Draw ascending by default
                 var desc = (def.desc === null || def.desc === undefined ? false : def.desc),
                     ordering = def.ordering,
                     orderArray = [],
                     field = (typeof ordering === "string" ? ordering : null),
                     sum = function (array) {
-                        var total = 0;
-                        array.forEach(function (n) {
-                            total += n;
-                        });
+                        var total = 0,
+                            i;
+                        for (i = 0; i < array.length; i += 1) {
+                            if (isNaN(array[i])) {
+                                total = 0;
+                                break;
+                            } else {
+                                total += parseFloat(array[i]);
+                            }
+                        }
                         return total;
                     },
                     compare = function (a, b) {
-                        var result = 0;
-                        if (!isNaN(sum(a)) && !isNaN(sum(b))) {
-                            result = parseFloat(sum(a)) - parseFloat(sum(b));
+                        var result = 0,
+                            sumA = sum(a),
+                            sumB = sum(b);
+                        if (!isNaN(sumA) && sumA !== 0 && !isNaN(sumB) && sumB !== 0) {
+                            result = parseFloat(sumA) - parseFloat(sumB);
                         } else if (!isNaN(Date.parse(a[0])) && !isNaN(Date.parse(b[0]))) {
                             result = Date.parse(a[0]) - Date.parse(b[0]);
                         } else if (a[0] < b[0]) {
@@ -3212,14 +3272,10 @@ var dimple = {
                     }, this);
                     // Sort according to the axis position
                     sortStack.push(function (a, b) {
-                        var aStr = "",
-                            bStr = "",
+                        var aStr = "".concat(a[mainField]),
+                            bStr = "".concat(b[mainField]),
                             aIx,
                             bIx;
-                        [].concat(fields).forEach(function (f) {
-                            aStr += (i > 0 ? "|" : "") + a[f];
-                            bStr += (i > 0 ? "|" : "") + b[f];
-                        }, this);
                         // If the value is not found it should go to the end (if descending it
                         // should go to the start so that it ends up at the back when reversed)
                         aIx = orderArray.indexOf(aStr);
@@ -3251,9 +3307,14 @@ var dimple = {
                 }
                 return result;
             });
+            // Return a simple array if only one field is being returned.
+            // for multiple fields remove extra fields but leave objects
+            rollupData.forEach(function (d) {
+                finalArray.push(d[mainField]);
+            }, this);
         }
         // Return the ordered list
-        return rollupData;
+        return finalArray;
     };
 
 
