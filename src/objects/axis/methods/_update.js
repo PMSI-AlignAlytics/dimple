@@ -31,7 +31,7 @@
                             }
                         }, this);
                     }
-                    definitions = self._orderDefinitions.concat({ ordering : sortBy, desc : desc });
+                    definitions = self._orderRules.concat({ ordering : sortBy, desc : desc });
                     return dimple._getOrderedList(self.chart.data, category, definitions);
                 };
 
@@ -76,12 +76,7 @@
             } else if (this.position.length > 0 && this.position[0] === "y") {
                 // Set the height both logical and physical of the axis
                 if (this.measure === null || this.measure === undefined) {
-                    distinctCats = [];
-                    this.chart.data.forEach(function (d) {
-                        if (distinctCats.indexOf(d[this.categoryFields[0]]) === -1) {
-                            distinctCats.push(d[this.categoryFields[0]]);
-                        }
-                    }, this);
+                    distinctCats = getOrderedCategories(this, "y", "x");
                     this._scale = d3.scale.ordinal()
                         .rangePoints([this.chart.y + this.chart.height, this.chart.y])
                         .domain(distinctCats.concat([""]));

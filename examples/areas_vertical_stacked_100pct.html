@@ -8,7 +8,8 @@
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(80, 30, 480, 330);
       myChart.addPctAxis("x", "Unit Sales");
-      myChart.addCategoryAxis("y", "Month");
+      var y = myChart.addCategoryAxis("y", "Month");
+      y.addOrderRule("Date");
       myChart.addSeries("Channel", dimple.plot.area);
       myChart.addLegend(60, 10, 500, 20, "right");
       myChart.draw();

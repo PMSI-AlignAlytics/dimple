@@ -5,9 +5,10 @@
     var svg = dimple.newSvg("#chartContainer", 590, 400);
       d3.tsv("/data/example_data.tsv", function (data) {
         var myChart = new dimple.chart(svg, data);
-        myChart.setBounds(75, 30, 480, 330)
+        myChart.setBounds(75, 30, 480, 320)
         myChart.addMeasureAxis("x", "Unit Sales");
-        myChart.addCategoryAxis("y", "Month");
+        var y = myChart.addCategoryAxis("y", "Month");
+        y.addOrderRule("Date");
         myChart.addSeries("Channel", dimple.plot.bubble);
         myChart.addLegend(180, 10, 360, 20, "right");
         myChart.draw();

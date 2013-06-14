@@ -30,3 +30,5 @@
         this._categories = [];
         // The category values when the last cache happened
         this._cachedCategoryFields = [];
+        // The rules for ordering the storyboard
+        this._orderRules = [];

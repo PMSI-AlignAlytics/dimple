@@ -35,3 +35,5 @@
         this._eventHandlers = [];
         // The series positioning information
         this._positionData = [];
+        // The order definition array
+        this._orderRules = [];

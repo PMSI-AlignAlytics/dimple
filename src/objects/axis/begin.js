@@ -41,5 +41,7 @@
         this._previousOrigin = null;
         this._origin = null;
         // The order definition array
-        this._orderDefinitions = [];
+        this._orderRules = [];
+        // The group order definition array
+        this._groupOrderRules = [];
 

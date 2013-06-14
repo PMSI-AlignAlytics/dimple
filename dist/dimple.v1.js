@@ -56,7 +56,9 @@ var dimple = {
         this._previousOrigin = null;
         this._origin = null;
         // The order definition array
-        this._orderDefinitions = [];
+        this._orderRules = [];
+        // The group order definition array
+        this._groupOrderRules = [];
 
 
         // Copyright: 2013 PMSI-AlignAlytics
@@ -149,7 +151,7 @@ var dimple = {
                             }
                         }, this);
                     }
-                    definitions = self._orderDefinitions.concat({ ordering : sortBy, desc : desc });
+                    definitions = self._orderRules.concat({ ordering : sortBy, desc : desc });
                     return dimple._getOrderedList(self.chart.data, category, definitions);
                 };
 
@@ -194,12 +196,7 @@ var dimple = {
             } else if (this.position.length > 0 && this.position[0] === "y") {
                 // Set the height both logical and physical of the axis
                 if (this.measure === null || this.measure === undefined) {
-                    distinctCats = [];
-                    this.chart.data.forEach(function (d) {
-                        if (distinctCats.indexOf(d[this.categoryFields[0]]) === -1) {
-                            distinctCats.push(d[this.categoryFields[0]]);
-                        }
-                    }, this);
+                    distinctCats = getOrderedCategories(this, "y", "x");
                     this._scale = d3.scale.ordinal()
                         .rangePoints([this.chart.y + this.chart.height, this.chart.y])
                         .domain(distinctCats.concat([""]));
@@ -269,10 +266,17 @@ var dimple = {
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/addAxis.js
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addAxis
-        this.addOrderDefinition = function (ordering, desc) {
-            this._orderDefinitions.push({ ordering : ordering, desc : desc });
+        // Source: /src/objects/axis/methods/addGroupOrderRule.js
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-addGroupOrderRule
+        this.addGroupOrderRule = function (ordering, desc) {
+            this._groupOrderRules.push({ ordering : ordering, desc : desc });
+        };
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/axis/methods/addOrderRule.js
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-addOrderRule
+        this.addOrderRule = function (ordering, desc) {
+            this._orderRules.push({ ordering : ordering, desc : desc });
         };
     };
     // End dimple.axis
@@ -380,9 +384,67 @@ var dimple = {
                         addedCats = [],
                         catTotals = {},
                         grandTotals = { x: 0, y: 0, z: 0 },
-                        key;
+                        key,
+                        storyCat = "",
+                        orderedStoryboardArray = [],
+                        seriesCat = "",
+                        orderedSeriesArray = [],
+                        xCat = "",
+                        xSortArray = [],
+                        yCat = "",
+                        ySortArray = [],
+                        rules = [],
+                        sortedData = this.data,
+                        groupRules = [];
+
+                    if (this.storyboard !== null && this.storyboard !== undefined && this.storyboard.categoryFields.length > 0) {
+                        storyCat = this.storyboard.categoryFields[0];
+                        orderedStoryboardArray = dimple._getOrderedList(this.data, storyCat, this.storyboard._orderRules);
+                    }
+
+                    // Deal with mekkos
+                    if (series.x._hasCategories() && series.x._hasMeasure()) {
+                        xCat = series.x.categoryFields[0];
+                        xSortArray = dimple._getOrderedList(this.data, xCat, series.x._orderRules.concat([{ ordering : series.x.measure, desc : true }]));
+                    }
+                    if (series.y._hasCategories() && series.y._hasMeasure()) {
+                        yCat = series.y.categoryFields[0];
+                        ySortArray = dimple._getOrderedList(this.data, yCat, series.y._orderRules.concat([{ ordering : series.y.measure, desc : true }]));
+                    }
+
+                    if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
+                        seriesCat = series.categoryFields[0];
+                        if (series.c !== null && series.c !== undefined && series.c._hasMeasure()) {
+                            rules.push({ ordering : series.c.measure, desc : true });
+                        } else if (series.z !== null && series.z !== undefined && series.z._hasMeasure()) {
+                            rules.push({ ordering : series.z.measure, desc : true });
+                        } else if (series.x._hasMeasure()) {
+                            rules.push({ ordering : series.x.measure, desc : true });
+                        } else if (series.y._hasMeasure()) {
+                            rules.push({ ordering : series.y.measure, desc : true });
+                        }
+                        orderedSeriesArray = dimple._getOrderedList(this.data, seriesCat, rules);
+                    }
+
+                    sortedData.sort(function (a, b) {
+                        var returnValue = 0;
+                        if (storyCat !== "") {
+                            returnValue = orderedStoryboardArray.indexOf(a[storyCat]) - orderedStoryboardArray.indexOf(b[storyCat]);
+                        }
+                        if (xCat !== "" && returnValue === 0) {
+                            returnValue = xSortArray.indexOf(a[xCat]) - xSortArray.indexOf(b[xCat]);
+                        }
+                        if (yCat !== "" && returnValue === 0) {
+                            returnValue = ySortArray.indexOf(a[yCat]) - ySortArray.indexOf(b[yCat]);
+                        }
+                        if (seriesCat !== "" && returnValue === 0) {
+                            returnValue = orderedSeriesArray.indexOf(a[seriesCat]) - orderedSeriesArray.indexOf(b[seriesCat]);
+                        }
+                        return returnValue;
+                    });
+
                     // Iterate every row in the data to calculate the return values
-                    this.data.forEach(function (d) {
+                    sortedData.forEach(function (d) {
                         // Reset the index
                         var foundIndex = -1,
                             xField = getField(series.x, d),
@@ -448,6 +510,7 @@ var dimple = {
                             returnData.push(newRow);
                             foundIndex = returnData.length - 1;
                         }
+
                         // Update the return data for the passed axis
                         updateData = function (axis, storyboard) {
                             var passStoryCheck = true,
@@ -486,12 +549,6 @@ var dimple = {
                                     retRow[axis.position + "Count"] += 1;
                                 }
                             }
-                            // Get secondary elements if necessary
-                            if (axis !== null && axis !== undefined && axis._hasCategories() && axis.categoryFields.length > 1 && secondaryElements[axis.position] !== undefined) {
-                                if (secondaryElements[axis.position].indexOf(d[axis.categoryFields[1]]) === -1) {
-                                    secondaryElements[axis.position].push(d[axis.categoryFields[1]]);
-                                }
-                            }
                         };
                         // Update all the axes
                         updateData(series.x, this.storyboard);
@@ -499,6 +556,22 @@ var dimple = {
                         updateData(series.z, this.storyboard);
                         updateData(series.c, this.storyboard);
                     }, this);
+                    // Get secondary elements if necessary
+                    if (series.x !== null && series.x !== undefined && series.x._hasCategories() && series.x.categoryFields.length > 1 && secondaryElements.x !== undefined) {
+                        groupRules = [];
+                        if (series.y._hasMeasure()) {
+                            groupRules.push({ ordering : series.y.measure, desc : true });
+                        }
+                        secondaryElements.x = dimple._getOrderedList(this.data, series.x.categoryFields[1], series.x._groupOrderRules.concat(groupRules));
+                    }
+                    if (series.y !== null && series.y !== undefined && series.y._hasCategories() && series.y.categoryFields.length > 1 && secondaryElements.y !== undefined) {
+                        groupRules = [];
+                        if (series.x._hasMeasure()) {
+                            groupRules.push({ ordering : series.x.measure, desc : true });
+                        }
+                        secondaryElements.y = dimple._getOrderedList(this.data, series.y.categoryFields[1], series.y._groupOrderRules.concat(groupRules));
+                        secondaryElements.y.reverse();
+                    }
                     returnData.forEach(function (ret) {
                         if (series.x !== null) {
                             if (useCount.x === true) { ret.xValue = ret.xValueList.length; }
@@ -521,20 +594,7 @@ var dimple = {
                         }
                     }, this);
                     // Before calculating the positions we need to sort elements
-                    // EXTEND THIS TO BE MORE USER FLEXIBLE
-                    returnData.sort(function (a, b) {
-                        var returnVal = 0;
-                        if (a.aggField !== b.aggField) {
-                            returnVal = (a.aggField.join("/") < b.aggField.join("/") ? -1 : 1);
-                        } else if (a.xField !== b.xField) {
-                            returnVal = (a.xField.join("/") < b.xField.join("/") ? -1 : 1);
-                        } else if (a.yField !== b.yField) {
-                            returnVal = (a.yField.join("/") < b.yField.join("/") ? -1 : 1);
-                        } else if (a.zField !== b.zField) {
-                            returnVal = (a.zField.join("/") < b.zField.join("/") ? -1 : 1);
-                        }
-                        return returnVal;
-                    });
+
                     // Set all the dimension properties of the data
                     for (key in totals.x) { if (totals.x.hasOwnProperty(key)) { grandTotals.x += totals.x[key]; } }
                     for (key in totals.y) { if (totals.y.hasOwnProperty(key)) { grandTotals.y += totals.y[key]; } }
@@ -1406,6 +1466,8 @@ var dimple = {
         this._eventHandlers = [];
         // The series positioning information
         this._positionData = [];
+        // The order definition array
+        this._orderRules = [];
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -1588,6 +1650,13 @@ var dimple = {
         };
 
 
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/series/methods/addOrderRule.js
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-addOrderRule
+        this.addOrderRule = function (ordering, desc) {
+            this._orderRules.push({ ordering : ordering, desc : desc });
+        };
     };
     // End dimple.series
 
@@ -1624,6 +1693,8 @@ var dimple = {
         this._categories = [];
         // The category values when the last cache happened
         this._cachedCategoryFields = [];
+        // The rules for ordering the storyboard
+        this._orderRules = [];
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -1695,6 +1766,13 @@ var dimple = {
         };
 
 
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/storyboard/methods/addOrderRule.js
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-addOrderRule
+        this.addOrderRule = function (ordering, desc) {
+            this._orderRules.push({ ordering : ordering, desc : desc });
+        };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/getFrameValue.js

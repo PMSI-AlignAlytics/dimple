@@ -8,7 +8,8 @@
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(90, 30, 320, 330)
       myChart.addPctAxis("x", "Unit Sales");
-      myChart.addCategoryAxis("y", ["Owner", "Month"]);
+      var y = myChart.addCategoryAxis("y", ["Owner", "Month"]);
+      y.addGroupOrderRule("Date");
       var s = myChart.addSeries("SKU", dimple.plot.area);
       s.lineWeight = 1;
       s.barGap = 0.05;
