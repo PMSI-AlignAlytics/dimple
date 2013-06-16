@@ -18,19 +18,21 @@
       // for a mekko, but not a requirement in dimple.
       myChart.addPctAxis("y", "Unit Sales");
 
-      // Color by Unit Sales.  By defining this without specifying the color range
-      // in the second parameter, dimple will assign colors as usual and adjust
-      // saturation based on the Unit Sales value.
+      // Color by Unit Sales.  By defining this without specifying the color
+      // range in the second parameter, dimple will assign colors as usual
+      // and adjust saturation based on the Unit Sales value.
       var c = myChart.addColorAxis("Unit Sales");
 
-      // Override the minimum axis value to a lower number.  By default the range of
-      // values is used with the minimum being 0 saturation and the maximum being 100%
-      // this causes the bars to be too washed out in this particular case.
+      // Override the minimum axis value to a lower number.  By default the
+      // range of values is used with the minimum being 0 saturation and the
+      // maximum being 100% this causes the bars to be too washed out in this
+      // particular case.
       c.overrideMin = -10000;
 
-      // Draw SKU's for the series, by specifying owner second here, it ensures dimple
-      // will color by owner rather than SKU.  This suits the grouping to give blocks of
-      // color for each owner faded by the SKU unit sales value
+      // Draw SKU's for the series, by specifying owner second here, it
+      // ensures dimple will color by owner rather than SKU.  This suits the
+      // grouping to give blocks of color for each owner faded by the SKU
+      // unit sales value.
       myChart.addSeries(["SKU", "Owner"], dimple.plot.bar);
     
       // Add a legend
