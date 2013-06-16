@@ -7,7 +7,8 @@
       data = dimple.filterData(data, "Owner", ["Aperture", "Black Mesa"])
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(70, 30, 490, 310)
-      myChart.addCategoryAxis("x", "Month");
+      var x = myChart.addCategoryAxis("x", "Month");
+      x.addOrderRule("Date");
       myChart.addMeasureAxis("y", "Unit Sales");
       var s = myChart.addSeries(null, dimple.plot.area);
       myChart.draw();

@@ -17,7 +17,10 @@
         var x = myChart.addCategoryAxis("x", "Brand");
         var y1 = myChart.addMeasureAxis("y", "Price");
         var y2 = myChart.addMeasureAxis("y", "Sales Value");
-        
+
+        // Order the x axis by sales value desc
+        x.addOrderRule("Sales Value", true);
+
         // Color the sales bars to be highly transparent
         myChart.assignColor("Sales", "#222222", "#000000", 0.1);
         

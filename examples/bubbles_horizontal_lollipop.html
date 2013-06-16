@@ -10,7 +10,8 @@
         var myChart = new dimple.chart(svg, data);
         myChart.setBounds(75, 30, 480, 330)
         myChart.addMeasureAxis("x", "Unit Sales");
-        myChart.addCategoryAxis("y", "Month");
+        var y = myChart.addCategoryAxis("y", "Month");
+        y.addOrderRule("Date");
         myChart.addMeasureAxis("z", "Operating Profit");
         myChart.addSeries("Channel", dimple.plot.bubble);
         myChart.addLegend(180, 10, 360, 20, "right");

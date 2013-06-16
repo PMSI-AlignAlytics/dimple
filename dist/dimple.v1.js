@@ -55,6 +55,10 @@ var dimple = {
         // with transitions
         this._previousOrigin = null;
         this._origin = null;
+        // The order definition array
+        this._orderRules = [];
+        // The group order definition array
+        this._groupOrderRules = [];
 
 
         // Copyright: 2013 PMSI-AlignAlytics
@@ -123,7 +127,33 @@ var dimple = {
                 ticks,
                 step,
                 remainder,
-                origin;
+                origin,
+                getOrderedCategories = function (self, axPos, oppPos) {
+                    var category = self.categoryFields[0],
+                        sortBy = category,
+                        desc = false,
+                        isDate = true,
+                        i,
+                        definitions = [];
+                    // Check whether this field is a date
+                    for (i = 0; i < self.chart.data.length; i += 1) {
+                        if (isNaN(Date.parse(self.chart.data[i][category]))) {
+                            isDate = false;
+                            break;
+                        }
+                    }
+                    if (!isDate) {
+                        // Find the first series which connects this axis to another
+                        self.chart.series.forEach(function (s) {
+                            if (s[axPos] === self && s[oppPos]._hasMeasure()) {
+                                sortBy = s[oppPos].measure;
+                                desc = true;
+                            }
+                        }, this);
+                    }
+                    definitions = self._orderRules.concat({ ordering : sortBy, desc : desc });
+                    return dimple._getOrderedList(self.chart.data, category, definitions);
+                };
 
             // If the axis is a percentage type axis the bounds must be between -1 and 1.  Sometimes
             // binary rounding means it can fall outside that bound so tidy up here
@@ -137,24 +167,27 @@ var dimple = {
             // If this is an x axis
             if (this.position.length > 0 && this.position[0] === "x") {
                 if (this.measure === null || this.measure === undefined) {
-                    distinctCats = [];
-                    this.chart.data.forEach(function (d) {
-                        if (distinctCats.indexOf(d[this.categoryFields[0]]) === -1) {
-                            distinctCats.push(d[this.categoryFields[0]]);
-                        }
-                    }, this);
-                    this._scale = d3.scale.ordinal().rangePoints([this.chart.x, this.chart.x + this.chart.width]).domain(distinctCats.concat([""]));
+                    distinctCats = getOrderedCategories(this, "x", "y");
+                    this._scale = d3.scale.ordinal()
+                        .rangePoints([this.chart.x, this.chart.x + this.chart.width])
+                        .domain(distinctCats.concat([""]));
                 } else {
-                    this._scale = d3.scale.linear().range([this.chart.x, this.chart.x + this.chart.width]).domain([this._min, this._max]).nice();
+                    this._scale = d3.scale.linear()
+                        .range([this.chart.x, this.chart.x + this.chart.width])
+                        .domain([this._min, this._max]).nice();
                 }
                 // If it's visible, orient it at the top or bottom if it's first or second respectively
                 if (!this.hidden) {
                     switch (this.chart._axisIndex(this, "x")) {
                     case 0:
-                        this._draw = d3.svg.axis().orient("bottom").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("bottom")
+                            .scale(this._scale);
                         break;
                     case 1:
-                        this._draw = d3.svg.axis().orient("top").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("top")
+                            .scale(this._scale);
                         break;
                     default:
                         break;
@@ -163,33 +196,41 @@ var dimple = {
             } else if (this.position.length > 0 && this.position[0] === "y") {
                 // Set the height both logical and physical of the axis
                 if (this.measure === null || this.measure === undefined) {
-                    distinctCats = [];
-                    this.chart.data.forEach(function (d) {
-                        if (distinctCats.indexOf(d[this.categoryFields[0]]) === -1) {
-                            distinctCats.push(d[this.categoryFields[0]]);
-                        }
-                    }, this);
-                    this._scale = d3.scale.ordinal().rangePoints([this.chart.y + this.chart.height, this.chart.y]).domain(distinctCats.concat([""]));
+                    distinctCats = getOrderedCategories(this, "y", "x");
+                    this._scale = d3.scale.ordinal()
+                        .rangePoints([this.chart.y + this.chart.height, this.chart.y])
+                        .domain(distinctCats.concat([""]));
                 } else {
-                    this._scale = d3.scale.linear().range([this.chart.y + this.chart.height, this.chart.y]).domain([this._min, this._max]).nice();
+                    this._scale = d3.scale.linear()
+                        .range([this.chart.y + this.chart.height, this.chart.y])
+                        .domain([this._min, this._max])
+                        .nice();
                 }
                 // if it's visible, orient it at the left or right if it's first or second respectively
                 if (!this.hidden) {
                     switch (this.chart._axisIndex(this, "y")) {
                     case 0:
-                        this._draw = d3.svg.axis().orient("left").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("left")
+                            .scale(this._scale);
                         break;
                     case 1:
-                        this._draw = d3.svg.axis().orient("right").scale(this._scale);
+                        this._draw = d3.svg.axis()
+                            .orient("right")
+                            .scale(this._scale);
                         break;
                     default:
                         break;
                     }
                 }
             } else if (this.position.length > 0 && this.position[0] === "z") {
-                this._scale = d3.scale.linear().range([this.chart.height / 300, this.chart.height / 10]).domain([this._min, this._max]);
+                this._scale = d3.scale.linear()
+                    .range([this.chart.height / 300, this.chart.height / 10])
+                    .domain([this._min, this._max]);
             } else if (this.position.length > 0 && this.position[0] === "c") {
-                this._scale = d3.scale.linear().range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)]).domain([this._min, this._max]);
+                this._scale = d3.scale.linear()
+                    .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
+                    .domain([this._min, this._max]);
             }
             // Check that the axis ends on a labelled tick
             if ((refactor === null || refactor === undefined || refactor === false) && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0) {
@@ -223,6 +264,20 @@ var dimple = {
         };
 
 
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/axis/methods/addGroupOrderRule.js
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-addGroupOrderRule
+        this.addGroupOrderRule = function (ordering, desc) {
+            this._groupOrderRules.push({ ordering : ordering, desc : desc });
+        };
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/axis/methods/addOrderRule.js
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-addOrderRule
+        this.addOrderRule = function (ordering, desc) {
+            this._orderRules.push({ ordering : ordering, desc : desc });
+        };
     };
     // End dimple.axis
 
@@ -329,9 +384,67 @@ var dimple = {
                         addedCats = [],
                         catTotals = {},
                         grandTotals = { x: 0, y: 0, z: 0 },
-                        key;
+                        key,
+                        storyCat = "",
+                        orderedStoryboardArray = [],
+                        seriesCat = "",
+                        orderedSeriesArray = [],
+                        xCat = "",
+                        xSortArray = [],
+                        yCat = "",
+                        ySortArray = [],
+                        rules = [],
+                        sortedData = this.data,
+                        groupRules = [];
+
+                    if (this.storyboard !== null && this.storyboard !== undefined && this.storyboard.categoryFields.length > 0) {
+                        storyCat = this.storyboard.categoryFields[0];
+                        orderedStoryboardArray = dimple._getOrderedList(this.data, storyCat, this.storyboard._orderRules);
+                    }
+
+                    // Deal with mekkos
+                    if (series.x._hasCategories() && series.x._hasMeasure()) {
+                        xCat = series.x.categoryFields[0];
+                        xSortArray = dimple._getOrderedList(this.data, xCat, series.x._orderRules.concat([{ ordering : series.x.measure, desc : true }]));
+                    }
+                    if (series.y._hasCategories() && series.y._hasMeasure()) {
+                        yCat = series.y.categoryFields[0];
+                        ySortArray = dimple._getOrderedList(this.data, yCat, series.y._orderRules.concat([{ ordering : series.y.measure, desc : true }]));
+                    }
+
+                    if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
+                        seriesCat = series.categoryFields[0];
+                        if (series.c !== null && series.c !== undefined && series.c._hasMeasure()) {
+                            rules.push({ ordering : series.c.measure, desc : true });
+                        } else if (series.z !== null && series.z !== undefined && series.z._hasMeasure()) {
+                            rules.push({ ordering : series.z.measure, desc : true });
+                        } else if (series.x._hasMeasure()) {
+                            rules.push({ ordering : series.x.measure, desc : true });
+                        } else if (series.y._hasMeasure()) {
+                            rules.push({ ordering : series.y.measure, desc : true });
+                        }
+                        orderedSeriesArray = dimple._getOrderedList(this.data, seriesCat, rules);
+                    }
+
+                    sortedData.sort(function (a, b) {
+                        var returnValue = 0;
+                        if (storyCat !== "") {
+                            returnValue = orderedStoryboardArray.indexOf(a[storyCat]) - orderedStoryboardArray.indexOf(b[storyCat]);
+                        }
+                        if (xCat !== "" && returnValue === 0) {
+                            returnValue = xSortArray.indexOf(a[xCat]) - xSortArray.indexOf(b[xCat]);
+                        }
+                        if (yCat !== "" && returnValue === 0) {
+                            returnValue = ySortArray.indexOf(a[yCat]) - ySortArray.indexOf(b[yCat]);
+                        }
+                        if (seriesCat !== "" && returnValue === 0) {
+                            returnValue = orderedSeriesArray.indexOf(a[seriesCat]) - orderedSeriesArray.indexOf(b[seriesCat]);
+                        }
+                        return returnValue;
+                    });
+
                     // Iterate every row in the data to calculate the return values
-                    this.data.forEach(function (d) {
+                    sortedData.forEach(function (d) {
                         // Reset the index
                         var foundIndex = -1,
                             xField = getField(series.x, d),
@@ -397,6 +510,7 @@ var dimple = {
                             returnData.push(newRow);
                             foundIndex = returnData.length - 1;
                         }
+
                         // Update the return data for the passed axis
                         updateData = function (axis, storyboard) {
                             var passStoryCheck = true,
@@ -435,12 +549,6 @@ var dimple = {
                                     retRow[axis.position + "Count"] += 1;
                                 }
                             }
-                            // Get secondary elements if necessary
-                            if (axis !== null && axis !== undefined && axis._hasCategories() && axis.categoryFields.length > 1 && secondaryElements[axis.position] !== undefined) {
-                                if (secondaryElements[axis.position].indexOf(d[axis.categoryFields[1]]) === -1) {
-                                    secondaryElements[axis.position].push(d[axis.categoryFields[1]]);
-                                }
-                            }
                         };
                         // Update all the axes
                         updateData(series.x, this.storyboard);
@@ -448,6 +556,22 @@ var dimple = {
                         updateData(series.z, this.storyboard);
                         updateData(series.c, this.storyboard);
                     }, this);
+                    // Get secondary elements if necessary
+                    if (series.x !== null && series.x !== undefined && series.x._hasCategories() && series.x.categoryFields.length > 1 && secondaryElements.x !== undefined) {
+                        groupRules = [];
+                        if (series.y._hasMeasure()) {
+                            groupRules.push({ ordering : series.y.measure, desc : true });
+                        }
+                        secondaryElements.x = dimple._getOrderedList(this.data, series.x.categoryFields[1], series.x._groupOrderRules.concat(groupRules));
+                    }
+                    if (series.y !== null && series.y !== undefined && series.y._hasCategories() && series.y.categoryFields.length > 1 && secondaryElements.y !== undefined) {
+                        groupRules = [];
+                        if (series.x._hasMeasure()) {
+                            groupRules.push({ ordering : series.x.measure, desc : true });
+                        }
+                        secondaryElements.y = dimple._getOrderedList(this.data, series.y.categoryFields[1], series.y._groupOrderRules.concat(groupRules));
+                        secondaryElements.y.reverse();
+                    }
                     returnData.forEach(function (ret) {
                         if (series.x !== null) {
                             if (useCount.x === true) { ret.xValue = ret.xValueList.length; }
@@ -470,20 +594,7 @@ var dimple = {
                         }
                     }, this);
                     // Before calculating the positions we need to sort elements
-                    // EXTEND THIS TO BE MORE USER FLEXIBLE
-                    returnData.sort(function (a, b) {
-                        var returnVal = 0;
-                        if (a.aggField !== b.aggField) {
-                            returnVal = (a.aggField.join("/") < b.aggField.join("/") ? -1 : 1);
-                        } else if (a.xField !== b.xField) {
-                            returnVal = (a.xField.join("/") < b.xField.join("/") ? -1 : 1);
-                        } else if (a.yField !== b.yField) {
-                            returnVal = (a.yField.join("/") < b.yField.join("/") ? -1 : 1);
-                        } else if (a.zField !== b.zField) {
-                            returnVal = (a.zField.join("/") < b.zField.join("/") ? -1 : 1);
-                        }
-                        return returnVal;
-                    });
+
                     // Set all the dimension properties of the data
                     for (key in totals.x) { if (totals.x.hasOwnProperty(key)) { grandTotals.x += totals.x[key]; } }
                     for (key in totals.y) { if (totals.y.hasOwnProperty(key)) { grandTotals.y += totals.y[key]; } }
@@ -541,11 +652,16 @@ var dimple = {
                             // Limit the bounds of the color value to be within the range.  Users may override the axis bounds and this
                             // allows a 2 color scale rather than blending if the min and max are set to 0 and 0.01 for example negative values
                             // and zero value would be 1 color and positive another.
+                            colorBounds.min = (series.c.overrideMin !== null && series.c.overrideMin !== undefined ? series.c.overrideMin : colorBounds.min);
+                            colorBounds.max = (series.c.overrideMax !== null && series.c.overrideMax !== undefined ? series.c.overrideMax : colorBounds.max);
                             ret.cValue = (ret.cValue > colorBounds.max ? colorBounds.max : (ret.cValue < colorBounds.min ? colorBounds.min : ret.cValue));
                             // Calculate the factors for the calculations
                             scale = d3.scale.linear().range([0, (series.c.colors === null || series.c.colors.length === 1 ? 1 : series.c.colors.length - 1)]).domain([colorBounds.min, colorBounds.max]);
                             colorVal = scale(ret.cValue);
                             floatingPortion = colorVal - Math.floor(colorVal);
+                            if (ret.cValue === colorBounds.max) {
+                                floatingPortion = 1;
+                            }
                             // If there is a single color defined
                             if (series.c.colors !== null && series.c.colors !== undefined && series.c.colors.length === 1) {
                                 baseColor = d3.rgb(series.c.colors[0]);
@@ -1355,6 +1471,8 @@ var dimple = {
         this._eventHandlers = [];
         // The series positioning information
         this._positionData = [];
+        // The order definition array
+        this._orderRules = [];
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -1537,6 +1655,13 @@ var dimple = {
         };
 
 
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/series/methods/addOrderRule.js
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-addOrderRule
+        this.addOrderRule = function (ordering, desc) {
+            this._orderRules.push({ ordering : ordering, desc : desc });
+        };
     };
     // End dimple.series
 
@@ -1573,16 +1698,25 @@ var dimple = {
         this._categories = [];
         // The category values when the last cache happened
         this._cachedCategoryFields = [];
+        // The rules for ordering the storyboard
+        this._orderRules = [];
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/drawText.js
         this._drawText = function (duration) {
             if (this.storyLabel === null || this.storyLabel === undefined) {
-                var chart = this;
+                var chart = this,
+                    xCount = 0;
+                // Check for a secondary x axis
+                this.chart.axes.forEach(function (a) {
+                    if (a.position === "x") {
+                        xCount += 1;
+                    }
+                }, this);
                 this.storyLabel = this.chart._group.append("text")
                     .attr("x", this.chart.x + this.chart.width * 0.01)
-                    .attr("y", this.chart.y + (this.chart.height / 35 > 10 ? this.chart.height / 35 : 10) * 1.25)
+                    .attr("y", this.chart.y + (this.chart.height / 35 > 10 ? this.chart.height / 35 : 10) * (xCount > 1 ? 1.25 : -1))
                     .call(function () {
                         if (!chart.noFormats) {
                             this.style("font-family", "sans-serif")
@@ -1644,6 +1778,13 @@ var dimple = {
         };
 
 
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/storyboard/methods/addOrderRule.js
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-addOrderRule
+        this.addOrderRule = function (ordering, desc) {
+            this._orderRules.push({ ordering : ordering, desc : desc });
+        };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/getFrameValue.js
@@ -3154,7 +3295,7 @@ var dimple = {
     // Copyright: 2013 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/chart/methods/_getOrderedList.js
-    dimple._getOrderedList = function (data, fields, levelDefinitions) {
+    dimple._getOrderedList = function (data, mainField, levelDefinitions) {
         // Force the level definitions into an array
         if (levelDefinitions === null || levelDefinitions === undefined) {
             levelDefinitions = [];
@@ -3162,31 +3303,55 @@ var dimple = {
             levelDefinitions = [].concat(levelDefinitions);
         }
         // Add the base case
-        levelDefinitions = levelDefinitions.concat({ ordering: fields, desc: false });
+        levelDefinitions = levelDefinitions.concat({ ordering: mainField, desc: false });
         // Function for recursively sorting
-        var rollupData = dimple._rollUp(data, fields),
-            sortStack = [];
+        var rollupData = [],
+            sortStack = [],
+            finalArray = [],
+            fields = [mainField];
+        // Exclude fields if this does not contain a function
+        levelDefinitions.forEach(function (def) {
+            var field;
+            if (typeof def.ordering === "function") {
+                for (field in data[0]) {
+                    if (data[0].hasOwnProperty(field) && fields.indexOf(field) === -1) {
+                        fields.push(field);
+                    }
+                }
+            } else if (!(def.ordering instanceof Array)) {
+                fields.push(def.ordering);
+            }
+        }, this);
+        rollupData = dimple._rollUp(data, mainField, fields);
         // If we go below the leaf stop recursing
         if (levelDefinitions.length >= 1) {
             // Build a stack of compare methods
             // Iterate each level definition
-            levelDefinitions.forEach(function (def, i) {
+            levelDefinitions.forEach(function (def) {
                 // Draw ascending by default
                 var desc = (def.desc === null || def.desc === undefined ? false : def.desc),
                     ordering = def.ordering,
                     orderArray = [],
                     field = (typeof ordering === "string" ? ordering : null),
                     sum = function (array) {
-                        var total = 0;
-                        array.forEach(function (n) {
-                            total += n;
-                        });
+                        var total = 0,
+                            i;
+                        for (i = 0; i < array.length; i += 1) {
+                            if (isNaN(array[i])) {
+                                total = 0;
+                                break;
+                            } else {
+                                total += parseFloat(array[i]);
+                            }
+                        }
                         return total;
                     },
                     compare = function (a, b) {
-                        var result = 0;
-                        if (!isNaN(sum(a)) && !isNaN(sum(b))) {
-                            result = parseFloat(sum(a)) - parseFloat(sum(b));
+                        var result = 0,
+                            sumA = sum(a),
+                            sumB = sum(b);
+                        if (!isNaN(sumA) && sumA !== 0 && !isNaN(sumB) && sumB !== 0) {
+                            result = parseFloat(sumA) - parseFloat(sumB);
                         } else if (!isNaN(Date.parse(a[0])) && !isNaN(Date.parse(b[0]))) {
                             result = Date.parse(a[0]) - Date.parse(b[0]);
                         } else if (a[0] < b[0]) {
@@ -3212,14 +3377,10 @@ var dimple = {
                     }, this);
                     // Sort according to the axis position
                     sortStack.push(function (a, b) {
-                        var aStr = "",
-                            bStr = "",
+                        var aStr = "".concat(a[mainField]),
+                            bStr = "".concat(b[mainField]),
                             aIx,
                             bIx;
-                        [].concat(fields).forEach(function (f) {
-                            aStr += (i > 0 ? "|" : "") + a[f];
-                            bStr += (i > 0 ? "|" : "") + b[f];
-                        }, this);
                         // If the value is not found it should go to the end (if descending it
                         // should go to the start so that it ends up at the back when reversed)
                         aIx = orderArray.indexOf(aStr);
@@ -3251,9 +3412,14 @@ var dimple = {
                 }
                 return result;
             });
+            // Return a simple array if only one field is being returned.
+            // for multiple fields remove extra fields but leave objects
+            rollupData.forEach(function (d) {
+                finalArray.push(d[mainField]);
+            }, this);
         }
         // Return the ordered list
-        return rollupData;
+        return finalArray;
     };
 
 
@@ -3313,7 +3479,7 @@ var dimple = {
         // Calculate the x gap for clusters within bar type charts
         xClusterGap: function (d, chart, series) {
             var returnXClusterGap = 0;
-            if (series.x.categoryFields !== null && series.x.categoryFields !== undefined && series.x.categoryFields.length >= 2 && series.clusterBarGap > 0) {
+            if (series.x.categoryFields !== null && series.x.categoryFields !== undefined && series.x.categoryFields.length >= 2 && series.clusterBarGap > 0 && !series.x._hasMeasure()) {
                 returnXClusterGap = (d.width * ((chart.width / series.x._max) - (dimple._helpers.xGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
             }
             return returnXClusterGap;
@@ -3331,7 +3497,7 @@ var dimple = {
         // Calculate the y gap for clusters within bar type charts
         yClusterGap: function (d, chart, series) {
             var returnYClusterGap = 0;
-            if (series.y.categoryFields !== null && series.y.categoryFields !== undefined && series.y.categoryFields.length >= 2 && series.clusterBarGap > 0) {
+            if (series.y.categoryFields !== null && series.y.categoryFields !== undefined && series.y.categoryFields.length >= 2 && series.clusterBarGap > 0 && !series.y._hasMeasure()) {
                 returnYClusterGap = (d.height * ((chart.height / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
             }
             return returnYClusterGap;
@@ -3414,7 +3580,7 @@ var dimple = {
     // Copyright: 2013 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_rollUp.js
-    dimple._rollUp = function (data, fields) {
+    dimple._rollUp = function (data, fields, includeFields) {
 
         var returnList = [];
         // Put single values into single value arrays
@@ -3428,8 +3594,7 @@ var dimple = {
             // The index of the corresponding row in the return list
             var index = -1,
                 newRow = {},
-                match = true,
-                field;
+                match = true;
             // Find the corresponding value in the return list
             returnList.forEach(function (r, j) {
                 if (index === -1) {
@@ -3457,14 +3622,14 @@ var dimple = {
                 index = returnList.length - 1;
             }
             // Iterate all the fields in the data
-            for (field in d) {
-                if (d.hasOwnProperty(field) && fields.indexOf(field) === -1) {
+            includeFields.forEach(function (field) {
+                if (fields.indexOf(field) === -1) {
                     if (newRow[field] === undefined) {
                         newRow[field] = [];
                     }
                     newRow[field] = newRow[field].concat(d[field]);
                 }
-            }
+            }, this);
             // Update the return list
             returnList[index] = newRow;
         }, this);

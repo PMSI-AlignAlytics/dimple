@@ -9,7 +9,8 @@
           "01/10/2012", "01/11/2012", "01/12/2012"]);
         var myChart = new dimple.chart(svg, data);
         myChart.setBounds(60, 30, 500, 330)
-        myChart.addCategoryAxis("x", "Month");
+        var x = myChart.addCategoryAxis("x", "Month");
+        x.addOrderRule("Date");
         myChart.addMeasureAxis("y", "Unit Sales");
         myChart.addMeasureAxis("z", "Operating Profit");
         myChart.addSeries("Channel", dimple.plot.bubble);

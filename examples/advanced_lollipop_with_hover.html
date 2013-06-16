@@ -1,11 +1,14 @@
 <div id="chartContainer">
   <script src="http://d3js.org/d3.v3.min.js"></script>
-  <script src="/dist/dimple.v1.js"></script>
+  <script src="/dist/dimple.v1.min.js"></script>
   <script type="text/javascript">
     
     var svg = dimple.newSvg("#chartContainer", 590, 400);
     d3.tsv("/data/example_data.tsv", function (data) {
       
+      // Focus on the top 6 brands
+      data = dimple.filterData(data, "Brand", ["Theta", "Omicron", "Kappa", "Beta", "Lambda", "Alpha"]);
+
       // The main chart
       var myChart = new dimple.chart(svg, data);
       // The chart to show in a tooltip
@@ -82,17 +85,17 @@
           .attr("y", y + 10)
           .text(e.seriesValue[0])
           .style("font-family", "sans-serif")
-          .style("font-size", "10px")
+          .style("font-size", 10)
           .style("fill", stroke);
         
         // Filter the data for the selected brand and sku
-        var hoverData = dimple.filterData(data, "Brand", e.x);
+        var hoverData = dimple.filterData(data, "Brand", e.xValue);
         hoverData = dimple.filterData(hoverData, "SKU", e.seriesValue);
         
         // Create a new mini chart of Unit Sales over Months
         tipChart = new dimple.chart(svg,  hoverData);
         tipChart.setBounds(x + 10, y + 30, width - 10, height - 40);
-        tipChart.addCategoryAxis("x", "Month").hidden = true;
+        tipChart.addCategoryAxis("x", "Date").hidden = true;
         tipChart.addMeasureAxis("y", "Unit Sales").hidden = true;
         
         // Add a bar series, this can be changed to a line, area or bubble

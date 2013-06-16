@@ -6,7 +6,8 @@
     d3.tsv("/data/example_data.tsv", function (data) {
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(60, 30, 510, 310)
-      myChart.addCategoryAxis("x", "Month");
+      var x = myChart.addCategoryAxis("x", "Month");
+      x.addOrderRule("Date");
       myChart.addMeasureAxis("y", "Unit Sales");
       myChart.addSeries("Channel", dimple.plot.bar);
       myChart.addLegend(60, 10, 510, 20, "right");
