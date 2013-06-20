@@ -413,6 +413,7 @@ var dimple = {
                     }
 
                     if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
+                        rules = series._orderRules;
                         seriesCat = series.categoryFields[0];
                         if (series.c !== null && series.c !== undefined && series.c._hasMeasure()) {
                             rules.push({ ordering : series.c.measure, desc : true });
