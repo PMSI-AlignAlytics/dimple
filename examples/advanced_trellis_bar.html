@@ -11,8 +11,8 @@
       // Set the bounds for the charts
       var row = 2,
           col = 3,
-          top = 20,
-          left = 50,
+          top = 10,
+          left = 60,
           inMarg = 15,
           width = 115,
           height = 90;
@@ -58,7 +58,8 @@
           
           // Add x and fix ordering so that all charts are the same
           var x = myChart.addCategoryAxis("x", "Owner");
-          x.addOrderRule(["Black Mesa", "Aperture", "Tyrell Corp", "Rekall", "MomCorp", "LexCorp", "Stark Ind", "Wayne Ent"])
+          x.addOrderRule(["Black Mesa", "Aperture", "Tyrell Corp",
+            "Rekall", "MomCorp", "LexCorp", "Stark Ind", "Wayne Ent"]);
           
           // Add y and fix scale so that all charts are the same
           var y = myChart.addMeasureAxis("y", "Sales Value");

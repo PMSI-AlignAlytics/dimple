@@ -1,0 +1,38 @@
+[
+    {
+        "id":"advanced_price_range_lollipop",
+        "title":"Price Changes",
+        "shortTitle":"Price Changes",
+        "desc":"This examples demonstrates multiple series, multiple axes, different aggregations and a storyboard."
+    },
+    {
+        "id":"advanced_pong",
+        "title":"Dimple Pong!",
+        "shortTitle":"Dimple Pong",
+        "desc":"Perhaps not the most useful chart but this is a demonstration of how the storyboard works.  See the \"Price Changes\" chart for a more practical example."
+    },
+    {
+        "id":"advanced_lollipop_with_hover",
+        "title":"Tooltip Charts",
+        "shortTitle":"Tooltip Charts",
+        "desc":"An extension of a standard bubble chart to show bar charts in tooltips"
+    },
+    {
+        "id":"advanced_dynamic_line_color",
+        "title":"Dynamic Line Colors",
+        "shortTitle":"Dynamic Colors",
+        "desc":"A line chart plotting unit sales, colored by price."
+    },
+    {
+        "id":"advanced_grouped_mekko",
+        "title":"Grouped Mekko",
+        "shortTitle":"Grouped Mekko",
+        "desc":"A marimekko chart showing SKUs grouped by owner and brand.  They have dynamic saturation and are animated by month just for good measure."
+    },
+    {
+        "id":"advanced_trellis_bar",
+        "title":"Trellis Bars",
+        "shortTitle":"Trellis Bars",
+        "desc":"This demonstrates how to build a trellis chart by iterating and inserting chart objects."
+    }
+]
