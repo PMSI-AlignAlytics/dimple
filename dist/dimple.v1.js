@@ -87,12 +87,12 @@ var dimple = {
                 if (len > 3) {
                     chunks = Math.min(Math.floor((len - 1) / 3), 4);
                     suffix = "kmBT".substring(chunks - 1, chunks);
-                    dp = (len - chunks * 3 <= 2 ? 1 : 0);
+                    dp = (len - chunks * 3 <= 1 ? 1 : 0);
                     returnFormat = function (n) {
                         return (n === 0 ? 0 : d3.format(",." + dp + "f")(n / Math.pow(1000, chunks)) + suffix);
                     };
                 } else {
-                    dp = (len <= 2 ? 1 : 0);
+                    dp = (len <= 1 ? 1 : 0);
                     returnFormat = d3.format(",." + dp + "f");
                 }
             } else {
