@@ -34,5 +34,11 @@
         "title":"Trellis Bars",
         "shortTitle":"Trellis Bars",
         "desc":"This demonstrates how to build a trellis chart by iterating and inserting chart objects."
+    },
+    {
+        "id":"advanced_matrix",
+        "title":"Mekko Matrix",
+        "shortTitle":"Mekko Matrix",
+        "desc":"A matrix chart where each point is replaced with a marimekko.  This is an alternative means of creating a trellis."
     }
 ]
