@@ -298,7 +298,12 @@
                         getAxisData(series.z, "z", "r");
 
                         // If there is a color axis
-                        if (series.c !== null && colorBounds.min !== colorBounds.max) {
+                        if (series.c !== null && colorBounds.min !== null && colorBounds.max !== null) {
+                            // Handle matching min and max
+                            if (colorBounds.min === colorBounds.max) {
+                                colorBounds.min -= 0.5;
+                                colorBounds.max += 0.5;
+                            }
                             // Limit the bounds of the color value to be within the range.  Users may override the axis bounds and this
                             // allows a 2 color scale rather than blending if the min and max are set to 0 and 0.01 for example negative values
                             // and zero value would be 1 color and positive another.

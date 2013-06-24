@@ -113,7 +113,7 @@
                     .domain([this._min, this._max]);
             }
             // Check that the axis ends on a labelled tick
-            if ((refactor === null || refactor === undefined || refactor === false) && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0) {
+            if ((refactor === null || refactor === undefined || refactor === false) && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0 && (this.position === "x" || this.position === "y")) {
 
                 // Get the ticks determined based on a split of 10
                 ticks = this._scale.ticks(10);
