@@ -9,29 +9,24 @@
       var months = dimple.getUniqueValues(data, "Date");
 
       // Set the bounds for the charts
-      var row = 2,
-          col = 3,
+      var row = 0,
+          col = 0,
           top = 25,
           left = 60,
           inMarg = 15,
           width = 115,
           height = 90;
 
-      // Sort the months in descending order so that when tooltips are drawn
-      // they won't be behind the chart on the right.  This is because all
-      // chart shapes (including tooltips) are grouped.
-      months.sort(function (a, b) { return Date.parse(b) - Date.parse(a); });
-
       // Pick the latest 12 dates
-      months = months.slice(0, 12);
+      months = months.slice(months.length - 12);
 
       // Draw a chart for each of the 12 dates
       months.forEach(function (month) {
           
           // Wrap to the row above
-          if (col < 0) {
-            row -= 1;
-            col = 3;
+          if (left + ((col + 1) * (width + inMarg)) > parseFloat(svg.attr("width"))) {
+            row += 1;
+            col = 0;
           }
           
           // Filter for the month in the iteration
@@ -88,7 +83,7 @@
           x.titleShape.remove();
 
           // Move to the next column
-          col -= 1;
+          col += 1;
 
       }, this);
     });

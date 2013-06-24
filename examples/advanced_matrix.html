@@ -1,0 +1,46 @@
+<div id="chartContainer">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="/dist/dimple.v1.js"></script>
+  <script type="text/javascript">
+    var svg = dimple.newSvg("#chartContainer", 590, 400);
+    d3.tsv("/data/example_data.tsv", function (data) {
+      var myChart = new dimple.chart(svg, data);
+      var xDimension = "Price Tier";
+      var yDimension = "Pack Type";
+      var measure = "Unit Sales"
+      myChart.setBounds(100, 50, 310, 310)
+      var x = myChart.addCategoryAxis("x", xDimension);
+      x.addOrderRule(["Budget", "Regular", "Premium"]);
+      var y = myChart.addCategoryAxis("y", yDimension);
+      y.addOrderRule(["Standard", "Deluxe", "Giftset"]);
+      var s = myChart.addSeries(null, dimple.plot.bar);
+      s.barGap = 0.05;
+      s.addEventHandler("mouseover", function (e) {});
+      myChart.draw();
+      x.shapes.selectAll("path,line").remove();
+      x.titleShape.remove();
+      y.shapes.selectAll("path,line").remove();
+      y.titleShape.remove();
+        
+      s.shapes.each(function (d) {
+        var filteredData = dimple.filterData(data, yDimension, d.yField);
+        var filteredData = dimple.filterData(filteredData, xDimension, d.xField);
+        var subChart = new dimple.chart(svg, filteredData);
+        var shape = d3.select(this);
+        subChart.setBounds(
+            parseFloat(shape.attr("x")),
+            parseFloat(shape.attr("y")) - parseFloat(shape.attr("height")),
+            parseFloat(shape.attr("width")),
+            parseFloat(shape.attr("height")));
+        var subX = subChart.addAxis("x", "Owner", measure);
+        subX.showPercent = true;
+        subX.hidden = true;
+        var subY = subChart.addPctAxis("y", measure);
+        subY.hidden = true;
+        subChart.addColorAxis(measure);
+        subChart.addSeries([xDimension, yDimension, "SKU", "Owner"], dimple.plot.bar);
+        subChart.draw();
+      });
+    });
+  </script>
+</div>
