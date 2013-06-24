@@ -124,14 +124,16 @@
                 yRunning = 0,
                 // The maximum bounds of the text elements
                 w = 0,
-                h = 0,
-                // Create a group for the hover objects
-                g = chart._group.append("g")
-                    .attr("class", "hoverShapes");
+                h = 0;
+
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
+            chart._tooltipGroup = chart.svg.append("g");
 
             // Add a drop line to the x axis
             if (!series.x._hasCategories() && dropDest.y !== null) {
-                g.append("line")
+                chart._tooltipGroup.append("line")
                     .attr("x1", (x < series.x._origin ? x + 1 : x + width - 1))
                     .attr("y1", (y < dropDest.y ? y + height : y))
                     .attr("x2", (x < series.x._origin ? x + 1 : x + width - 1))
@@ -150,7 +152,7 @@
 
             // Add a drop line to the y axis
             if (!series.y._hasCategories() && dropDest.x !== null) {
-                g.append("line")
+                chart._tooltipGroup.append("line")
                     .attr("x1", (x < dropDest.x ? x + width : x))
                     .attr("y1", (y < series.y._origin ? y + 1 : y + height - 1))
                     .attr("x2", (x < dropDest.x ? x + width : x))
@@ -168,7 +170,7 @@
             }
 
             // Add a group for text
-            t = g.append("g");
+            t = chart._tooltipGroup.append("g");
             // Create a box for the popup in the text group
             box = t.append("rect");
 
@@ -277,10 +279,9 @@
 
         // Handle the mouse leave event
         leaveEventHandler: function (chart) {
-            // Clear all hover shapes
-            chart._group
-                .selectAll(".hoverShapes")
-                .remove();
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
         }
     };
 

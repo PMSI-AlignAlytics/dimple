@@ -199,16 +199,18 @@
                 t,
                 box,
                 rows = [],
-                overlap,
-                // Create a group for the hover objects
-                g = chart._group.append("g")
-                    .attr("class", "hoverShapes");
+                overlap;
+
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
+            chart._tooltipGroup = chart.svg.append("g");
 
             // On hover make the line marker visible immediately
             selectedShape.style("opacity", 1);
 
             // Add a ring around the data point
-            g.append("circle")
+            chart._tooltipGroup.append("circle")
                 .attr("cx", cx)
                 .attr("cy", cy)
                 .attr("r", r)
@@ -225,7 +227,7 @@
 
             // Add a drop line to the x axis
             if (dropDest.y !== null) {
-                g.append("line")
+                chart._tooltipGroup.append("line")
                     .attr("x1", cx)
                     .attr("y1", (cy < dropDest.y ? cy + r + series.lineWeight + 2 : cy - r - series.lineWeight - 2))
                     .attr("x2", cx)
@@ -244,7 +246,7 @@
 
             // Add a drop line to the y axis
             if (dropDest.x !== null) {
-                g.append("line")
+                chart._tooltipGroup.append("line")
                     .attr("x1", (cx < dropDest.x ? cx + r + series.lineWeight + 2 : cx - r - series.lineWeight - 2))
                     .attr("y1", cy)
                     .attr("x2", (cx < dropDest.x ? cx + r + series.lineWeight + 2 : cx - r - series.lineWeight - 2))
@@ -262,7 +264,7 @@
             }
 
             // Add a group for text
-            t = g.append("g");
+            t = chart._tooltipGroup.append("g");
             // Create a box for the popup in the text group
             box = t.append("rect");
 
@@ -360,10 +362,9 @@
         leaveEventHandler: function (e, shape, chart, series) {
             // Return the opacity of the marker
             d3.select(shape).style("opacity", (series.lineMarkers ? dimple._helpers.opacity(e, chart, series) : 0));
-            // Clear all hover shapes
-            chart._group
-                .selectAll(".hoverShapes")
-                .remove();
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
         }
     };
 

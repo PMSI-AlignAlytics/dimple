@@ -33,6 +33,10 @@
 
         // The group within which to put all of this chart's objects
         this._group = svg.append("g");
+        // The group within which to put tooltips.  This is not initialised here because
+        // the group would end up behind other chart contents in a multi chart output.  It will
+        // therefore be added and removed by the mouse enter/leave events
+        this._tooltipGroup = null;
         // Colors assigned to chart contents.  E.g. a series value.
         this._assignedColors = {};
         // The next colour index to use, this value is cycled around for all default colours
