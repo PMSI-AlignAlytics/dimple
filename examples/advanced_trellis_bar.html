@@ -15,7 +15,8 @@
           left = 60,
           inMarg = 15,
           width = 115,
-          height = 90;
+          height = 90,
+          totalWidth = parseFloat(svg.attr("width"));
 
       // Pick the latest 12 dates
       months = months.slice(months.length - 12);
@@ -24,7 +25,7 @@
       months.forEach(function (month) {
           
           // Wrap to the row above
-          if (left + ((col + 1) * (width + inMarg)) > parseFloat(svg.attr("width"))) {
+          if (left + ((col + 1) * (width + inMarg)) > totalWidth) {
             row += 1;
             col = 0;
           }
