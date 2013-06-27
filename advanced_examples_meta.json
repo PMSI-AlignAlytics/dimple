@@ -40,5 +40,11 @@
         "title":"Mekko Matrix",
         "shortTitle":"Mekko Matrix",
         "desc":"A matrix chart where each point is replaced with a marimekko.  This is an alternative means of creating a trellis."
+    },
+    {
+        "id":"advanced_bullet",
+        "title":"Bullet Charts",
+        "shortTitle":"Bullet Charts",
+        "desc":"This is a chart which requires a little bit of manipulation to achieve, but demonstrates that dimple can be made to do non-standard things.  This example is done in a fairly reusable format so should help those wanting bullet charts."
     }
 ]
