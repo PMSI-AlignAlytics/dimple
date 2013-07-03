@@ -17,7 +17,7 @@
                         definitions = [];
                     // Check whether this field is a date
                     for (i = 0; i < self.chart.data.length; i += 1) {
-                        if (isNaN(Date.parse(self.chart.data[i][category]))) {
+                        if (isNaN(self._parseDate(self.chart.data[i][category]))) {
                             isDate = false;
                             break;
                         }
@@ -45,8 +45,12 @@
             this._max = (this.overrideMax !== null ? this.overrideMax : this._max);
 
             // If this is an x axis
-            if (this.position.length > 0 && this.position[0] === "x") {
-                if (this.measure === null || this.measure === undefined) {
+            if (this.position === "x") {
+                if (this._hasTimeField()) {
+                    this._scale = d3.time.scale()
+                        .rangeRound([this.chart.x, this.chart.x + this.chart.width])
+                        .domain([this._min, this._max]);
+                } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "x", "y");
                     this._scale = d3.scale.ordinal()
                         .rangePoints([this.chart.x, this.chart.x + this.chart.width])
@@ -73,9 +77,12 @@
                         break;
                     }
                 }
-            } else if (this.position.length > 0 && this.position[0] === "y") {
-                // Set the height both logical and physical of the axis
-                if (this.measure === null || this.measure === undefined) {
+            } else if (this.position === "y") {
+                if (this._hasTimeField()) {
+                    this._scale = d3.time.scale()
+                        .rangeRound([this.chart.y + this.chart.height, this.chart.y])
+                        .domain([this._min, this._max]);
+                } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "y", "x");
                     this._scale = d3.scale.ordinal()
                         .rangePoints([this.chart.y + this.chart.height, this.chart.y])

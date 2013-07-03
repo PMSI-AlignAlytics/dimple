@@ -9,7 +9,13 @@
                 chunks,
                 suffix,
                 dp;
-            if (this.showPercent) {
+            if (this.tickFormat !== null && this.tickFormat !== undefined) {
+                if (this._hasTimeField()) {
+                    returnFormat = d3.time.format(this.tickFormat);
+                } else {
+                    returnFormat = d3.format(this.tickFormat);
+                }
+            } else if (this.showPercent) {
                 returnFormat = d3.format("%");
             } else if (this.measure !== null) {
                 max = Math.floor(Math.abs(this._max), 0).toString();

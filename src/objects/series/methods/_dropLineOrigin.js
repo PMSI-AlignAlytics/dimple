@@ -21,9 +21,17 @@
             // Get the first x and y first of all
             this.chart.axes.forEach(function (axis) {
                 if (axis.position === "x" && firstOrig.x === null) {
-                    firstOrig.x = axis._origin;
+                    if (axis._hasTimeField()) {
+                        firstOrig.x = this.chart.x;
+                    } else {
+                        firstOrig.x = axis._origin;
+                    }
                 } else if (axis.position === "y" && firstOrig.y === null) {
-                    firstOrig.y = axis._origin;
+                    if (axis._hasTimeField()) {
+                        firstOrig.y = this.chart.y + this.chart.height;
+                    } else {
+                        firstOrig.y = axis._origin;
+                    }
                 }
             }, this);
             // Get the axis position based on the axis index

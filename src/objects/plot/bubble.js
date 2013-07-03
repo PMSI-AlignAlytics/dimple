@@ -191,29 +191,33 @@
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
                 series.categoryFields.forEach(function (c, i) {
                     // If the category name and value match don't display the category name
-                    rows.push(c + (e.aggField !== c ? ": " + e.aggField[i] : ""));
+                    rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
                 }, this);
             }
 
-            if (series.x._hasCategories()) {
+            if (series.x._hasTimeField()) {
+                rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
+            } else if (series.x._hasCategories()) {
                 // Add the x axis categories
                 series.x.categoryFields.forEach(function (c, i) {
                     // If the category name and value match don't display the category name
-                    rows.push(c + (e.xField !== c ? ": " + e.xField[i] : ""));
+                    rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
                 }, this);
             } else {
                 // Add the axis measure value
                 rows.push(series.x.measure + ": " + series.x._getFormat()(e.cx));
             }
 
-            if (series.y._hasCategories()) {
+            if (series.y._hasTimeField()) {
+                rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
+            } else if (series.y._hasCategories()) {
                 // Add the y axis categories
                 series.y.categoryFields.forEach(function (c, i) {
-                    rows.push(c + (e.yField !== c ? ": " + e.yField[i] : ""));
+                    rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
                 }, this);
             } else {
                 // Add the axis measure value
-                rows.push(series.y.measure + ":" + series.y._getFormat()(e.cy));
+                rows.push(series.y.measure + ": " + series.y._getFormat()(e.cy));
             }
 
             if (series.z !== null && series.z !== undefined) {

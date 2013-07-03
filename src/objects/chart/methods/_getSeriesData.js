@@ -13,10 +13,14 @@
                         // This is repeated for each axis using a small anon function
                         getField = function (axis, row) {
                             var returnField = [];
-                            if (axis !== null && axis._hasCategories()) {
-                                axis.categoryFields.forEach(function (cat) {
-                                    returnField.push(row[cat]);
-                                }, this);
+                            if (axis !== null) {
+                                if (axis._hasTimeField()) {
+                                    returnField.push(axis._parseDate(row[axis.timeField]));
+                                } else if (axis._hasCategories()) {
+                                    axis.categoryFields.forEach(function (cat) {
+                                        returnField.push(row[cat]);
+                                    }, this);
+                                }
                             }
                             return returnField;
                         },
@@ -179,24 +183,30 @@
                                     passStoryCheck = (compare === selectStoryValue);
                                 }, this);
                             }
-                            if (axis !== null && axis !== undefined && axis.measure !== null && axis.measure !== undefined) {
+                            if (axis !== null && axis !== undefined) {
                                 if (passStoryCheck) {
                                     retRow = returnData[foundIndex];
-                                    // Keep a distinct list of values to calculate a distinct count in the case of a non-numeric value being found
-                                    if (retRow[axis.position + "ValueList"].indexOf(d[axis.measure]) === -1) {
-                                        retRow[axis.position + "ValueList"].push(d[axis.measure]);
+                                    if (axis._hasMeasure()) {
+                                        // Treat undefined values as zero
+                                        if (d[axis.measure] === undefined) {
+                                            d[axis.measure] = 0;
+                                        }
+                                        // Keep a distinct list of values to calculate a distinct count in the case of a non-numeric value being found
+                                        if (retRow[axis.position + "ValueList"].indexOf(d[axis.measure]) === -1) {
+                                            retRow[axis.position + "ValueList"].push(d[axis.measure]);
+                                        }
+                                        // The code above is outside this check for non-numeric values because we might encounter one far down the list, and
+                                        // want to have a record of all values so far.
+                                        if (isNaN(parseFloat(d[axis.measure]))) {
+                                            useCount[axis.position] = true;
+                                        }
+                                        // Set the value using the aggregate function method
+                                        lhs.value = retRow[axis.position + "Value"];
+                                        lhs.count = retRow[axis.position + "Count"];
+                                        rhs.value = d[axis.measure];
+                                        retRow[axis.position + "Value"] = series.aggregate(lhs, rhs);
+                                        retRow[axis.position + "Count"] += 1;
                                     }
-                                    // The code above is outside this check for non-numeric values because we might encounter one far down the list, and
-                                    // want to have a record of all values so far.
-                                    if (isNaN(parseFloat(d[axis.measure]))) {
-                                        useCount[axis.position] = true;
-                                    }
-                                    // Set the value using the aggregate function method
-                                    lhs.value = retRow[axis.position + "Value"];
-                                    lhs.count = retRow[axis.position + "Count"];
-                                    rhs.value = d[axis.measure];
-                                    retRow[axis.position + "Value"] = series.aggregate(lhs, rhs);
-                                    retRow[axis.position + "Count"] += 1;
                                 }
                             }
                         };

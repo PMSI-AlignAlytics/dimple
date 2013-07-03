@@ -20,7 +20,7 @@
                 axis._min = 0;
                 axis._max = 0;
                 // Check that the axis has a measure
-                if (axis.measure !== null && axis.measure !== undefined) {
+                if (axis._hasMeasure()) {
                     // Is this axis linked to a series
                     var linked = false;
                     // Find any linked series
@@ -43,7 +43,20 @@
                             if (axis._max < d[axis.measure]) { axis._max = d[axis.measure]; }
                         }, this);
                     }
-                } else {
+                } else if (axis._hasTimeField()) {
+                    // Parse the dates and assign the min and max
+                    axis._min = null;
+                    axis._max = null;
+                    this.data.forEach(function (d) {
+                        var dt = axis._parseDate(d[axis.timeField]);
+                        if (axis._min === null || dt < axis._min) {
+                            axis._min = dt;
+                        }
+                        if (axis._max === null || dt > axis._max) {
+                            axis._max = dt;
+                        }
+                    }, this);
+                } else if (axis._hasCategories()) {
                     // A category axis is just set to show the number of categories
                     axis._min = 0;
                     distinctCats = [];
@@ -54,6 +67,7 @@
                     }, this);
                     axis._max = distinctCats.length;
                 }
+
 
                 // Update the axis now we have all information set
                 axis._update();
@@ -131,7 +145,13 @@
                     return returnObj;
                 };
                 if (transform !== null && axis._draw !== null) {
-                    handleTrans(axis.shapes).call(axis._draw.tickFormat(axis._getFormat())).attr("transform", transform);
+
+                    // Add a tick format
+                    if (axis._hasTimeField()) {
+                        handleTrans(axis.shapes).call(axis._draw.ticks(axis._getTimePeriod(), axis.timeInterval).tickFormat(axis._getFormat())).attr("transform", transform);
+                    } else {
+                        handleTrans(axis.shapes).call(axis._draw.tickFormat(axis._getFormat())).attr("transform", transform);
+                    }
                     if (axis.gridlineShapes !== null) {
                         handleTrans(axis.gridlineShapes).call(axis._draw.tickSize(gridSize, 0, 0).tickFormat("")).attr("transform", gridTransform);
                     }
@@ -179,7 +199,7 @@
                             var w = this.getComputedTextLength();
                             widest = (w > widest ? w : widest);
                         });
-                        if (widest > this.width / axis._max) {
+                        if (widest > this.width / axis.shapes.selectAll(".axis text")[0].length) {
                             rotated = true;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "start")
@@ -197,7 +217,7 @@
                                 var w = this.getComputedTextLength();
                                 widest = (w > widest ? w : widest);
                             });
-                        if (widest > this.width / axis._max) {
+                        if (widest > this.width / axis.shapes.selectAll(".axis text")[0].length) {
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "end")
                                 .each(function () {
