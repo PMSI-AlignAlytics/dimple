@@ -46,5 +46,11 @@
         "title":"Bullet Charts",
         "shortTitle":"Bullet Charts",
         "desc":"This is a chart which requires a little bit of manipulation to achieve, but demonstrates that dimple can be made to do non-standard things.  This example is done in a fairly reusable format so should help those wanting bullet charts."
+    },
+    {
+        "id":"advanced_time_axis",
+        "title":"Time Bubble Lines",
+        "shortTitle":"Bubble Lines",
+        "desc":"This is a demonstration of the new time axis functionality.  This is an unusual case plotting 2 time axes against each other.  It also shows a way to plot bubbles as line point weightings."
     }
 ]
