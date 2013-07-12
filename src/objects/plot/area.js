@@ -17,6 +17,10 @@
                 catPoints = {},
                 markers;
 
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
+
             // If there is a category axis we should draw a line for each aggField.  Otherwise
             // the first aggField defines the points and the others define the line
             if (series.x._hasCategories() || series.y._hasCategories()) {

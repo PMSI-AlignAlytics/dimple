@@ -20,12 +20,9 @@
                 theseShapes = null,
                 className = "series" + chart.series.indexOf(series);
 
-            // Clear any hover gubbins before redrawing so the hover markers aren't left behind
-            chart._group.selectAll(".hoverShapes")
-                .transition()
-                .duration(duration / 4)
-                .style("opacity", 0)
-                .remove();
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
 
             if (series.shapes === null || series.shapes === undefined) {
                 theseShapes = chart._group.selectAll("." + className).data(chartData);

@@ -18,6 +18,10 @@
                 line,
                 markers;
 
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
+
             if (series.x._hasCategories() || series.y._hasCategories()) {
                 firstAgg = 0;
             }
