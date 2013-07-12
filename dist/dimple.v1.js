@@ -317,7 +317,7 @@ var dimple = {
                     .domain([this._min, this._max]);
             }
             // Check that the axis ends on a labelled tick
-            if ((refactor === null || refactor === undefined || refactor === false) && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0 && (this.position === "x" || this.position === "y")) {
+            if ((refactor === null || refactor === undefined || refactor === false) && !this._hasTimeField() && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0 && (this.position === "x" || this.position === "y")) {
 
                 // Get the ticks determined based on a split of 10
                 ticks = this._scale.ticks(10);
@@ -2063,6 +2063,10 @@ var dimple = {
                 catPoints = {},
                 markers;
 
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
+
             // If there is a category axis we should draw a line for each aggField.  Otherwise
             // the first aggField defines the points and the others define the line
             if (series.x._hasCategories() || series.y._hasCategories()) {
@@ -2458,12 +2462,9 @@ var dimple = {
                 theseShapes = null,
                 className = "series" + chart.series.indexOf(series);
 
-            // Clear any hover gubbins before redrawing so the hover markers aren't left behind
-            chart._group.selectAll(".hoverShapes")
-                .transition()
-                .duration(duration / 4)
-                .style("opacity", 0)
-                .remove();
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
 
             if (series.shapes === null || series.shapes === undefined) {
                 theseShapes = chart._group.selectAll("." + className).data(chartData);
@@ -2750,12 +2751,9 @@ var dimple = {
                 theseShapes = null,
                 className = "series" + chart.series.indexOf(series);
 
-            // Clear any hover gubbins before redrawing so the hover markers aren't left behind
-            chart._group.selectAll(".hoverShapes")
-                .transition()
-                .duration(duration / 4)
-                .style("opacity", 0)
-                .remove();
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
 
             if (series.shapes === null || series.shapes === undefined) {
                 theseShapes = chart._group.selectAll("." + className).data(chartData);
@@ -3039,6 +3037,10 @@ var dimple = {
                 graded = false,
                 line,
                 markers;
+
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
 
             if (series.x._hasCategories() || series.y._hasCategories()) {
                 firstAgg = 0;
