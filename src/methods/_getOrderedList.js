@@ -2,21 +2,19 @@
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/chart/methods/_getOrderedList.js
     dimple._getOrderedList = function (data, mainField, levelDefinitions) {
-        // Force the level definitions into an array
-        if (levelDefinitions === null || levelDefinitions === undefined) {
-            levelDefinitions = [];
-        } else {
-            levelDefinitions = [].concat(levelDefinitions);
-        }
-        // Add the base case
-        levelDefinitions = levelDefinitions.concat({ ordering: mainField, desc: false });
-        // Function for recursively sorting
         var rollupData = [],
             sortStack = [],
             finalArray = [],
-            fields = [mainField];
+            fields = [mainField],
+            defs = [];
+        // Force the level definitions into an array
+        if (levelDefinitions !== null && levelDefinitions !== undefined) {
+            defs = defs.concat(levelDefinitions);
+        }
+        // Add the base case
+        defs = defs.concat({ ordering: mainField, desc: false });
         // Exclude fields if this does not contain a function
-        levelDefinitions.forEach(function (def) {
+        defs.forEach(function (def) {
             var field;
             if (typeof def.ordering === "function") {
                 for (field in data[0]) {
@@ -30,10 +28,10 @@
         }, this);
         rollupData = dimple._rollUp(data, mainField, fields);
         // If we go below the leaf stop recursing
-        if (levelDefinitions.length >= 1) {
+        if (defs.length >= 1) {
             // Build a stack of compare methods
             // Iterate each level definition
-            levelDefinitions.forEach(function (def) {
+            defs.forEach(function (def) {
                 // Draw ascending by default
                 var desc = (def.desc === null || def.desc === undefined ? false : def.desc),
                     ordering = def.ordering,

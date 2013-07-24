@@ -66,7 +66,9 @@
                     }
 
                     if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
-                        rules = series._orderRules;
+                        // Concat is used here to break the reference to the parent array, if we don't do this, in a storyboarded chart,
+                        // the series rules to grow and grow until the system grinds to a halt trying to deal with them all.
+                        rules = [].concat(series._orderRules);
                         seriesCat = series.categoryFields[0];
                         if (series.c !== null && series.c !== undefined && series.c._hasMeasure()) {
                             rules.push({ ordering : series.c.measure, desc : true });
