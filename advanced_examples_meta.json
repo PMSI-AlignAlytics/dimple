@@ -52,5 +52,11 @@
         "title":"Time Bubble Lines",
         "shortTitle":"Bubble Lines",
         "desc":"This is a demonstration of the new time axis functionality.  This is an unusual case plotting 2 time axes against each other.  It also shows a way to plot bubbles as line point weightings."
+    },
+    {
+        "id":"advanced_interactive_legends",
+        "title":"Interactive Legend",
+        "shortTitle":"Toggle Legend",
+        "desc":"The Legend on this chart has been made interactive.  It is useful to note the method for orphaning the legend before updating the chart."
     }
 ]
