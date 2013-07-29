@@ -78,6 +78,21 @@
         var pageTracker = _gat._getTracker("UA-41100937-1");
         pageTracker._trackPageview();
       } catch(err) {}
+      $(function() {
+        $("a").on('click',function(e){
+          var url = $(this).attr("href");
+          if (e.currentTarget.host != window.location.host) {
+            _gat._getTrackerByName()._trackEvent("Outbound Links", e.currentTarget.host.replace(':80',''), url, 0);
+            if (e.metaKey || e.ctrlKey) {
+              var newtab = true;
+            }
+            if (!newtab) {
+              e.preventDefault();
+              setTimeout('document.location = "' + url + '"', 100);
+            }
+          }
+        });
+      });  
     </script>
   </body>
 </html>
