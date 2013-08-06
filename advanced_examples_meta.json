@@ -58,5 +58,11 @@
         "title":"Interactive Legend",
         "shortTitle":"Toggle Legend",
         "desc":"The Legend on this chart has been made interactive.  It is useful to note the method for orphaning the legend before updating the chart."
+    },
+    {
+        "id":"advanced_storyboard_control",
+        "title":"Storyboard Control",
+        "shortTitle":"Storyboard Ctrl",
+        "desc":"This is an example of controlling the storyboard with the tick event and other methods.  Clicking the side chart with select a frame and pause the animation, clicking again will resume."
     }
 ]
