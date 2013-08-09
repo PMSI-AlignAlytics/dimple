@@ -70,11 +70,5 @@
         "title":"Bar Labels",
         "shortTitle":"Bar Labels",
         "desc":"At the moment dimple doesn't natively deal with labels.  Until this functionality is fully added it is still fairly straightforward to add labels manually.  This example shows a way to do it for a bar chart."
-    },
-    {
-        "id":"advanced_waterfall",
-        "title":"Waterfall Chart",
-        "shortTitle":"Waterfall",
-        "desc":"There aren't waterfalls defined in the simple charts for dimple due to the unusual data requirement for the chart. Therefore we have created a reusable example here.  Just repopulate the 5 variables at the start of this example."
     }
 ]
