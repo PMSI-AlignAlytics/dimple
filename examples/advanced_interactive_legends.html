@@ -4,17 +4,18 @@
   <script type="text/javascript">
     var svg = dimple.newSvg("#chartContainer", 590, 400);
       d3.tsv("/data/example_data.tsv", function (data) {
-        
+        // Latest period only
+        dimple.filterData(data, "Date", "01/12/2012");
         // Create the chart
         var myChart = new dimple.chart(svg, data);
-        myChart.setBounds(60, 30, 420, 300)
+        myChart.setBounds(60, 30, 420, 330)
 
         // Create a standard bubble of SKUs by Price and Sales Value
         // We are coloring by Owner as that will be the key in the legend
         myChart.addMeasureAxis("x", "Price");
         myChart.addMeasureAxis("y", "Sales Value");
-        var mySeries = myChart.addSeries(["SKU", "Owner"], dimple.plot.bubble);
-        var myLegend = myChart.addLegend(530, 20, 60, 300, "Right");
+        myChart.addSeries(["SKU", "Channel", "Owner"], dimple.plot.bubble);
+        var myLegend = myChart.addLegend(530, 100, 60, 300, "Right");
         myChart.draw();
         
         // This is a critical step.  By doing this we orphan the legend. This
@@ -30,10 +31,10 @@
           .data(["Click legend to","show/hide owners:"])
           .enter()
           .append("text")
-            .attr("x", 500)
-            .attr("y", function (d, i) { return 10 + i * 14; })
+            .attr("x", 499)
+            .attr("y", function (d, i) { return 90 + i * 14; })
             .style("font-family", "sans-serif")
-            .style("font-size", 10)
+            .style("font-size", "10px")
             .style("color", "Black")
             .text(function (d) { return d; });
 
@@ -56,7 +57,7 @@
             });
             // Hide the shape or show it
             if (hide) {
-              d3.select(this).style("opacity", 0.1);
+              d3.select(this).style("opacity", 0.2);
             } else {
               newFilters.push(e.aggField.slice(-1)[0]);
               d3.select(this).style("opacity", 0.8);
@@ -66,7 +67,7 @@
             // Filter the data
             myChart.data = dimple.filterData(data, "Owner", filterValues);
             // Passing a duration parameter makes the chart animate. Without
-            // it there is not transition
+            // it there is no transition
             myChart.draw(800);
           });
       });
