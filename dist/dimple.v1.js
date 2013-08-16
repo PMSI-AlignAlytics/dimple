@@ -2355,7 +2355,7 @@ var dimple = {
                 }, this);
             } else {
                 // Add the axis measure value
-                rows.push(series.x.measure + ": " + series.x._getFormat()(e.x));
+                rows.push(series.x.measure + ": " + series.x._getFormat()((e.cx === e.x ? e.xValue : e.cx - e.x)));
             }
 
             if (series.y._hasTimeField()) {
@@ -2367,7 +2367,7 @@ var dimple = {
                 }, this);
             } else {
                 // Add the axis measure value
-                rows.push(series.y.measure + ": " + series.y._getFormat()(e.y));
+                rows.push(series.y.measure + ": " + series.y._getFormat()((e.cy === e.y ? e.yValue : e.cy - e.y)));
             }
 
             if (series.z !== null && series.z !== undefined) {
