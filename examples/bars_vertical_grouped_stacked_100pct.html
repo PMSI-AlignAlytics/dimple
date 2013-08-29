@@ -5,7 +5,7 @@
     var svg = dimple.newSvg("#chartContainer", 590, 400);
     d3.tsv("/data/example_data.tsv", function (data) {
       var myChart = new dimple.chart(svg, data);
-      myChart.setBounds(60, 45, 510, 315)
+      myChart.setBounds(65, 45, 505, 315)
       myChart.addCategoryAxis("x", ["Price Tier", "Channel"]);
       myChart.addPctAxis("y", "Unit Sales");
       myChart.addSeries("Owner", dimple.plot.bar);

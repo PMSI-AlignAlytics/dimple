@@ -6,7 +6,7 @@
     d3.tsv("/data/example_data.tsv", function (data) {
       data = dimple.filterData(data, "Owner", ["Aperture", "Black Mesa"])
       var myChart = new dimple.chart(svg, data);
-      myChart.setBounds(70, 30, 420, 330)
+      myChart.setBounds(60, 30, 430, 330);
       var x = myChart.addCategoryAxis("x", ["Owner", "Month"]);
       x.addGroupOrderRule("Date");
       myChart.addMeasureAxis("y", "Unit Sales");
