@@ -218,6 +218,7 @@
                                 widest = (w > widest ? w : widest);
                             });
                         if (widest > this.width / axis.shapes.selectAll(".axis text")[0].length) {
+                            rotated = true;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "end")
                                 .each(function () {
@@ -233,23 +234,41 @@
                     axis.shapes.selectAll(".axis text")
                         .each(function () {
                             var rec = this.getBBox();
-                            box.l = (box.l === null || rec.x < box.l ? rec.x : box.l);
-                            box.t = (rotated ? (box.t === null || rec.y + rec.width < box.t ? rec.y + rec.width : box.t) : (box.t === null || rec.y < box.t ? rec.y : box.t));
-                            box.r = (box.r === null || rec.x + rec.width > box.r ? rec.x + rec.width : box.r);
-                            box.b = (rotated ? (box.b === null || rec.y + rec.width > box.b ? rec.y + rec.width : box.b) : (box.b === null || rec.y + rec.height > box.b ? rec.y + rec.height : box.b));
+                            if (box.l === null ||  -9 - rec.width < box.l) {
+                                box.l = -9 - rec.width;
+                            }
+                            if (box.r === null || rec.x + rec.width > box.r) {
+                                box.r = rec.x + rec.width;
+                            }
+                            if (rotated) {
+                                if (box.t === null || rec.y + rec.height - rec.width < box.t) {
+                                    box.t = rec.y + rec.height - rec.width;
+                                }
+                                if (box.b === null || rec.height + rec.width > box.b) {
+                                    box.b = rec.height + rec.width;
+                                }
+                            } else {
+                                if (box.t === null || rec.y < box.t) {
+                                    box.t = rec.y;
+                                }
+                                if (box.b === null || 9 + rec.height > box.b) {
+                                    box.b = 9 + rec.height;
+                                }
+                            }
                         });
+
                     if (axis.position === "x") {
                         if (axis === firstX) {
-                            titleY = this.y + this.height + box.b + 10;
+                            titleY = this.y + this.height + box.b + 5;
                         } else {
-                            titleY = this.y + box.l + box.t - 5;
+                            titleY = this.y + box.t - 10;
                         }
                         titleX = this.x + (this.width / 2);
                     } else if (axis.position === "y") {
                         if (axis === firstY) {
                             titleX = this.x + box.l - 10;
                         } else {
-                            titleX = this.x + this.width + box.r + 10;
+                            titleX = this.x + this.width + box.r + 20;
                         }
                         titleY = this.y + (this.height / 2);
                         rotate = "rotate(270, " + titleX + ", " + titleY + ")";

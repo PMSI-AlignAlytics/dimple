@@ -36,8 +36,12 @@
                 .append("circle")
                 .attr("id", function (d) { return d.key; })
                 .attr("class", function (d) { return className + " bubble " + d.aggField.join(" ") + " " + d.xField.join(" ") + " " + d.yField.join(" ") + " " + d.zField.join(" "); })
-                .attr("cx", function () { return series.x._previousOrigin; })
-                .attr("cy", function () { return series.y._previousOrigin; })
+                .attr("cx", function (d) {
+                    return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin);
+                })
+                .attr("cy", function (d) {
+                    return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin);
+                })
                 .attr("r", 0)
                 .attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
                 .on("mouseover", function (e) {
@@ -71,8 +75,12 @@
                 .exit()
                 .transition().duration(duration)
                 .attr("r", 0)
-                .attr("cx", function () { return series.x._origin; })
-                .attr("cy", function () { return series.y._origin; })
+                .attr("cx", function (d) {
+                    return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin);
+                })
+                .attr("cy", function (d) {
+                    return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin);
+                })
                 .each("end", function () {
                     d3.select(this).remove();
                 });
