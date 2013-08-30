@@ -2,7 +2,7 @@
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/axis/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis
-    dimple.axis = function (chart, position, categoryFields, measure, timeField) {
+    dimple.axis = function (chart, position, categoryFields, measure, timeField, logField) {
 
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-chart
         this.chart = chart;
@@ -42,6 +42,12 @@
         this.timePeriod = null;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-timeInterval
         this.timeInterval = 1;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logField
+        this.logField = logField;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logFormat
+        this.logFormat = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logBase
+        this.logBase = 10;
 
         // The scale determined by the update method
         this._scale = null;
