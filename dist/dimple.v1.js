@@ -3011,6 +3011,9 @@ var dimple = {
                     // If the category name and value match don't display the category name
                     rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
                 }, this);
+            } else if (series.x._hasLogField()) {
+                // Add the y axis log
+                rows.push(series.x.measure + ": " + e.cx);
             } else {
                 // Add the axis measure value
                 rows.push(series.x.measure + ": " + series.x._getFormat()(e.cx));
@@ -3023,6 +3026,9 @@ var dimple = {
                 series.y.categoryFields.forEach(function (c, i) {
                     rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
                 }, this);
+            } else if (series.y._hasLogField()) {
+                // Add the y axis log
+                rows.push(series.y.measure + ": " + e.cy);
             } else {
                 // Add the axis measure value
                 rows.push(series.y.measure + ": " + series.y._getFormat()(e.cy));
