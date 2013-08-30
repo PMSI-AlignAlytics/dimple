@@ -8,6 +8,8 @@
                 len,
                 chunks,
                 suffix,
+                scale,
+                format,
                 dp;
             if (this.tickFormat !== null && this.tickFormat !== undefined) {
                 if (this._hasTimeField()) {
@@ -17,6 +19,15 @@
                 }
             } else if (this.showPercent) {
                 returnFormat = d3.format("%");
+            } else if (this.logField) {
+                scale  = this._scale;
+                format = this.logFormat || ",d";
+                chunks = 4;
+
+                returnFormat = function(d) {
+                    return scale.tickFormat(chunks, d3.format(format))(d);
+                };
+
             } else if (this.measure !== null) {
                 max = Math.floor(Math.abs(this._max), 0).toString();
                 min = Math.floor(Math.abs(this._min), 0).toString();

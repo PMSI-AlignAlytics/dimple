@@ -82,6 +82,13 @@
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart.y + this.chart.height, this.chart.y])
                         .domain([this._min, this._max]);
+                } else if (this._hasLogField()) {
+                    this._scale = d3.scale.log()
+                        .range([this.chart.y + this.chart.height, this.chart.y])
+                        .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
+                        .clamp(true)
+                        .base(this.logBase)
+                        .nice();
                 } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "y", "x");
                     this._scale = d3.scale.ordinal()
@@ -141,6 +148,7 @@
 
             // Populate the origin
             origin = this._scale.copy()(0);
+
             if (this._origin !== origin) {
                 this._previousOrigin = (this._origin === null ? origin : this._origin);
                 this._origin = origin;
