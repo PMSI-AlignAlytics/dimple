@@ -144,7 +144,10 @@
                         .delay(animDuration / 2)
                         .duration(animDuration / 2)
                         .ease("linear")
-                    .attr("y2", dropDest.y);
+                        // Added 1px offset to cater for svg issue where a transparent
+                        // group overlapping a line can sometimes hide it in some browsers
+                        // Issue #10
+                        .attr("y2", (y < dropDest.y ? dropDest.y - 1 : dropDest.y + 1));
             }
 
             // Add a drop line to the y axis
@@ -163,7 +166,10 @@
                         .delay(animDuration / 2)
                         .duration(animDuration / 2)
                         .ease("linear")
-                    .attr("x2", dropDest.x);
+                        // Added 1px offset to cater for svg issue where a transparent
+                        // group overlapping a line can sometimes hide it in some browsers
+                        // Issue #10
+                        .attr("x2", (x < dropDest.x ? dropDest.x - 1 : dropDest.x + 1));
             }
 
             // Add a group for text
