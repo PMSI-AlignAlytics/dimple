@@ -50,6 +50,13 @@
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart.x, this.chart.x + this.chart.width])
                         .domain([this._min, this._max]);
+                } else if (this.useLog) {
+                    this._scale = d3.scale.log()
+                        .range([this.chart.x, this.chart.x + this.chart.width])
+                        .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
+                        .clamp(true)
+                        .base(this.logBase)
+                        .nice();
                 } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "x", "y");
                     this._scale = d3.scale.ordinal()
@@ -82,7 +89,7 @@
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart.y + this.chart.height, this.chart.y])
                         .domain([this._min, this._max]);
-                } else if (this._hasLogField()) {
+                } else if (this.useLog) {
                     this._scale = d3.scale.log()
                         .range([this.chart.y + this.chart.height, this.chart.y])
                         .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
@@ -118,13 +125,29 @@
                     }
                 }
             } else if (this.position.length > 0 && this.position[0] === "z") {
-                this._scale = d3.scale.linear()
-                    .range([this.chart.height / 300, this.chart.height / 10])
-                    .domain([this._min, this._max]);
+                if (this.useLog) {
+                    this._scale = d3.scale.log()
+                        .range([this.chart.height / 300, this.chart.height / 10])
+                        .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
+                        .clamp(true)
+                        .base(this.logBase);
+                } else {
+                    this._scale = d3.scale.linear()
+                        .range([this.chart.height / 300, this.chart.height / 10])
+                        .domain([this._min, this._max]);
+                }
             } else if (this.position.length > 0 && this.position[0] === "c") {
-                this._scale = d3.scale.linear()
-                    .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
-                    .domain([this._min, this._max]);
+                if (this.useLog) {
+                    this._scale = d3.scale.log()
+                        .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
+                        .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
+                        .clamp(true)
+                        .base(this.logBase);
+                } else {
+                    this._scale = d3.scale.linear()
+                        .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
+                        .domain([this._min, this._max]);
+                }
             }
             // Check that the axis ends on a labelled tick
             if ((refactor === null || refactor === undefined || refactor === false) && !this._hasTimeField() && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0 && (this.position === "x" || this.position === "y")) {

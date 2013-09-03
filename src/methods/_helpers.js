@@ -83,6 +83,8 @@
             var returnX = 0;
             if (series.x._hasTimeField()) {
                 returnX = series.x._scale(d.x) - (dimple._helpers.width(d, chart, series) / 2);
+            } else if (series.x.measure !== null && series.x.measure !== undefined) {
+                returnX = series.x._scale(d.x);
             } else {
                 returnX = series.x._scale(d.x) + dimple._helpers.xGap(chart, series) + (d.xOffset * (dimple._helpers.width(d, chart, series) + 2 * dimple._helpers.xClusterGap(d, chart, series))) + dimple._helpers.xClusterGap(d, chart, series);
             }
@@ -96,8 +98,6 @@
                 returnY = series.y._scale(d.y) - (dimple._helpers.height(d, chart, series) / 2);
             } else if (series.y.measure !== null && series.y.measure !== undefined) {
                 returnY = series.y._scale(d.y);
-            } else if (series.y.measure !== null && series.y.measure !== undefined) {
-                returnY = series.y._scale(d.y);
             } else {
                 returnY = (series.y._scale(d.y) - (chart.height / series.y._max)) + dimple._helpers.yGap(chart, series) + (d.yOffset * (dimple._helpers.height(d, chart, series) + 2 * dimple._helpers.yClusterGap(d, chart, series))) + dimple._helpers.yClusterGap(d, chart, series);
             }
@@ -108,7 +108,7 @@
         width: function (d, chart, series) {
             var returnWidth = 0;
             if (series.x.measure !== null && series.x.measure !== undefined) {
-                returnWidth = Math.abs(series.x._scale(d.width) - series.x._scale(0));
+                returnWidth = 10; //Math.abs(series.x._scale(d.width + d.x) - series.x._scale(d.x));
             } else if (series.x._hasTimeField()) {
                 returnWidth = series.x.floatingBarWidth;
             } else {
@@ -123,7 +123,7 @@
             if (series.y._hasTimeField()) {
                 returnHeight = series.y.floatingBarWidth;
             } else if (series.y.measure !== null && series.y.measure !== undefined) {
-                returnHeight = Math.abs(series.y._scale(0) - series.y._scale(d.height));
+                returnHeight = Math.abs(series.y._scale(d.y) - series.y._scale(d.y - d.height));
             } else {
                 returnHeight = d.height * ((chart.height / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) - (dimple._helpers.yClusterGap(d, chart, series) * 2);
             }

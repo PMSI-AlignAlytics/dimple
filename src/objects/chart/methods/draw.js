@@ -149,6 +149,8 @@
                     // Add a tick format
                     if (axis._hasTimeField()) {
                         handleTrans(axis.shapes).call(axis._draw.ticks(axis._getTimePeriod(), axis.timeInterval).tickFormat(axis._getFormat())).attr("transform", transform);
+                    } else if (axis.useLog) {
+                        handleTrans(axis.shapes).call(axis._draw.ticks(4, axis._getFormat())).attr("transform", transform);
                     } else {
                         handleTrans(axis.shapes).call(axis._draw.tickFormat(axis._getFormat())).attr("transform", transform);
                     }

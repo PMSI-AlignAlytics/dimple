@@ -17,7 +17,7 @@ var dimple = {
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/axis/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis
-    dimple.axis = function (chart, position, categoryFields, measure, timeField, logField) {
+    dimple.axis = function (chart, position, categoryFields, measure, timeField) {
 
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-chart
         this.chart = chart;
@@ -57,12 +57,12 @@ var dimple = {
         this.timePeriod = null;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-timeInterval
         this.timeInterval = 1;
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logField
-        this.logField = logField;
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logFormat
-        this.logFormat = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-useLog
+        this.useLog = false;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logBase
         this.logBase = 10;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logFormat
+        this.logFormat = null;
 
         // The scale determined by the update method
         this._scale = null;
@@ -95,7 +95,7 @@ var dimple = {
                 len,
                 chunks,
                 suffix,
-                scale,
+                //scale,
                 format,
                 dp;
             if (this.tickFormat !== null && this.tickFormat !== undefined) {
@@ -106,15 +106,9 @@ var dimple = {
                 }
             } else if (this.showPercent) {
                 returnFormat = d3.format("%");
-            } else if (this.logField) {
-                scale  = this._scale;
+            } else if (this.useLog) {
                 format = this.logFormat || ",d";
-                chunks = 4;
-
-                returnFormat = function(d) {
-                    return scale.tickFormat(chunks, d3.format(format))(d);
-                };
-
+                returnFormat = d3.format(format);
             } else if (this.measure !== null) {
                 max = Math.floor(Math.abs(this._max), 0).toString();
                 min = Math.floor(Math.abs(this._min), 0).toString();
@@ -178,12 +172,6 @@ var dimple = {
         };
 
 
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/axis/methods/_hasLogField.js
-        this._hasLogField = function () {
-            return (this.logField !== null && this.logField !== undefined);
-        };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_hasMeasure.js
@@ -270,6 +258,13 @@ var dimple = {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart.x, this.chart.x + this.chart.width])
                         .domain([this._min, this._max]);
+                } else if (this.useLog) {
+                    this._scale = d3.scale.log()
+                        .range([this.chart.x, this.chart.x + this.chart.width])
+                        .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
+                        .clamp(true)
+                        .base(this.logBase)
+                        .nice();
                 } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "x", "y");
                     this._scale = d3.scale.ordinal()
@@ -302,7 +297,7 @@ var dimple = {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart.y + this.chart.height, this.chart.y])
                         .domain([this._min, this._max]);
-                } else if (this._hasLogField()) {
+                } else if (this.useLog) {
                     this._scale = d3.scale.log()
                         .range([this.chart.y + this.chart.height, this.chart.y])
                         .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
@@ -338,13 +333,29 @@ var dimple = {
                     }
                 }
             } else if (this.position.length > 0 && this.position[0] === "z") {
-                this._scale = d3.scale.linear()
-                    .range([this.chart.height / 300, this.chart.height / 10])
-                    .domain([this._min, this._max]);
+                if (this.useLog) {
+                    this._scale = d3.scale.log()
+                        .range([this.chart.height / 300, this.chart.height / 10])
+                        .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
+                        .clamp(true)
+                        .base(this.logBase);
+                } else {
+                    this._scale = d3.scale.linear()
+                        .range([this.chart.height / 300, this.chart.height / 10])
+                        .domain([this._min, this._max]);
+                }
             } else if (this.position.length > 0 && this.position[0] === "c") {
-                this._scale = d3.scale.linear()
-                    .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
-                    .domain([this._min, this._max]);
+                if (this.useLog) {
+                    this._scale = d3.scale.log()
+                        .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
+                        .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
+                        .clamp(true)
+                        .base(this.logBase);
+                } else {
+                    this._scale = d3.scale.linear()
+                        .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
+                        .domain([this._min, this._max]);
+                }
             }
             // Check that the axis ends on a labelled tick
             if ((refactor === null || refactor === undefined || refactor === false) && !this._hasTimeField() && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0 && (this.position === "x" || this.position === "y")) {
@@ -861,7 +872,7 @@ var dimple = {
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addAxis
-        this.addAxis = function (position, categoryFields, measure, timeField, logField) {
+        this.addAxis = function (position, categoryFields, measure, timeField) {
             // Convert the passed category fields to an array in case a single string is sent
             if (categoryFields !== null && categoryFields !== undefined) {
                 categoryFields = [].concat(categoryFields);
@@ -872,8 +883,7 @@ var dimple = {
                 position,
                 categoryFields,
                 measure,
-                timeField,
-                logField
+                timeField
             );
             // Add the axis to the array for the chart
             this.axes.push(axis);
@@ -920,13 +930,14 @@ var dimple = {
         // Source: /src/objects/chart/methods/addLogAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addLogAxis
         this.addLogAxis = function (position, logField, logFormat, logBase) {
-            var axis = this.addAxis(position, null, logField, null, logField);
+            var axis = this.addAxis(position, null, logField, null);
             if (logBase !== null && logBase !== undefined) {
                 axis.logBase = logBase;
             }
             if (logFormat !== null && logFormat !== undefined) {
                 axis.logFormat = logFormat;
             }
+            axis.useLog = true;
             return axis;
         };
         // Copyright: 2013 PMSI-AlignAlytics
@@ -1197,6 +1208,8 @@ var dimple = {
                     // Add a tick format
                     if (axis._hasTimeField()) {
                         handleTrans(axis.shapes).call(axis._draw.ticks(axis._getTimePeriod(), axis.timeInterval).tickFormat(axis._getFormat())).attr("transform", transform);
+                    } else if (axis.useLog) {
+                        handleTrans(axis.shapes).call(axis._draw.ticks(4, axis._getFormat())).attr("transform", transform);
                     } else {
                         handleTrans(axis.shapes).call(axis._draw.tickFormat(axis._getFormat())).attr("transform", transform);
                     }
@@ -3029,9 +3042,6 @@ var dimple = {
                     // If the category name and value match don't display the category name
                     rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
                 }, this);
-            } else if (series.x._hasLogField()) {
-                // Add the y axis log
-                rows.push(series.x.measure + ": " + e.cx);
             } else {
                 // Add the axis measure value
                 rows.push(series.x.measure + ": " + series.x._getFormat()(e.cx));
@@ -3044,9 +3054,6 @@ var dimple = {
                 series.y.categoryFields.forEach(function (c, i) {
                     rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
                 }, this);
-            } else if (series.y._hasLogField()) {
-                // Add the y axis log
-                rows.push(series.y.measure + ": " + e.cy);
             } else {
                 // Add the axis measure value
                 rows.push(series.y.measure + ": " + series.y._getFormat()(e.cy));
@@ -3418,7 +3425,7 @@ var dimple = {
                     // If the category name and value match don't display the category name
                     rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
                 }, this);
-            } else if (series.x._hasLogField()) {
+            } else if (series.x.useLog) {
                 // Add the y axis log
                 rows.push(series.x.measure + ": " + e.cx);
             } else {
@@ -3433,7 +3440,7 @@ var dimple = {
                 series.y.categoryFields.forEach(function (c, i) {
                     rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
                 }, this);
-            } else if (series.y._hasLogField()) {
+            } else if (series.y.useLog) {
                 // Add the y axis log
                 rows.push(series.y.measure + ": " + e.cy);
             } else {
@@ -3789,6 +3796,8 @@ var dimple = {
             var returnX = 0;
             if (series.x._hasTimeField()) {
                 returnX = series.x._scale(d.x) - (dimple._helpers.width(d, chart, series) / 2);
+            } else if (series.x.measure !== null && series.x.measure !== undefined) {
+                returnX = series.x._scale(d.x);
             } else {
                 returnX = series.x._scale(d.x) + dimple._helpers.xGap(chart, series) + (d.xOffset * (dimple._helpers.width(d, chart, series) + 2 * dimple._helpers.xClusterGap(d, chart, series))) + dimple._helpers.xClusterGap(d, chart, series);
             }
@@ -3802,8 +3811,6 @@ var dimple = {
                 returnY = series.y._scale(d.y) - (dimple._helpers.height(d, chart, series) / 2);
             } else if (series.y.measure !== null && series.y.measure !== undefined) {
                 returnY = series.y._scale(d.y);
-            } else if (series.y.measure !== null && series.y.measure !== undefined) {
-                returnY = series.y._scale(d.y);
             } else {
                 returnY = (series.y._scale(d.y) - (chart.height / series.y._max)) + dimple._helpers.yGap(chart, series) + (d.yOffset * (dimple._helpers.height(d, chart, series) + 2 * dimple._helpers.yClusterGap(d, chart, series))) + dimple._helpers.yClusterGap(d, chart, series);
             }
@@ -3814,7 +3821,7 @@ var dimple = {
         width: function (d, chart, series) {
             var returnWidth = 0;
             if (series.x.measure !== null && series.x.measure !== undefined) {
-                returnWidth = Math.abs(series.x._scale(d.width) - series.x._scale(0));
+                returnWidth = 10; //Math.abs(series.x._scale(d.width + d.x) - series.x._scale(d.x));
             } else if (series.x._hasTimeField()) {
                 returnWidth = series.x.floatingBarWidth;
             } else {
@@ -3829,7 +3836,7 @@ var dimple = {
             if (series.y._hasTimeField()) {
                 returnHeight = series.y.floatingBarWidth;
             } else if (series.y.measure !== null && series.y.measure !== undefined) {
-                returnHeight = Math.abs(series.y._scale(0) - series.y._scale(d.height));
+                returnHeight = Math.abs(series.y._scale(d.y) - series.y._scale(d.y - d.height));
             } else {
                 returnHeight = d.height * ((chart.height / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) - (dimple._helpers.yClusterGap(d, chart, series) * 2);
             }

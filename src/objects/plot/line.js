@@ -294,7 +294,7 @@
                     // If the category name and value match don't display the category name
                     rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
                 }, this);
-            } else if (series.x._hasLogField()) {
+            } else if (series.x.useLog) {
                 // Add the y axis log
                 rows.push(series.x.measure + ": " + e.cx);
             } else {
@@ -309,7 +309,7 @@
                 series.y.categoryFields.forEach(function (c, i) {
                     rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
                 }, this);
-            } else if (series.y._hasLogField()) {
+            } else if (series.y.useLog) {
                 // Add the y axis log
                 rows.push(series.y.measure + ": " + e.cy);
             } else {
