@@ -108,7 +108,7 @@
         width: function (d, chart, series) {
             var returnWidth = 0;
             if (series.x.measure !== null && series.x.measure !== undefined) {
-                returnWidth = 10; //Math.abs(series.x._scale(d.width + d.x) - series.x._scale(d.x));
+                returnWidth = Math.abs(series.x._scale(d.width + d.x) - series.x._scale(d.x));
             } else if (series.x._hasTimeField()) {
                 returnWidth = series.x.floatingBarWidth;
             } else {
