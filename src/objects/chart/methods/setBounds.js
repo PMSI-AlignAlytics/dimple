@@ -3,15 +3,14 @@
         // Source: /src/objects/chart/methods/setBounds.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-setBounds
         this.setBounds = function (x, y, width, height) {
-            // Define the bounds
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
+            // Handle non-integer size expressions
+            this.x = dimple._parsePosition(x, this.svg.node().offsetWidth);
+            this.y = dimple._parsePosition(y, this.svg.node().offsetHeight);
+            this.width = dimple._parsePosition(width, this.svg.node().offsetWidth);
+            this.height = dimple._parsePosition(height, this.svg.node().offsetHeight);
             // Refresh the axes to redraw them against the new bounds
-            this.axes.forEach(function (axis) {
-                axis._update();
-            }, this);
+            this.draw();
             // return the chart object for method chaining
             return this;
         };
+

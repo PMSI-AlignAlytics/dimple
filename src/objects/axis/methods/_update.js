@@ -54,8 +54,8 @@
                     this._scale = d3.scale.log()
                         .range([this.chart.x, this.chart.x + this.chart.width])
                         .domain([
-                            (this._min === 0 ? 0.1 : this._min),
-                            (this._max === 0 ? -0.1 : this._max)
+                            (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
+                            (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
                         .clamp(true)
                         .base(this.logBase)
@@ -96,8 +96,8 @@
                     this._scale = d3.scale.log()
                         .range([this.chart.y + this.chart.height, this.chart.y])
                         .domain([
-                            (this._min === 0 ? 0.1 : this._min),
-                            (this._max === 0 ? -0.1 : this._max)
+                            (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
+                            (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
                         .clamp(true)
                         .base(this.logBase)
@@ -135,8 +135,8 @@
                     this._scale = d3.scale.log()
                         .range([this.chart.height / 300, this.chart.height / 10])
                         .domain([
-                            (this._min === 0 ? 0.1 : this._min),
-                            (this._max === 0 ? -0.1 : this._max)
+                            (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
+                            (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
                         .clamp(true)
                         .base(this.logBase);

@@ -265,8 +265,8 @@ var dimple = {
                     this._scale = d3.scale.log()
                         .range([this.chart.x, this.chart.x + this.chart.width])
                         .domain([
-                            (this._min === 0 ? 0.1 : this._min),
-                            (this._max === 0 ? -0.1 : this._max)
+                            (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
+                            (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
                         .clamp(true)
                         .base(this.logBase)
@@ -307,8 +307,8 @@ var dimple = {
                     this._scale = d3.scale.log()
                         .range([this.chart.y + this.chart.height, this.chart.y])
                         .domain([
-                            (this._min === 0 ? 0.1 : this._min),
-                            (this._max === 0 ? -0.1 : this._max)
+                            (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
+                            (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
                         .clamp(true)
                         .base(this.logBase)
@@ -346,8 +346,8 @@ var dimple = {
                     this._scale = d3.scale.log()
                         .range([this.chart.height / 300, this.chart.height / 10])
                         .domain([
-                            (this._min === 0 ? 0.1 : this._min),
-                            (this._max === 0 ? -0.1 : this._max)
+                            (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
+                            (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
                         .clamp(true)
                         .base(this.logBase);
@@ -357,20 +357,9 @@ var dimple = {
                         .domain([this._min, this._max]);
                 }
             } else if (this.position.length > 0 && this.position[0] === "c") {
-                if (this.useLog) {
-                    this._scale = d3.scale.log()
-                        .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
-                        .domain([
-                            (this._min === 0 ? 0.1 : this._min),
-                            (this._max === 0 ? -0.1 : this._max)
-                        ])
-                        .clamp(true)
-                        .base(this.logBase);
-                } else {
-                    this._scale = d3.scale.linear()
-                        .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
-                        .domain([this._min, this._max]);
-                }
+                this._scale = d3.scale.linear()
+                    .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
+                    .domain([this._min, this._max]);
             }
             // Check that the axis ends on a labelled tick
             if ((refactor === null || refactor === undefined || refactor === false) && !this._hasTimeField() && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0 && (this.position === "x" || this.position === "y")) {
@@ -432,13 +421,13 @@ var dimple = {
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-svg
         this.svg = svg;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-x
-        this.x = svg[0][0].width.baseVal.value * 0.1;
+        this.x = svg.node().offsetWidth * 0.1;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-y
-        this.y = svg[0][0].height.baseVal.value * 0.1;
+        this.y = svg.node().offsetHeight * 0.1;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-width
-        this.width = svg[0][0].width.baseVal.value * 0.8;
+        this.width = svg.node().offsetWidth * 0.8;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-height
-        this.height = svg[0][0].height.baseVal.value * 0.8;
+        this.height = svg.node().offsetHeight * 0.8;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-data
         this.data = data;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-noFormats
@@ -1421,18 +1410,17 @@ var dimple = {
         // Source: /src/objects/chart/methods/setBounds.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-setBounds
         this.setBounds = function (x, y, width, height) {
-            // Define the bounds
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
+            // Handle non-integer size expressions
+            this.x = dimple._parsePosition(x, this.svg.node().offsetWidth);
+            this.y = dimple._parsePosition(y, this.svg.node().offsetHeight);
+            this.width = dimple._parsePosition(width, this.svg.node().offsetWidth);
+            this.height = dimple._parsePosition(height, this.svg.node().offsetHeight);
             // Refresh the axes to redraw them against the new bounds
-            this.axes.forEach(function (axis) {
-                axis._update();
-            }, this);
+            this.draw();
             // return the chart object for method chaining
             return this;
         };
+
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -1508,13 +1496,13 @@ var dimple = {
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-series
         this.series = series;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-x
-        this.x = x;
+        this.x = dimple._parsePosition(x, this.chart.svg.node().offsetWidth);
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-y
-        this.y = y;
+        this.y = dimple._parsePosition(y, this.chart.svg.node().offsetHeight);
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-width
-        this.width = width;
+        this.width = dimple._parsePosition(width, this.chart.svg.node().offsetWidth);
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-height
-        this.height = height;
+        this.height = dimple._parsePosition(height, this.chart.svg.node().offsetHeight);
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-horizontalAlign
         this.horizontalAlign = horizontalAlign;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-shapes
@@ -3890,6 +3878,21 @@ var dimple = {
 
     };
 
+
+    // Copyright: 2013 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_parsePosition.js
+    dimple._parsePosition = function (value, svgScaleValue) {
+        var returnValue = value;
+        if (!isNaN(value)) {
+            returnValue = value;
+        } else if (value.slice(-1) === "%") {
+            returnValue = svgScaleValue * (parseFloat(value.slice(0, value.length - 1)) / 100);
+        } else if (value.slice(-2) === "px") {
+            returnValue = parseFloat(value.slice(0, value.length - 2));
+        }
+        return returnValue;
+    };
 
     // Copyright: 2013 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
