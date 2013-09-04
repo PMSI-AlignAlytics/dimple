@@ -7,13 +7,13 @@
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-svg
         this.svg = svg;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-x
-        this.x = svg[0][0].width.baseVal.value * 0.1;
+        this.x = svg.node().offsetWidth * 0.1;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-y
-        this.y = svg[0][0].height.baseVal.value * 0.1;
+        this.y = svg.node().offsetHeight * 0.1;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-width
-        this.width = svg[0][0].width.baseVal.value * 0.8;
+        this.width = svg.node().offsetWidth * 0.8;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-height
-        this.height = svg[0][0].height.baseVal.value * 0.8;
+        this.height = svg.node().offsetHeight * 0.8;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-data
         this.data = data;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-noFormats
