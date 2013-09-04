@@ -108,7 +108,7 @@
         width: function (d, chart, series) {
             var returnWidth = 0;
             if (series.x.measure !== null && series.x.measure !== undefined) {
-                returnWidth = Math.abs(series.x._scale(d.width + d.x) - series.x._scale(d.x));
+                returnWidth = Math.abs(series.x._scale((d.x < 0 ? d.x - d.width : d.x + d.width)) - series.x._scale(d.x));
             } else if (series.x._hasTimeField()) {
                 returnWidth = series.x.floatingBarWidth;
             } else {
@@ -123,7 +123,7 @@
             if (series.y._hasTimeField()) {
                 returnHeight = series.y.floatingBarWidth;
             } else if (series.y.measure !== null && series.y.measure !== undefined) {
-                returnHeight = Math.abs(series.y._scale(d.y) - series.y._scale(d.y - d.height));
+                returnHeight = Math.abs(series.y._scale(d.y) - series.y._scale((d.y <= 0 ? d.y + d.height : d.y - d.height)));
             } else {
                 returnHeight = d.height * ((chart.height / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) - (dimple._helpers.yClusterGap(d, chart, series) * 2);
             }

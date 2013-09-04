@@ -61,8 +61,6 @@ var dimple = {
         this.useLog = false;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logBase
         this.logBase = 10;
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logFormat
-        this.logFormat = null;
 
         // The scale determined by the update method
         this._scale = null;
@@ -95,8 +93,6 @@ var dimple = {
                 len,
                 chunks,
                 suffix,
-                //scale,
-                format,
                 dp;
             if (this.tickFormat !== null && this.tickFormat !== undefined) {
                 if (this._hasTimeField()) {
@@ -106,9 +102,17 @@ var dimple = {
                 }
             } else if (this.showPercent) {
                 returnFormat = d3.format("%");
-            } else if (this.useLog) {
-                format = this.logFormat || ",d";
-                returnFormat = d3.format(format);
+            } else if (this.useLog && this.measure !== null) {
+                // With linear axes the range is used to apply uniform
+                // formatting but with a log axis it is based on each number
+                // independently
+                returnFormat = function (n) {
+                    var l = Math.floor(Math.abs(n), 0).toString().length,
+                        c = Math.min(Math.floor((l - 1) / 3), 4),
+                        s = "kmBT".substring(c - 1, c),
+                        d = (Math.round((n / Math.pow(1000, c)) * 10).toString().slice(-1) === "0" ? 0 : 1);
+                    return (n === 0 ? 0 : d3.format(",." + d + "f")(n / Math.pow(1000, c)) + s);
+                };
             } else if (this.measure !== null) {
                 max = Math.floor(Math.abs(this._max), 0).toString();
                 min = Math.floor(Math.abs(this._min), 0).toString();
@@ -129,7 +133,6 @@ var dimple = {
             }
             return returnFormat;
         };
-
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -261,7 +264,10 @@ var dimple = {
                 } else if (this.useLog) {
                     this._scale = d3.scale.log()
                         .range([this.chart.x, this.chart.x + this.chart.width])
-                        .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
+                        .domain([
+                            (this._min === 0 ? 0.1 : this._min),
+                            (this._max === 0 ? -0.1 : this._max)
+                        ])
                         .clamp(true)
                         .base(this.logBase)
                         .nice();
@@ -300,7 +306,10 @@ var dimple = {
                 } else if (this.useLog) {
                     this._scale = d3.scale.log()
                         .range([this.chart.y + this.chart.height, this.chart.y])
-                        .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
+                        .domain([
+                            (this._min === 0 ? 0.1 : this._min),
+                            (this._max === 0 ? -0.1 : this._max)
+                        ])
                         .clamp(true)
                         .base(this.logBase)
                         .nice();
@@ -336,7 +345,10 @@ var dimple = {
                 if (this.useLog) {
                     this._scale = d3.scale.log()
                         .range([this.chart.height / 300, this.chart.height / 10])
-                        .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
+                        .domain([
+                            (this._min === 0 ? 0.1 : this._min),
+                            (this._max === 0 ? -0.1 : this._max)
+                        ])
                         .clamp(true)
                         .base(this.logBase);
                 } else {
@@ -348,7 +360,10 @@ var dimple = {
                 if (this.useLog) {
                     this._scale = d3.scale.log()
                         .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
-                        .domain([this._min === 0 ? (this._max > 0 ? this._min + 0.1 : this._min - 0.1) : this._min, this._max])
+                        .domain([
+                            (this._min === 0 ? 0.1 : this._min),
+                            (this._max === 0 ? -0.1 : this._max)
+                        ])
                         .clamp(true)
                         .base(this.logBase);
                 } else {
@@ -929,13 +944,10 @@ var dimple = {
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addLogAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addLogAxis
-        this.addLogAxis = function (position, logField, logFormat, logBase) {
+        this.addLogAxis = function (position, logField, logBase) {
             var axis = this.addAxis(position, null, logField, null);
             if (logBase !== null && logBase !== undefined) {
                 axis.logBase = logBase;
-            }
-            if (logFormat !== null && logFormat !== undefined) {
-                axis.logFormat = logFormat;
             }
             axis.useLog = true;
             return axis;
@@ -3821,7 +3833,7 @@ var dimple = {
         width: function (d, chart, series) {
             var returnWidth = 0;
             if (series.x.measure !== null && series.x.measure !== undefined) {
-                returnWidth = 10; //Math.abs(series.x._scale(d.width + d.x) - series.x._scale(d.x));
+                returnWidth = Math.abs(series.x._scale((d.x < 0 ? d.x - d.width : d.x + d.width)) - series.x._scale(d.x));
             } else if (series.x._hasTimeField()) {
                 returnWidth = series.x.floatingBarWidth;
             } else {
@@ -3836,7 +3848,7 @@ var dimple = {
             if (series.y._hasTimeField()) {
                 returnHeight = series.y.floatingBarWidth;
             } else if (series.y.measure !== null && series.y.measure !== undefined) {
-                returnHeight = Math.abs(series.y._scale(d.y) - series.y._scale(d.y - d.height));
+                returnHeight = Math.abs(series.y._scale(d.y) - series.y._scale((d.y <= 0 ? d.y + d.height : d.y - d.height)));
             } else {
                 returnHeight = d.height * ((chart.height / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) - (dimple._helpers.yClusterGap(d, chart, series) * 2);
             }

@@ -46,8 +46,6 @@
         this.useLog = false;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logBase
         this.logBase = 10;
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logFormat
-        this.logFormat = null;
 
         // The scale determined by the update method
         this._scale = null;
