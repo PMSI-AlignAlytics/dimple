@@ -3,7 +3,9 @@
     // Source: /src/methods/_parsePosition.js
     dimple._parsePosition = function (value, svgScaleValue) {
         var returnValue = value;
-        if (!isNaN(value)) {
+        if (value === undefined || value === null) {
+            returnValue = 0;
+        } else if (!isNaN(value)) {
             returnValue = value;
         } else if (value.slice(-1) === "%") {
             returnValue = svgScaleValue * (parseFloat(value.slice(0, value.length - 1)) / 100);
