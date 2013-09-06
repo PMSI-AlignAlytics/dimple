@@ -22,6 +22,16 @@
           var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
       })();
     </script>
+    <script type="text/javascript">
+      function trackOutboundLink(link, category, action) {
+          try {
+              _gaq.push(['_trackEvent', category , action]);
+          } catch(err){}
+          setTimeout(function() {
+              document.location.href = link.href;
+          }, 100);
+      }
+    </script>
   </head>
   <body>
     <div class="wrapper">
@@ -38,17 +48,39 @@
         </table>
         <h3>Libraries</h3>
         <p>
-          <a href="/dist/dimple.v1.js" onClick="_gaq.push(['_trackEvent', 'Code', 'JavaScript', 'Full Library', 1, true])">Full Javascript Library With Comments</a><br/>
-          <a href="/dist/dimple.v1.min.js" onClick="_gaq.push(['_trackEvent', 'Code', 'JavaScript', 'Minified', 1, true])">Minified Javascript Library</a><br/>
-          <a href="https://github.com/PMSI-AlignAlytics/dimple/zipball/master" onClick="_gaq.push(['_trackEvent', 'Code', 'ZipBall', 'Full Codebase', 1, true])">Zip File</a><br/>
-          <a href="https://github.com/PMSI-AlignAlytics/dimple/tarball/master" onClick="_gaq.push(['_trackEvent', 'Code', 'TarBall', 'Full Codebase', 1, true])">Tar Ball</a><br/>
+          <a href="/dist/dimple.v1.js"
+             onClick="trackOutboundLink(this, 'Libraries', 'Full Javascript')">
+              Full Javascript Library With Comments
+          </a><br/>
+          <a href="/dist/dimple.v1.min.js"
+             onClick="trackOutboundLink(this, 'Libraries', 'Minified Javascript')">
+              Minified Javascript Library
+          </a><br/>
+          <a href="https://github.com/PMSI-AlignAlytics/dimple/zipball/master"
+             onClick="trackOutboundLink(this, 'Libraries', 'Zip Ball')">
+              Zip File
+          </a><br/>
+          <a href="https://github.com/PMSI-AlignAlytics/dimple/tarball/master"
+             onClick="trackOutboundLink(this, 'Libraries', 'Tar Ball')">
+              Tar Ball
+          </a><br/>
         </p>
         <h3>Resources</h3>
         <p>
-          <a href="/examples_index.html">Examples</a><br/>
-          <a href="/advanced_examples_index.html">Advanced Examples</a><br/>
-          <a href="https://github.com/PMSI-AlignAlytics/dimple" onClick="_gaq.push(['_trackEvent', 'Code', 'GitHub', 'Repository', 1, true])">View On GitHub</a><br/>
-          <a href="https://github.com/PMSI-AlignAlytics/dimple/wiki" onClick="_gaq.push(['_trackEvent', 'Code', 'GitHub', 'Wiki', 1, true])">Full API Documentation</a><br/>
+          <a href="/examples_index.html">
+              Examples
+          </a><br/>
+          <a href="/advanced_examples_index.html">
+              Advanced Examples
+          </a><br/>
+          <a href="https://github.com/PMSI-AlignAlytics/dimple"
+             onClick="trackOutboundLink(this, 'GitHub', 'Repository')">
+              View On GitHub
+          </a><br/>
+          <a href="https://github.com/PMSI-AlignAlytics/dimple/wiki"
+             onClick="trackOutboundLink(this, 'GitHub', 'Wiki')">
+              Full API Documentation
+          </a><br/>
         </p>
       </header>
       <section>
@@ -56,12 +88,14 @@
             
         </div>
       </section>
-      <footer>
-        <p>
-          This is an open-source project by <br/>
-          <a href="http://www.pmsi-consulting.com" onClick="_gaq.push(['_trackEvent', 'Referral', 'Outbound', 'PMSI', 1, true])">PMSI-AlignAlytics</a>
-        </p>
-      </footer>
+        <footer>
+            <p>
+                This is an open-source project by <br/>
+                <a href="http://www.pmsi-consulting.com"
+                   onClick="trackOutboundLink(this, 'Outbound', 'PMSI')">
+                    PMSI-AlignAlytics</a>
+            </p>
+        </footer>
     <script type="text/javascript">
       // Show all the examples
       $.getJSON("/examples_meta.json", function(data) {
