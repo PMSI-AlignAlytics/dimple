@@ -1,4 +1,7 @@
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_draw.js
+        // Render the legend
         this._draw = function (duration) {
 
             // Create an array of distinct color elements from the series
@@ -42,7 +45,7 @@
                 .call(function () {
                     if (!self.chart.noFormats) {
                         this.style("font-family", "sans-serif")
-                            .style("font-size", (self.chart.height / 35 > 10 ? self.chart.height / 35 : 10) + "px")
+                            .style("font-size", (self.chart._heightPixels() / 35 > 10 ? self.chart._heightPixels() / 35 : 10) + "px")
                             .style("shape-rendering", "crispEdges");
                     }
                 })
@@ -70,26 +73,26 @@
             // Iterate the shapes and position them based on the alignment and size of the legend
             theseShapes
                 .each(function (d) {
-                    if (runningX + maxWidth > self.width) {
+                    if (runningX + maxWidth > self._widthPixels()) {
                         runningX = 0;
                         runningY += maxHeight;
                     }
-                    if (runningY > self.height) {
+                    if (runningY > self._heightPixels()) {
                         d3.select(this).remove();
                     } else {
                         d3.select(this).select("text")
-                            .attr("x", (self.horizontalAlign === "left" ? self.x + keyWidth + 5 + runningX : self.x + (self.width - runningX - maxWidth) + keyWidth + 5))
+                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + keyWidth + 5 + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth) + keyWidth + 5))
                             .attr("y", function () {
                                 // This was previously done with dominant-baseline but this is used
                                 // instead due to browser inconsistancy.
-                                return self.y + runningY + this.getBBox().height / 1.65;
+                                return self._yPixels() + runningY + this.getBBox().height / 1.65;
                             })
-                            .attr("width", self.width)
-                            .attr("height", self.height);
+                            .attr("width", self._widthPixels())
+                            .attr("height", self._heightPixels());
                         d3.select(this).select("rect")
                             .attr("class", "legend legendKey")
-                            .attr("x", (self.horizontalAlign === "left" ? self.x + runningX : self.x + (self.width - runningX - maxWidth)))
-                            .attr("y", self.y + runningY)
+                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth)))
+                            .attr("y", self._yPixels() + runningY)
                             .attr("height", keyHeight)
                             .attr("width",  keyWidth)
                             .style("fill", function () { return dimple._helpers.fill(d, self.chart, d.series); })

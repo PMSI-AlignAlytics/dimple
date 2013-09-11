@@ -455,22 +455,7 @@ var dimple = {
         this._assignedColors = {};
         // The next colour index to use, this value is cycled around for all default colours
         this._nextColor = 0;
-        // Access the pixel value of the x coordinate
-        this._xPixels = function () {
-            return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
-        };
-        // Access the pixel value of the y coordinate
-        this._yPixels = function () {
-            return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
-        };
-        // Access the pixel value of the width coordinate
-        this._widthPixels = function () {
-            return dimple._parsePosition(this.width, this.svg.node().offsetWidth);
-        };
-        // Access the pixel value of the height coordinate
-        this._heightPixels = function () {
-            return dimple._parsePosition(this.height, this.svg.node().offsetHeight);
-        };
+
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_axisIndex.js
@@ -860,6 +845,14 @@ var dimple = {
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/chart/methods/_xPixels.js
+        // Access the pixel value of the height of the plot area
+        this._heightPixels = function () {
+            return dimple._parsePosition(this.height, this.svg.node().offsetHeight);
+        };
+
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_registerEventHandlers.js
         // Register events, handle standard d3 shape events
         this._registerEventHandlers = function (series) {
@@ -886,6 +879,27 @@ var dimple = {
         };
 
 
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/chart/methods/_xPixels.js
+        // Access the pixel value of the width of the plot area
+        this._widthPixels = function () {
+            return dimple._parsePosition(this.width, this.svg.node().offsetWidth);
+        };
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/chart/methods/_xPixels.js
+        // Access the pixel position of the x co-ordinate of the plot area
+        this._xPixels = function () {
+            return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
+        };
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/chart/methods/_yPixels.js
+        // Access the pixel position of the y co-ordinate of the plot area
+        this._yPixels = function () {
+            return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
+        };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addAxis.js
@@ -1563,18 +1577,21 @@ var dimple = {
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-series
         this.series = series;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-x
-        this.x = dimple._parsePosition(x, this.chart.svg.node().offsetWidth);
+        this.x = x;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-y
-        this.y = dimple._parsePosition(y, this.chart.svg.node().offsetHeight);
+        this.y = y;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-width
-        this.width = dimple._parsePosition(width, this.chart.svg.node().offsetWidth);
+        this.width = width;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-height
-        this.height = dimple._parsePosition(height, this.chart.svg.node().offsetHeight);
+        this.height = height;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-horizontalAlign
         this.horizontalAlign = horizontalAlign;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-shapes
         this.shapes = null;
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_draw.js
+        // Render the legend
         this._draw = function (duration) {
 
             // Create an array of distinct color elements from the series
@@ -1646,26 +1663,26 @@ var dimple = {
             // Iterate the shapes and position them based on the alignment and size of the legend
             theseShapes
                 .each(function (d) {
-                    if (runningX + maxWidth > self.width) {
+                    if (runningX + maxWidth > self._widthPixels()) {
                         runningX = 0;
                         runningY += maxHeight;
                     }
-                    if (runningY > self.height) {
+                    if (runningY > self._heightPixels()) {
                         d3.select(this).remove();
                     } else {
                         d3.select(this).select("text")
-                            .attr("x", (self.horizontalAlign === "left" ? self.x + keyWidth + 5 + runningX : self.x + (self.width - runningX - maxWidth) + keyWidth + 5))
+                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + keyWidth + 5 + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth) + keyWidth + 5))
                             .attr("y", function () {
                                 // This was previously done with dominant-baseline but this is used
                                 // instead due to browser inconsistancy.
-                                return self.y + runningY + this.getBBox().height / 1.65;
+                                return self._yPixels() + runningY + this.getBBox().height / 1.65;
                             })
-                            .attr("width", self.width)
-                            .attr("height", self.height);
+                            .attr("width", self._widthPixels())
+                            .attr("height", self._heightPixels());
                         d3.select(this).select("rect")
                             .attr("class", "legend legendKey")
-                            .attr("x", (self.horizontalAlign === "left" ? self.x + runningX : self.x + (self.width - runningX - maxWidth)))
-                            .attr("y", self.y + runningY)
+                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth)))
+                            .attr("y", self._yPixels() + runningY)
                             .attr("height", keyHeight)
                             .attr("width",  keyWidth)
                             .style("fill", function () { return dimple._helpers.fill(d, self.chart, d.series); })
@@ -1687,7 +1704,10 @@ var dimple = {
             this.shapes = theseShapes;
         };
 
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_getEntries.js
+        // Get an array of elements to be displayed in the legend
         this._getEntries = function () {
             // Create an array of distinct series values
             var entries = [];
@@ -1719,6 +1739,35 @@ var dimple = {
             return entries;
         };
 
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/chart/methods/_xPixels.js
+        // Access the pixel value of the height of the plot area
+        this._heightPixels = function () {
+            return dimple._parsePosition(this.height, this.svg.node().offsetHeight);
+        };
+
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/chart/methods/_xPixels.js
+        // Access the pixel value of the width of the plot area
+        this._widthPixels = function () {
+            return dimple._parsePosition(this.width, this.svg.node().offsetWidth);
+        };
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/chart/methods/_xPixels.js
+        // Access the pixel position of the x co-ordinate of the plot area
+        this._xPixels = function () {
+            return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
+        };
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/chart/methods/_yPixels.js
+        // Access the pixel position of the y co-ordinate of the plot area
+        this._yPixels = function () {
+            return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
+        };
     };
     // End dimple.legend
 

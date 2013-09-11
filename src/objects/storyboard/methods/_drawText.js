@@ -3,7 +3,7 @@
         // Source: /src/objects/storyboard/methods/drawText.js
         this._drawText = function (duration) {
             if (this.storyLabel === null || this.storyLabel === undefined) {
-                var chart = this,
+                var chart = this.chart,
                     xCount = 0;
                 // Check for a secondary x axis
                 this.chart.axes.forEach(function (a) {
@@ -12,12 +12,12 @@
                     }
                 }, this);
                 this.storyLabel = this.chart._group.append("text")
-                    .attr("x", this.chart.x + this.chart.width * 0.01)
-                    .attr("y", this.chart.y + (this.chart.height / 35 > 10 ? this.chart.height / 35 : 10) * (xCount > 1 ? 1.25 : -1))
+                    .attr("x", this.chart._xPixels() + this.chart._widthPixels() * 0.01)
+                    .attr("y", this.chart._yPixels() + (this.chart._heightPixels() / 35 > 10 ? this.chart._heightPixels() / 35 : 10) * (xCount > 1 ? 1.25 : -1))
                     .call(function () {
                         if (!chart.noFormats) {
                             this.style("font-family", "sans-serif")
-                                .style("font-size", (chart.height / 35 > 10 ? chart.height / 35 : 10) + "px");
+                                .style("font-size", (chart._heightPixels() / 35 > 10 ? chart._heightPixels() / 35 : 10) + "px");
                         }
                     });
             }

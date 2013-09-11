@@ -1,4 +1,7 @@
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_getEntries.js
+        // Get an array of elements to be displayed in the legend
         this._getEntries = function () {
             // Create an array of distinct series values
             var entries = [];

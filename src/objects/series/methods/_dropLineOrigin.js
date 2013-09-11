@@ -22,13 +22,13 @@
             this.chart.axes.forEach(function (axis) {
                 if (axis.position === "x" && firstOrig.x === null) {
                     if (axis._hasTimeField()) {
-                        firstOrig.x = this.chart.x;
+                        firstOrig.x = this.chart._xPixels();
                     } else {
                         firstOrig.x = axis._origin;
                     }
                 } else if (axis.position === "y" && firstOrig.y === null) {
                     if (axis._hasTimeField()) {
-                        firstOrig.y = this.chart.y + this.chart.height;
+                        firstOrig.y = this.chart._yPixels() + this.chart._heightPixels();
                     } else {
                         firstOrig.y = axis._origin;
                     }
@@ -42,7 +42,7 @@
                         if (xIndex === 0) {
                             coord.y = firstOrig.y;
                         } else if (xIndex === 1) {
-                            coord.y = this.chart.y;
+                            coord.y = this.chart._yPixels();
                         }
                     }
                     xIndex += 1;
@@ -52,7 +52,7 @@
                         if (yIndex === 0) {
                             coord.x = firstOrig.x;
                         } else if (yIndex === 1) {
-                            coord.x = this.chart.x + this.chart.width;
+                            coord.x = this.chart._xPixels() + this.chart._widthPixels();
                         }
                     }
                     yIndex += 1;

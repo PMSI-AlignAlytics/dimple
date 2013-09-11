@@ -22,10 +22,10 @@
             grad = chart._group.append("linearGradient")
                 .attr("id", id)
                 .attr("gradientUnits", "userSpaceOnUse")
-                .attr("x1", (categoryAxis.position === "x" ? categoryAxis._scale(cats[0]) + ((chart.width / cats.length) / 2) : 0))
-                .attr("y1", (categoryAxis.position === "y" ? categoryAxis._scale(cats[0]) - ((chart.height / cats.length) / 2) : 0))
-                .attr("x2", (categoryAxis.position === "x" ? categoryAxis._scale(cats[cats.length - 1]) + ((chart.width / cats.length) / 2) : 0))
-                .attr("y2", (categoryAxis.position === "y" ? categoryAxis._scale(cats[cats.length - 1]) - ((chart.height / cats.length) / 2) : 0));
+                .attr("x1", (categoryAxis.position === "x" ? categoryAxis._scale(cats[0]) + ((chart._widthPixels() / cats.length) / 2) : 0))
+                .attr("y1", (categoryAxis.position === "y" ? categoryAxis._scale(cats[0]) - ((chart._heightPixels() / cats.length) / 2) : 0))
+                .attr("x2", (categoryAxis.position === "x" ? categoryAxis._scale(cats[cats.length - 1]) + ((chart._widthPixels() / cats.length) / 2) : 0))
+                .attr("y2", (categoryAxis.position === "y" ? categoryAxis._scale(cats[cats.length - 1]) - ((chart._heightPixels() / cats.length) / 2) : 0));
         }
 
         cats.forEach(function (cat, j) {

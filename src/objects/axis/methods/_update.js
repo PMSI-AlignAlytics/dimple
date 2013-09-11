@@ -48,11 +48,11 @@
             if (this.position === "x") {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
-                        .rangeRound([this.chart.x, this.chart.x + this.chart.width])
+                        .rangeRound([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain([this._min, this._max]);
                 } else if (this.useLog) {
                     this._scale = d3.scale.log()
-                        .range([this.chart.x, this.chart.x + this.chart.width])
+                        .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain([
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
@@ -63,11 +63,11 @@
                 } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "x", "y");
                     this._scale = d3.scale.ordinal()
-                        .rangePoints([this.chart.x, this.chart.x + this.chart.width])
+                        .rangePoints([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain(distinctCats.concat([""]));
                 } else {
                     this._scale = d3.scale.linear()
-                        .range([this.chart.x, this.chart.x + this.chart.width])
+                        .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain([this._min, this._max]).nice();
                 }
                 // If it's visible, orient it at the top or bottom if it's first or second respectively
@@ -90,11 +90,11 @@
             } else if (this.position === "y") {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
-                        .rangeRound([this.chart.y + this.chart.height, this.chart.y])
+                        .rangeRound([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([this._min, this._max]);
                 } else if (this.useLog) {
                     this._scale = d3.scale.log()
-                        .range([this.chart.y + this.chart.height, this.chart.y])
+                        .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
@@ -105,11 +105,11 @@
                 } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "y", "x");
                     this._scale = d3.scale.ordinal()
-                        .rangePoints([this.chart.y + this.chart.height, this.chart.y])
+                        .rangePoints([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain(distinctCats.concat([""]));
                 } else {
                     this._scale = d3.scale.linear()
-                        .range([this.chart.y + this.chart.height, this.chart.y])
+                        .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([this._min, this._max])
                         .nice();
                 }
@@ -133,7 +133,7 @@
             } else if (this.position.length > 0 && this.position[0] === "z") {
                 if (this.useLog) {
                     this._scale = d3.scale.log()
-                        .range([this.chart.height / 300, this.chart.height / 10])
+                        .range([this.chart._heightPixels() / 300, this.chart._heightPixels() / 10])
                         .domain([
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
@@ -142,7 +142,7 @@
                         .base(this.logBase);
                 } else {
                     this._scale = d3.scale.linear()
-                        .range([this.chart.height / 300, this.chart.height / 10])
+                        .range([this.chart._heightPixels() / 300, this.chart._heightPixels() / 10])
                         .domain([this._min, this._max]);
                 }
             } else if (this.position.length > 0 && this.position[0] === "c") {

@@ -9,13 +9,13 @@
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-series
         this.series = series;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-x
-        this.x = dimple._parsePosition(x, this.chart.svg.node().offsetWidth);
+        this.x = x;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-y
-        this.y = dimple._parsePosition(y, this.chart.svg.node().offsetHeight);
+        this.y = y;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-width
-        this.width = dimple._parsePosition(width, this.chart.svg.node().offsetWidth);
+        this.width = width;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-height
-        this.height = dimple._parsePosition(height, this.chart.svg.node().offsetHeight);
+        this.height = height;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-horizontalAlign
         this.horizontalAlign = horizontalAlign;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-shapes

@@ -9,9 +9,9 @@
             if (series.x.measure !== null && series.x.measure !== undefined) {
                 returnCx = series.x._scale(d.cx);
             } else if (series.x._hasCategories() && series.x.categoryFields.length >= 2) {
-                returnCx = series.x._scale(d.cx) + dimple._helpers.xGap(chart, series) + ((d.xOffset + 0.5) * (((chart.width / series.x._max) - 2 * dimple._helpers.xGap(chart, series)) * d.width));
+                returnCx = series.x._scale(d.cx) + dimple._helpers.xGap(chart, series) + ((d.xOffset + 0.5) * (((chart._widthPixels() / series.x._max) - 2 * dimple._helpers.xGap(chart, series)) * d.width));
             } else {
-                returnCx = series.x._scale(d.cx) + ((chart.width / series.x._max) / 2);
+                returnCx = series.x._scale(d.cx) + ((chart._widthPixels() / series.x._max) / 2);
             }
             return returnCx;
         },
@@ -22,9 +22,9 @@
             if (series.y.measure !== null && series.y.measure !== undefined) {
                 returnCy = series.y._scale(d.cy);
             } else if (series.y.categoryFields !== null && series.y.categoryFields !== undefined && series.y.categoryFields.length >= 2) {
-                returnCy = (series.y._scale(d.cy) - (chart.height / series.y._max)) +  dimple._helpers.yGap(chart, series) + ((d.yOffset + 0.5) * (((chart.height / series.y._max) - 2 * dimple._helpers.yGap(chart, series)) * d.height));
+                returnCy = (series.y._scale(d.cy) - (chart._heightPixels() / series.y._max)) +  dimple._helpers.yGap(chart, series) + ((d.yOffset + 0.5) * (((chart._heightPixels() / series.y._max) - 2 * dimple._helpers.yGap(chart, series)) * d.height));
             } else {
-                returnCy = series.y._scale(d.cy) - ((chart.height / series.y._max) / 2);
+                returnCy = series.y._scale(d.cy) - ((chart._heightPixels() / series.y._max) / 2);
             }
             return returnCy;
         },
@@ -37,7 +37,7 @@
             } else if (series.z._hasMeasure()) {
                 returnR = series.z._scale(d.r);
             } else {
-                returnR = series.z._scale(chart.height / 100);
+                returnR = series.z._scale(chart._heightPixels() / 100);
             }
             return returnR;
         },
@@ -46,7 +46,7 @@
         xGap: function (chart, series) {
             var returnXGap = 0;
             if ((series.x.measure === null || series.x.measure === undefined) && series.barGap > 0) {
-                returnXGap = ((chart.width / series.x._max) * (series.barGap > 0.99 ? 0.99 : series.barGap)) / 2;
+                returnXGap = ((chart._widthPixels() / series.x._max) * (series.barGap > 0.99 ? 0.99 : series.barGap)) / 2;
             }
             return returnXGap;
         },
@@ -55,7 +55,7 @@
         xClusterGap: function (d, chart, series) {
             var returnXClusterGap = 0;
             if (series.x.categoryFields !== null && series.x.categoryFields !== undefined && series.x.categoryFields.length >= 2 && series.clusterBarGap > 0 && !series.x._hasMeasure()) {
-                returnXClusterGap = (d.width * ((chart.width / series.x._max) - (dimple._helpers.xGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
+                returnXClusterGap = (d.width * ((chart._widthPixels() / series.x._max) - (dimple._helpers.xGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
             }
             return returnXClusterGap;
         },
@@ -64,7 +64,7 @@
         yGap: function (chart, series) {
             var returnYGap = 0;
             if ((series.y.measure === null || series.y.measure === undefined) && series.barGap > 0) {
-                returnYGap = ((chart.height / series.y._max) * (series.barGap > 0.99 ? 0.99 : series.barGap)) / 2;
+                returnYGap = ((chart._heightPixels() / series.y._max) * (series.barGap > 0.99 ? 0.99 : series.barGap)) / 2;
             }
             return returnYGap;
         },
@@ -73,7 +73,7 @@
         yClusterGap: function (d, chart, series) {
             var returnYClusterGap = 0;
             if (series.y.categoryFields !== null && series.y.categoryFields !== undefined && series.y.categoryFields.length >= 2 && series.clusterBarGap > 0 && !series.y._hasMeasure()) {
-                returnYClusterGap = (d.height * ((chart.height / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
+                returnYClusterGap = (d.height * ((chart._heightPixels() / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
             }
             return returnYClusterGap;
         },
@@ -99,7 +99,7 @@
             } else if (series.y.measure !== null && series.y.measure !== undefined) {
                 returnY = series.y._scale(d.y);
             } else {
-                returnY = (series.y._scale(d.y) - (chart.height / series.y._max)) + dimple._helpers.yGap(chart, series) + (d.yOffset * (dimple._helpers.height(d, chart, series) + 2 * dimple._helpers.yClusterGap(d, chart, series))) + dimple._helpers.yClusterGap(d, chart, series);
+                returnY = (series.y._scale(d.y) - (chart._heightPixels() / series.y._max)) + dimple._helpers.yGap(chart, series) + (d.yOffset * (dimple._helpers.height(d, chart, series) + 2 * dimple._helpers.yClusterGap(d, chart, series))) + dimple._helpers.yClusterGap(d, chart, series);
             }
             return returnY;
         },
@@ -112,7 +112,7 @@
             } else if (series.x._hasTimeField()) {
                 returnWidth = series.x.floatingBarWidth;
             } else {
-                returnWidth = d.width * ((chart.width / series.x._max) - (dimple._helpers.xGap(chart, series) * 2)) - (dimple._helpers.xClusterGap(d, chart, series) * 2);
+                returnWidth = d.width * ((chart._widthPixels() / series.x._max) - (dimple._helpers.xGap(chart, series) * 2)) - (dimple._helpers.xClusterGap(d, chart, series) * 2);
             }
             return returnWidth;
         },
@@ -125,7 +125,7 @@
             } else if (series.y.measure !== null && series.y.measure !== undefined) {
                 returnHeight = Math.abs(series.y._scale(d.y) - series.y._scale((d.y <= 0 ? d.y + d.height : d.y - d.height)));
             } else {
-                returnHeight = d.height * ((chart.height / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) - (dimple._helpers.yClusterGap(d, chart, series) * 2);
+                returnHeight = d.height * ((chart._heightPixels() / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) - (dimple._helpers.yClusterGap(d, chart, series) * 2);
             }
             return returnHeight;
         },

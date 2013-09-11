@@ -2,7 +2,7 @@
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/draw.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-draw
-        this.draw = function (duration) {
+        this.draw = function (duration, noDataChange) {
             // Deal with optional parameter
             duration = (duration === null || duration === undefined ? 0 : duration);
             // Catch the first x and y
@@ -11,9 +11,13 @@
                 distinctCats,
                 xGridSet = false,
                 yGridSet = false;
+
             // Many of the draw methods use positioning data in each series.  Therefore we should
             // decorate the series with it now
-            this._getSeriesData();
+            if (noDataChange === undefined || noDataChange === null || noDataChange === false) {
+                this._getSeriesData();
+            }
+
             // Iterate the axes and calculate bounds, this is done within the chart because an
             // axis' bounds are determined by other axes and the way that series tie them together
             this.axes.forEach(function (axis) {
@@ -118,19 +122,19 @@
                 }
                 // If this is the first x and there is a y axis cross them at zero
                 if (axis === firstX && firstY !== null) {
-                    transform = "translate(0, " + (firstY.categoryFields === null || firstY.categoryFields.length === 0 ? firstY._scale(0) : this.y + this.height) + ")";
-                    gridTransform = "translate(0, " + (axis === firstX ? this.y + this.height : this.y) + ")";
-                    gridSize = -this.height;
+                    transform = "translate(0, " + (firstY.categoryFields === null || firstY.categoryFields.length === 0 ? firstY._scale(0) : this._yPixels() + this._heightPixels()) + ")";
+                    gridTransform = "translate(0, " + (axis === firstX ? this._yPixels() + this._heightPixels() : this._yPixels()) + ")";
+                    gridSize = -this._heightPixels();
                 } else if (axis === firstY && firstX !== null) {
-                    transform = "translate(" + (firstX.categoryFields === null || firstX.categoryFields.length === 0 ? firstX._scale(0) : this.x) + ", 0)";
-                    gridTransform = "translate(" + (axis === firstY ? this.x : this.x + this.width) + ", 0)";
-                    gridSize = -this.width;
+                    transform = "translate(" + (firstX.categoryFields === null || firstX.categoryFields.length === 0 ? firstX._scale(0) : this._xPixels()) + ", 0)";
+                    gridTransform = "translate(" + (axis === firstY ? this._xPixels() : this._xPixels() + this._widthPixels()) + ", 0)";
+                    gridSize = -this._widthPixels();
                 } else if (axis.position === "x") {
-                    gridTransform = transform = "translate(0, " + (axis === firstX ? this.y + this.height : this.y) + ")";
-                    gridSize = -this.height;
+                    gridTransform = transform = "translate(0, " + (axis === firstX ? this._yPixels() + this._heightPixels() : this._yPixels()) + ")";
+                    gridSize = -this._heightPixels();
                 } else if (axis.position === "y") {
-                    gridTransform = transform = "translate(" + (axis === firstY ? this.x : this.x + this.width) + ", 0)";
-                    gridSize = -this.width;
+                    gridTransform = transform = "translate(" + (axis === firstY ? this._xPixels() : this._xPixels() + this._widthPixels()) + ", 0)";
+                    gridSize = -this._widthPixels();
                 }
                 // Draw the axis
                 // This code might seem unneccesary but even applying a duration of 0 to a transition will cause the code to execute after the 
@@ -160,19 +164,19 @@
                     // Move labels around
                     if (axis.measure === null || axis.measure === undefined) {
                         if (axis.position === "x") {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", (this.width / axis._max) / 2);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", (this._widthPixels() / axis._max) / 2);
                         } else if (axis.position === "y") {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", -1 * (this.height / axis._max) / 2);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", -1 * (this._heightPixels() / axis._max) / 2);
                         }
                     }
                     if (axis.categoryFields !== null && axis.categoryFields !== undefined && axis.categoryFields.length > 0) {
                         // Off set the labels to counter the transform.  This will put the labels along the outside of the chart so they
                         // don't interfere with the chart contents
                         if (axis === firstX && (firstY.categoryFields === null || firstY.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", this.y + this.height - firstY._scale(0) + 9);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", this._yPixels() + this._heightPixels() - firstY._scale(0) + 9);
                         }
                         if (axis === firstY && (firstX.categoryFields === null || firstX.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", -1 * (firstX._scale(0) - this.x) - 9);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", -1 * (firstX._scale(0) - this._xPixels()) - 9);
                         }
                     }
                 }
@@ -180,7 +184,7 @@
                 if (!this.noFormats) {
                     handleTrans(axis.shapes.selectAll(".axis text"))
                         .style("font-family", "sans-serif")
-                        .style("font-size", (this.height / 35 > 10 ? this.height / 35 : 10) + "px");
+                        .style("font-size", (this._heightPixels() / 35 > 10 ? this._heightPixels() / 35 : 10) + "px");
                     handleTrans(axis.shapes.selectAll(".axis path, .axis line"))
                         .style("fill", "none")
                         .style("stroke", "black")
@@ -201,7 +205,7 @@
                             var w = this.getComputedTextLength();
                             widest = (w > widest ? w : widest);
                         });
-                        if (widest > this.width / axis.shapes.selectAll(".axis text")[0].length) {
+                        if (widest > this._widthPixels() / axis.shapes.selectAll(".axis text")[0].length) {
                             rotated = true;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "start")
@@ -219,7 +223,7 @@
                                 var w = this.getComputedTextLength();
                                 widest = (w > widest ? w : widest);
                             });
-                        if (widest > this.width / axis.shapes.selectAll(".axis text")[0].length) {
+                        if (widest > this._widthPixels() / axis.shapes.selectAll(".axis text")[0].length) {
                             rotated = true;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "end")
@@ -261,18 +265,18 @@
 
                     if (axis.position === "x") {
                         if (axis === firstX) {
-                            titleY = this.y + this.height + box.b + 5;
+                            titleY = this._yPixels() + this._heightPixels() + box.b + 5;
                         } else {
-                            titleY = this.y + box.t - 10;
+                            titleY = this._yPixels() + box.t - 10;
                         }
-                        titleX = this.x + (this.width / 2);
+                        titleX = this._xPixels() + (this._widthPixels() / 2);
                     } else if (axis.position === "y") {
                         if (axis === firstY) {
-                            titleX = this.x + box.l - 10;
+                            titleX = this._xPixels() + box.l - 10;
                         } else {
-                            titleX = this.x + this.width + box.r + 20;
+                            titleX = this._xPixels() + this._widthPixels() + box.r + 20;
                         }
-                        titleY = this.y + (this.height / 2);
+                        titleY = this._yPixels() + (this._heightPixels() / 2);
                         rotate = "rotate(270, " + titleX + ", " + titleY + ")";
                     }
 
@@ -288,7 +292,7 @@
                             if (!chart.noFormats) {
                                 d3.select(this)
                                     .style("font-family", "sans-serif")
-                                    .style("font-size", (chart.height / 35 > 10 ? chart.height / 35 : 10) + "px");
+                                    .style("font-size", (chart._heightPixels() / 35 > 10 ? chart._heightPixels() / 35 : 10) + "px");
                             }
                         });
 
