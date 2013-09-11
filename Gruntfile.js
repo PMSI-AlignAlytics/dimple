@@ -31,13 +31,13 @@ module.exports = function(grunt) {
                     "src/methods/*.js",
                     "src/end.js"
                 ],
-                dest: 'dist/<%= pkg.name %>.v1.js'
+                dest: 'dist/<%= pkg.name %>.v<%= pkg.version %>.js'
             }
         },
         uglify: {
             dist: {
                 files: {
-                    'dist/<%= pkg.name %>.v1.min.js': ['<%= concat.dist.dest %>']
+                    'dist/<%= pkg.name %>.v<%= pkg.version %>.min.js': ['<%= concat.dist.dest %>']
                 }
             }
         },
@@ -63,15 +63,28 @@ module.exports = function(grunt) {
         jslint: {
             files: [
                 'Gruntfile.js',
-                'dist/dimple.v1.js'
+                'dist/<%= pkg.name %>.v<%= pkg.version %>.js'
             ],
             directives: {
                 browser: true,
                 nomen: true,
                 predef: [
                     'd3',
-                    'module'
+                    'module',
+                    'console'
                 ]
+            }
+        },
+        prop: {
+            dist: {
+                src: [
+                    'examples/templates/*.html'
+                ]
+            },
+            options: {
+                dest: 'examples/',
+                tag: '{version}',
+                version: 'v<%= pkg.version %>'
             }
         }
     });
@@ -83,7 +96,33 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-jslint');
 
+    // Propogate version into relevant files
+    grunt.registerMultiTask('prop', 'Propagate Versions.', function() {
+        var options = this.options(),
+            outPath = options.dest,
+            tag = options.tag,
+            version = options.version;
+        // Iterate over all src-dest file pairs.
+        this.files.forEach(function(f) {
+            f.src.filter(function(filepath) {
+                var result = true;
+                if (!grunt.file.exists(filepath)) {
+                    grunt.log.warn('File "' + filepath + '" not found.');
+                    result = false;
+                }
+                return result;
+            }).map(function(filepath) {
+                // Read file source.
+                var src = grunt.file.read(filepath);
+                // Replace the version
+                src = src.replace(tag, version);
+                // Write the new file
+                grunt.file.write(outPath + filepath.substring(filepath.lastIndexOf("/") + 1), src);
+            });
+        });
+    });
+
     // Default tasks
-    grunt.registerTask('default', ['concat', 'jslint', 'uglify', 'connect', 'qunit']);
+    grunt.registerTask('default', ['concat', 'jslint', 'uglify', 'connect', 'qunit', 'prop']);
 
 };
