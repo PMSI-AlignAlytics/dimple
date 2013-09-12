@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>dimple - A simple charting API for d3 data visualisations</title>
+
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script type="application/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-41100937-1']);
+      _gaq.push(['_trackPageview']);
+      (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+    <script type="text/javascript">
+      function trackOutboundLink(link, category, action) {
+          try {
+              _gaq.push(['_trackEvent', category , action]);
+          } catch(err){}
+          setTimeout(function() {
+              document.location.href = link.href;
+          }, 100);
+      }
+    </script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h2>Advanced Examples</h2>
+        <p>
+          Going beyond standard functionality in dimple.
+        </p>
+        <table style="width:100%">
+          <tr>
+            <td style="width:50%" align="left"><a style="text-align:left" id="prev" href="/index.html">&lt; Home</a></td>
+            <td style="width:50%" align="right"><a style="text-align:right" id="next"></a></td>
+          </tr>
+        </table>
+        <h3>Libraries</h3>
+        <p>
+          <a href="/dist/dimple.{version}.js"
+             onClick="trackOutboundLink(this, 'Libraries', 'Full Javascript')">
+              Full Javascript Library With Comments
+          </a><br/>
+          <a href="/dist/dimple.{version}.min.js"
+             onClick="trackOutboundLink(this, 'Libraries', 'Minified Javascript')">
+              Minified Javascript Library
+          </a><br/>
+          <a href="https://github.com/PMSI-AlignAlytics/dimple/zipball/master"
+             onClick="trackOutboundLink(this, 'Libraries', 'Zip Ball')">
+              Zip File
+          </a><br/>
+          <a href="https://github.com/PMSI-AlignAlytics/dimple/tarball/master"
+             onClick="trackOutboundLink(this, 'Libraries', 'Tar Ball')">
+              Tar Ball
+          </a><br/>
+        </p>
+        <h3>Resources</h3>
+        <p>
+          <a href="/examples_index.html">
+              Examples
+          </a><br/>
+          <a href="/advanced_examples_index.html">
+              Advanced Examples
+          </a><br/>
+          <a href="https://github.com/PMSI-AlignAlytics/dimple"
+             onClick="trackOutboundLink(this, 'GitHub', 'Repository')">
+              View On GitHub
+          </a><br/>
+          <a href="https://github.com/PMSI-AlignAlytics/dimple/wiki"
+             onClick="trackOutboundLink(this, 'GitHub', 'Wiki')">
+              Full API Documentation
+          </a><br/>
+        </p>
+      </header>
+      <section>
+        <div id="examples">
+            
+        </div>
+      </section>
+        <footer>
+            <p>
+                This is an open-source project by <br/>
+                <a href="http://www.pmsi-consulting.com"
+                   onClick="trackOutboundLink(this, 'Outbound', 'PMSI')">
+                    PMSI-AlignAlytics</a>
+            </p>
+        </footer>
+    <script type="text/javascript">
+      // Show all the examples
+      $.getJSON("/advanced_examples_meta.json", function(data) {
+        // Set the next links
+        if (data.length > 0) {
+          $("#next").attr("href","/advanced_examples_viewer.html?id=" + data[0].id);
+          $("#next").text(data[0].shortTitle + " >");
+        }
+        data.forEach(function (spec, i) {
+          $("#examples").append("<a class=\"example\" href=\"/advanced_examples_viewer.html?id=" + spec.id + "\"><img src=\"/images/" + spec.id + ".png\"></a>");
+        });
+      });
+    </script>
+    <script src="javascripts/scale.fix.js"></script>
+  </body>
+</html>

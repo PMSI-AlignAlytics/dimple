@@ -1,0 +1,43 @@
+<div id="chartContainer">
+  <script src="/lib/d3.v3.min.js"></script>
+  <script src="/dist/dimple.{version}.js"></script>
+  <script type="text/javascript">
+    // This is the simple vertical grouped stacked 100% bar example
+    var svg = dimple.newSvg("#chartContainer", 590, 400);
+    d3.tsv("/data/example_data.tsv", function (data) {
+      var myChart = new dimple.chart(svg, data);
+      myChart.setBounds(65, 45, 505, 315)
+      var x = myChart.addCategoryAxis("x", ["Price Tier", "Channel"]);
+      var y = myChart.addPctAxis("y", "Unit Sales");
+      var s = myChart.addSeries("Owner", dimple.plot.bar);
+      myChart.addLegend(200, 10, 380, 20, "right");
+      myChart.draw();
+      // After drawing we can access the shapes and their associated data
+      // to add labels.
+      s.shapes.each(function(d) {
+        // Get the shape as a d3 selection
+        var shape = d3.select(this),
+          // Get the height and width from the scales
+          height = myChart.y + myChart.height - y._scale(d.height);
+          width = x._scale(d.width);
+        // Only label bars where the text can fit
+        if (height >= 8) {
+          // Add a text label for the value
+          svg.append("text")
+            // Position in the centre of the shape (vertical position is
+            // manually set due to cross-browser problems with baseline)
+            .attr("x", parseFloat(shape.attr("x")) + width / 2)
+            .attr("y", parseFloat(shape.attr("y")) - height / 2 + 3.5)
+            // Centre align
+            .style("text-anchor", "middle")
+            .style("font-size", "10px")
+            .style("font-family", "sans-serif")
+            // Make it a little transparent to tone down the black
+            .style("opacity", 0.6)
+            // Format the number
+            .text(d3.format(",.1f")(d.yValue / 1000) + "k");
+        }
+      });
+    });
+  </script>
+</div>
