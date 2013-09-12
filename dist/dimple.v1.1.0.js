@@ -1744,7 +1744,7 @@ var dimple = {
         // Source: /src/objects/chart/methods/_xPixels.js
         // Access the pixel value of the height of the plot area
         this._heightPixels = function () {
-            return dimple._parsePosition(this.height, this.svg.node().offsetHeight);
+            return dimple._parsePosition(this.height, this.chart.svg.node().offsetHeight);
         };
 
         // Copyright: 2013 PMSI-AlignAlytics
@@ -1752,21 +1752,21 @@ var dimple = {
         // Source: /src/objects/chart/methods/_xPixels.js
         // Access the pixel value of the width of the plot area
         this._widthPixels = function () {
-            return dimple._parsePosition(this.width, this.svg.node().offsetWidth);
+            return dimple._parsePosition(this.width, this.chart.svg.node().offsetWidth);
         };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_xPixels.js
         // Access the pixel position of the x co-ordinate of the plot area
         this._xPixels = function () {
-            return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
+            return dimple._parsePosition(this.x, this.chart.svg.node().offsetWidth);
         };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_yPixels.js
         // Access the pixel position of the y co-ordinate of the plot area
         this._yPixels = function () {
-            return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
+            return dimple._parsePosition(this.y, this.chart.svg.node().offsetHeight);
         };
     };
     // End dimple.legend

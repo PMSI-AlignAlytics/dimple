@@ -3,5 +3,5 @@
         // Source: /src/objects/chart/methods/_xPixels.js
         // Access the pixel value of the height of the plot area
         this._heightPixels = function () {
-            return dimple._parsePosition(this.height, this.svg.node().offsetHeight);
+            return dimple._parsePosition(this.height, this.chart.svg.node().offsetHeight);
         };

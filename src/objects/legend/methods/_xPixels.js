@@ -3,5 +3,5 @@
         // Source: /src/objects/chart/methods/_xPixels.js
         // Access the pixel position of the x co-ordinate of the plot area
         this._xPixels = function () {
-            return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
+            return dimple._parsePosition(this.x, this.chart.svg.node().offsetWidth);
         };
