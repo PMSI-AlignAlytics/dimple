@@ -129,8 +129,16 @@
             $("#desc").text(spec.desc);
             // Set the code display
             $.get("examples/" + spec.id + ".html", function (page) {
-              $("#codeContainer").text(page.replace("src=\"/dist/dimple.v1.1.0.js\"", "src=\"http://dimplejs.org/dist/dimple.v1.1.0.min.js\""));
-              $("#chartBox").html(page.replace("src=\"/lib/d3.v3.min.js\"", "src=\"http://d3js.org/d3.v3.min.js\""));
+                $("#codeContainer").text(
+                        page.slice(page.indexOf("<div"))
+                                .replace("src=\"/dist/dimple.v1.1.0.js\"", "src=\"http://dimplejs.org/dist/dimple.v1.1.0.min.js\"")
+                                .replace("src=\"/lib/d3.v3.min.js\"", "src=\"http://d3js.org/d3.v3.min.js\"")
+                );
+                $("#chartBox").html(
+                        page.slice(page.indexOf("<div"))
+                                .replace("src=\"/dist/dimple.v1.1.0.js\"", "")
+                                .replace("src=\"/lib/d3.v3.min.js\"", "")
+                );
             });
             // Set the previous links
             if (i == 0) {

@@ -127,11 +127,13 @@
             // Set the code display
             $.get("examples/" + spec.id + ".html", function (page) {
                 $("#codeContainer").text(
-                    page.replace("src=\"/dist/dimple.{version}.js\"", "src=\"http://dimplejs.org/dist/dimple.{version}.min.js\"")
+                    page.slice(page.indexOf("<div"))
+                        .replace("src=\"/dist/dimple.{version}.js\"", "src=\"http://dimplejs.org/dist/dimple.{version}.min.js\"")
                         .replace("src=\"/lib/d3.v3.min.js\"", "src=\"http://d3js.org/d3.v3.min.js\"")
                 );
                 $("#chartBox").html(
-                    page.replace("src=\"/dist/dimple.{version}.js\"", "")
+                    page.slice(page.indexOf("<div"))
+                        .replace("src=\"/dist/dimple.{version}.js\"", "")
                         .replace("src=\"/lib/d3.v3.min.js\"", "")
                 );
             });
