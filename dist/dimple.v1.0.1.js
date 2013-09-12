@@ -259,11 +259,11 @@ var dimple = {
             if (this.position === "x") {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
-                        .rangeRound([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
+                        .rangeRound([this.chart.x, this.chart.x + this.chart.width])
                         .domain([this._min, this._max]);
                 } else if (this.useLog) {
                     this._scale = d3.scale.log()
-                        .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
+                        .range([this.chart.x, this.chart.x + this.chart.width])
                         .domain([
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
@@ -274,11 +274,11 @@ var dimple = {
                 } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "x", "y");
                     this._scale = d3.scale.ordinal()
-                        .rangePoints([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
+                        .rangePoints([this.chart.x, this.chart.x + this.chart.width])
                         .domain(distinctCats.concat([""]));
                 } else {
                     this._scale = d3.scale.linear()
-                        .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
+                        .range([this.chart.x, this.chart.x + this.chart.width])
                         .domain([this._min, this._max]).nice();
                 }
                 // If it's visible, orient it at the top or bottom if it's first or second respectively
@@ -301,11 +301,11 @@ var dimple = {
             } else if (this.position === "y") {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
-                        .rangeRound([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
+                        .rangeRound([this.chart.y + this.chart.height, this.chart.y])
                         .domain([this._min, this._max]);
                 } else if (this.useLog) {
                     this._scale = d3.scale.log()
-                        .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
+                        .range([this.chart.y + this.chart.height, this.chart.y])
                         .domain([
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
@@ -316,11 +316,11 @@ var dimple = {
                 } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "y", "x");
                     this._scale = d3.scale.ordinal()
-                        .rangePoints([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
+                        .rangePoints([this.chart.y + this.chart.height, this.chart.y])
                         .domain(distinctCats.concat([""]));
                 } else {
                     this._scale = d3.scale.linear()
-                        .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
+                        .range([this.chart.y + this.chart.height, this.chart.y])
                         .domain([this._min, this._max])
                         .nice();
                 }
@@ -344,7 +344,7 @@ var dimple = {
             } else if (this.position.length > 0 && this.position[0] === "z") {
                 if (this.useLog) {
                     this._scale = d3.scale.log()
-                        .range([this.chart._heightPixels() / 300, this.chart._heightPixels() / 10])
+                        .range([this.chart.height / 300, this.chart.height / 10])
                         .domain([
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
@@ -353,7 +353,7 @@ var dimple = {
                         .base(this.logBase);
                 } else {
                     this._scale = d3.scale.linear()
-                        .range([this.chart._heightPixels() / 300, this.chart._heightPixels() / 10])
+                        .range([this.chart.height / 300, this.chart.height / 10])
                         .domain([this._min, this._max]);
                 }
             } else if (this.position.length > 0 && this.position[0] === "c") {
@@ -421,13 +421,13 @@ var dimple = {
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-svg
         this.svg = svg;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-x
-        this.x = "10%";
+        this.x = svg.node().offsetWidth * 0.1;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-y
-        this.y = "10%";
+        this.y = svg.node().offsetHeight * 0.1;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-width
-        this.width = "80%";
+        this.width = svg.node().offsetWidth * 0.8;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-height
-        this.height = "80%";
+        this.height = svg.node().offsetHeight * 0.8;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-data
         this.data = data;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-noFormats
@@ -455,6 +455,7 @@ var dimple = {
         this._assignedColors = {};
         // The next colour index to use, this value is cycled around for all default colours
         this._nextColor = 0;
+
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -845,14 +846,6 @@ var dimple = {
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
-        // Access the pixel value of the height of the plot area
-        this._heightPixels = function () {
-            return dimple._parsePosition(this.height, this.svg.node().offsetHeight);
-        };
-
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_registerEventHandlers.js
         // Register events, handle standard d3 shape events
         this._registerEventHandlers = function (series) {
@@ -879,27 +872,6 @@ var dimple = {
         };
 
 
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
-        // Access the pixel value of the width of the plot area
-        this._widthPixels = function () {
-            return dimple._parsePosition(this.width, this.svg.node().offsetWidth);
-        };
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
-        // Access the pixel position of the x co-ordinate of the plot area
-        this._xPixels = function () {
-            return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
-        };
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_yPixels.js
-        // Access the pixel position of the y co-ordinate of the plot area
-        this._yPixels = function () {
-            return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
-        };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addAxis.js
@@ -1090,7 +1062,7 @@ var dimple = {
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/draw.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-draw
-        this.draw = function (duration, noDataChange) {
+        this.draw = function (duration) {
             // Deal with optional parameter
             duration = (duration === null || duration === undefined ? 0 : duration);
             // Catch the first x and y
@@ -1099,13 +1071,9 @@ var dimple = {
                 distinctCats,
                 xGridSet = false,
                 yGridSet = false;
-
             // Many of the draw methods use positioning data in each series.  Therefore we should
             // decorate the series with it now
-            if (noDataChange === undefined || noDataChange === null || noDataChange === false) {
-                this._getSeriesData();
-            }
-
+            this._getSeriesData();
             // Iterate the axes and calculate bounds, this is done within the chart because an
             // axis' bounds are determined by other axes and the way that series tie them together
             this.axes.forEach(function (axis) {
@@ -1210,19 +1178,19 @@ var dimple = {
                 }
                 // If this is the first x and there is a y axis cross them at zero
                 if (axis === firstX && firstY !== null) {
-                    transform = "translate(0, " + (firstY.categoryFields === null || firstY.categoryFields.length === 0 ? firstY._scale(0) : this._yPixels() + this._heightPixels()) + ")";
-                    gridTransform = "translate(0, " + (axis === firstX ? this._yPixels() + this._heightPixels() : this._yPixels()) + ")";
-                    gridSize = -this._heightPixels();
+                    transform = "translate(0, " + (firstY.categoryFields === null || firstY.categoryFields.length === 0 ? firstY._scale(0) : this.y + this.height) + ")";
+                    gridTransform = "translate(0, " + (axis === firstX ? this.y + this.height : this.y) + ")";
+                    gridSize = -this.height;
                 } else if (axis === firstY && firstX !== null) {
-                    transform = "translate(" + (firstX.categoryFields === null || firstX.categoryFields.length === 0 ? firstX._scale(0) : this._xPixels()) + ", 0)";
-                    gridTransform = "translate(" + (axis === firstY ? this._xPixels() : this._xPixels() + this._widthPixels()) + ", 0)";
-                    gridSize = -this._widthPixels();
+                    transform = "translate(" + (firstX.categoryFields === null || firstX.categoryFields.length === 0 ? firstX._scale(0) : this.x) + ", 0)";
+                    gridTransform = "translate(" + (axis === firstY ? this.x : this.x + this.width) + ", 0)";
+                    gridSize = -this.width;
                 } else if (axis.position === "x") {
-                    gridTransform = transform = "translate(0, " + (axis === firstX ? this._yPixels() + this._heightPixels() : this._yPixels()) + ")";
-                    gridSize = -this._heightPixels();
+                    gridTransform = transform = "translate(0, " + (axis === firstX ? this.y + this.height : this.y) + ")";
+                    gridSize = -this.height;
                 } else if (axis.position === "y") {
-                    gridTransform = transform = "translate(" + (axis === firstY ? this._xPixels() : this._xPixels() + this._widthPixels()) + ", 0)";
-                    gridSize = -this._widthPixels();
+                    gridTransform = transform = "translate(" + (axis === firstY ? this.x : this.x + this.width) + ", 0)";
+                    gridSize = -this.width;
                 }
                 // Draw the axis
                 // This code might seem unneccesary but even applying a duration of 0 to a transition will cause the code to execute after the 
@@ -1252,19 +1220,19 @@ var dimple = {
                     // Move labels around
                     if (axis.measure === null || axis.measure === undefined) {
                         if (axis.position === "x") {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", (this._widthPixels() / axis._max) / 2);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", (this.width / axis._max) / 2);
                         } else if (axis.position === "y") {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", -1 * (this._heightPixels() / axis._max) / 2);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", -1 * (this.height / axis._max) / 2);
                         }
                     }
                     if (axis.categoryFields !== null && axis.categoryFields !== undefined && axis.categoryFields.length > 0) {
                         // Off set the labels to counter the transform.  This will put the labels along the outside of the chart so they
                         // don't interfere with the chart contents
                         if (axis === firstX && (firstY.categoryFields === null || firstY.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", this._yPixels() + this._heightPixels() - firstY._scale(0) + 9);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", this.y + this.height - firstY._scale(0) + 9);
                         }
                         if (axis === firstY && (firstX.categoryFields === null || firstX.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", -1 * (firstX._scale(0) - this._xPixels()) - 9);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", -1 * (firstX._scale(0) - this.x) - 9);
                         }
                     }
                 }
@@ -1272,7 +1240,7 @@ var dimple = {
                 if (!this.noFormats) {
                     handleTrans(axis.shapes.selectAll(".axis text"))
                         .style("font-family", "sans-serif")
-                        .style("font-size", (this._heightPixels() / 35 > 10 ? this._heightPixels() / 35 : 10) + "px");
+                        .style("font-size", (this.height / 35 > 10 ? this.height / 35 : 10) + "px");
                     handleTrans(axis.shapes.selectAll(".axis path, .axis line"))
                         .style("fill", "none")
                         .style("stroke", "black")
@@ -1293,7 +1261,7 @@ var dimple = {
                             var w = this.getComputedTextLength();
                             widest = (w > widest ? w : widest);
                         });
-                        if (widest > this._widthPixels() / axis.shapes.selectAll(".axis text")[0].length) {
+                        if (widest > this.width / axis.shapes.selectAll(".axis text")[0].length) {
                             rotated = true;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "start")
@@ -1311,7 +1279,7 @@ var dimple = {
                                 var w = this.getComputedTextLength();
                                 widest = (w > widest ? w : widest);
                             });
-                        if (widest > this._widthPixels() / axis.shapes.selectAll(".axis text")[0].length) {
+                        if (widest > this.width / axis.shapes.selectAll(".axis text")[0].length) {
                             rotated = true;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "end")
@@ -1353,18 +1321,18 @@ var dimple = {
 
                     if (axis.position === "x") {
                         if (axis === firstX) {
-                            titleY = this._yPixels() + this._heightPixels() + box.b + 5;
+                            titleY = this.y + this.height + box.b + 5;
                         } else {
-                            titleY = this._yPixels() + box.t - 10;
+                            titleY = this.y + box.t - 10;
                         }
-                        titleX = this._xPixels() + (this._widthPixels() / 2);
+                        titleX = this.x + (this.width / 2);
                     } else if (axis.position === "y") {
                         if (axis === firstY) {
-                            titleX = this._xPixels() + box.l - 10;
+                            titleX = this.x + box.l - 10;
                         } else {
-                            titleX = this._xPixels() + this._widthPixels() + box.r + 20;
+                            titleX = this.x + this.width + box.r + 20;
                         }
-                        titleY = this._yPixels() + (this._heightPixels() / 2);
+                        titleY = this.y + (this.height / 2);
                         rotate = "rotate(270, " + titleX + ", " + titleY + ")";
                     }
 
@@ -1380,7 +1348,7 @@ var dimple = {
                             if (!chart.noFormats) {
                                 d3.select(this)
                                     .style("font-family", "sans-serif")
-                                    .style("font-size", (chart._heightPixels() / 35 > 10 ? chart._heightPixels() / 35 : 10) + "px");
+                                    .style("font-size", (chart.height / 35 > 10 ? chart.height / 35 : 10) + "px");
                             }
                         });
 
@@ -1442,62 +1410,13 @@ var dimple = {
         // Source: /src/objects/chart/methods/setBounds.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-setBounds
         this.setBounds = function (x, y, width, height) {
-            // Store the passed parameters
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-            // Access the pixel value of the x coordinate
-            this._xPixels = function () {
-                return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
-            };
-            // Access the pixel value of the y coordinate
-            this._yPixels = function () {
-                return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
-            };
-            // Access the pixel value of the width coordinate
-            this._widthPixels = function () {
-                return dimple._parsePosition(this.width, this.svg.node().offsetWidth);
-            };
-            // Access the pixel value of the width coordinate
-            this._heightPixels = function () {
-                return dimple._parsePosition(this.height, this.svg.node().offsetHeight);
-            };
+            // Handle non-integer size expressions
+            this.x = dimple._parsePosition(x, this.svg.node().offsetWidth);
+            this.y = dimple._parsePosition(y, this.svg.node().offsetHeight);
+            this.width = dimple._parsePosition(width, this.svg.node().offsetWidth);
+            this.height = dimple._parsePosition(height, this.svg.node().offsetHeight);
             // Refresh the axes to redraw them against the new bounds
-            this.draw(0, true);
-            // return the chart object for method chaining
-            return this;
-        };
-
-
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/setMargins.js
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-setMargins
-        this.setMargins = function (left, top, right, bottom) {
-            // Set the bounds here, functions below will be used for access
-            this.x = left;
-            this.y = top;
-            this.width = 0;
-            this.height = 0;
-            // Access the pixel value of the x coordinate
-            this._xPixels = function () {
-                return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
-            };
-            // Access the pixel value of the y coordinate
-            this._yPixels = function () {
-                return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
-            };
-            // Access the pixel value of the width coordinate
-            this._widthPixels = function () {
-                return this.svg.node().offsetWidth - this._xPixels() - dimple._parsePosition(right, this.svg.node().offsetWidth);
-            };
-            // Access the pixel value of the width coordinate
-            this._heightPixels = function () {
-                return this.svg.node().offsetHeight - this._yPixels() - dimple._parsePosition(bottom, this.svg.node().offsetHeight);
-            };
-            // Refresh the axes to redraw them against the new bounds
-            this.draw(0, true);
+            this.draw();
             // return the chart object for method chaining
             return this;
         };
@@ -1577,21 +1496,18 @@ var dimple = {
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-series
         this.series = series;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-x
-        this.x = x;
+        this.x = dimple._parsePosition(x, this.chart.svg.node().offsetWidth);
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-y
-        this.y = y;
+        this.y = dimple._parsePosition(y, this.chart.svg.node().offsetHeight);
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-width
-        this.width = width;
+        this.width = dimple._parsePosition(width, this.chart.svg.node().offsetWidth);
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-height
-        this.height = height;
+        this.height = dimple._parsePosition(height, this.chart.svg.node().offsetHeight);
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-horizontalAlign
         this.horizontalAlign = horizontalAlign;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-shapes
         this.shapes = null;
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_draw.js
-        // Render the legend
         this._draw = function (duration) {
 
             // Create an array of distinct color elements from the series
@@ -1635,7 +1551,7 @@ var dimple = {
                 .call(function () {
                     if (!self.chart.noFormats) {
                         this.style("font-family", "sans-serif")
-                            .style("font-size", (self.chart._heightPixels() / 35 > 10 ? self.chart._heightPixels() / 35 : 10) + "px")
+                            .style("font-size", (self.chart.height / 35 > 10 ? self.chart.height / 35 : 10) + "px")
                             .style("shape-rendering", "crispEdges");
                     }
                 })
@@ -1663,26 +1579,26 @@ var dimple = {
             // Iterate the shapes and position them based on the alignment and size of the legend
             theseShapes
                 .each(function (d) {
-                    if (runningX + maxWidth > self._widthPixels()) {
+                    if (runningX + maxWidth > self.width) {
                         runningX = 0;
                         runningY += maxHeight;
                     }
-                    if (runningY > self._heightPixels()) {
+                    if (runningY > self.height) {
                         d3.select(this).remove();
                     } else {
                         d3.select(this).select("text")
-                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + keyWidth + 5 + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth) + keyWidth + 5))
+                            .attr("x", (self.horizontalAlign === "left" ? self.x + keyWidth + 5 + runningX : self.x + (self.width - runningX - maxWidth) + keyWidth + 5))
                             .attr("y", function () {
                                 // This was previously done with dominant-baseline but this is used
                                 // instead due to browser inconsistancy.
-                                return self._yPixels() + runningY + this.getBBox().height / 1.65;
+                                return self.y + runningY + this.getBBox().height / 1.65;
                             })
-                            .attr("width", self._widthPixels())
-                            .attr("height", self._heightPixels());
+                            .attr("width", self.width)
+                            .attr("height", self.height);
                         d3.select(this).select("rect")
                             .attr("class", "legend legendKey")
-                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth)))
-                            .attr("y", self._yPixels() + runningY)
+                            .attr("x", (self.horizontalAlign === "left" ? self.x + runningX : self.x + (self.width - runningX - maxWidth)))
+                            .attr("y", self.y + runningY)
                             .attr("height", keyHeight)
                             .attr("width",  keyWidth)
                             .style("fill", function () { return dimple._helpers.fill(d, self.chart, d.series); })
@@ -1704,10 +1620,7 @@ var dimple = {
             this.shapes = theseShapes;
         };
 
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_getEntries.js
-        // Get an array of elements to be displayed in the legend
         this._getEntries = function () {
             // Create an array of distinct series values
             var entries = [];
@@ -1739,35 +1652,6 @@ var dimple = {
             return entries;
         };
 
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
-        // Access the pixel value of the height of the plot area
-        this._heightPixels = function () {
-            return dimple._parsePosition(this.height, this.svg.node().offsetHeight);
-        };
-
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
-        // Access the pixel value of the width of the plot area
-        this._widthPixels = function () {
-            return dimple._parsePosition(this.width, this.svg.node().offsetWidth);
-        };
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
-        // Access the pixel position of the x co-ordinate of the plot area
-        this._xPixels = function () {
-            return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
-        };
-        // Copyright: 2013 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_yPixels.js
-        // Access the pixel position of the y co-ordinate of the plot area
-        this._yPixels = function () {
-            return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
-        };
     };
     // End dimple.legend
 
@@ -1952,13 +1836,13 @@ var dimple = {
             this.chart.axes.forEach(function (axis) {
                 if (axis.position === "x" && firstOrig.x === null) {
                     if (axis._hasTimeField()) {
-                        firstOrig.x = this.chart._xPixels();
+                        firstOrig.x = this.chart.x;
                     } else {
                         firstOrig.x = axis._origin;
                     }
                 } else if (axis.position === "y" && firstOrig.y === null) {
                     if (axis._hasTimeField()) {
-                        firstOrig.y = this.chart._yPixels() + this.chart._heightPixels();
+                        firstOrig.y = this.chart.y + this.chart.height;
                     } else {
                         firstOrig.y = axis._origin;
                     }
@@ -1972,7 +1856,7 @@ var dimple = {
                         if (xIndex === 0) {
                             coord.y = firstOrig.y;
                         } else if (xIndex === 1) {
-                            coord.y = this.chart._yPixels();
+                            coord.y = this.chart.y;
                         }
                     }
                     xIndex += 1;
@@ -1982,7 +1866,7 @@ var dimple = {
                         if (yIndex === 0) {
                             coord.x = firstOrig.x;
                         } else if (yIndex === 1) {
-                            coord.x = this.chart._xPixels() + this.chart._widthPixels();
+                            coord.x = this.chart.x + this.chart.width;
                         }
                     }
                     yIndex += 1;
@@ -2052,7 +1936,7 @@ var dimple = {
         // Source: /src/objects/storyboard/methods/drawText.js
         this._drawText = function (duration) {
             if (this.storyLabel === null || this.storyLabel === undefined) {
-                var chart = this.chart,
+                var chart = this,
                     xCount = 0;
                 // Check for a secondary x axis
                 this.chart.axes.forEach(function (a) {
@@ -2061,12 +1945,12 @@ var dimple = {
                     }
                 }, this);
                 this.storyLabel = this.chart._group.append("text")
-                    .attr("x", this.chart._xPixels() + this.chart._widthPixels() * 0.01)
-                    .attr("y", this.chart._yPixels() + (this.chart._heightPixels() / 35 > 10 ? this.chart._heightPixels() / 35 : 10) * (xCount > 1 ? 1.25 : -1))
+                    .attr("x", this.chart.x + this.chart.width * 0.01)
+                    .attr("y", this.chart.y + (this.chart.height / 35 > 10 ? this.chart.height / 35 : 10) * (xCount > 1 ? 1.25 : -1))
                     .call(function () {
                         if (!chart.noFormats) {
                             this.style("font-family", "sans-serif")
-                                .style("font-size", (chart._heightPixels() / 35 > 10 ? chart._heightPixels() / 35 : 10) + "px");
+                                .style("font-size", (chart.height / 35 > 10 ? chart.height / 35 : 10) + "px");
                         }
                     });
             }
@@ -3660,10 +3544,10 @@ var dimple = {
             grad = chart._group.append("linearGradient")
                 .attr("id", id)
                 .attr("gradientUnits", "userSpaceOnUse")
-                .attr("x1", (categoryAxis.position === "x" ? categoryAxis._scale(cats[0]) + ((chart._widthPixels() / cats.length) / 2) : 0))
-                .attr("y1", (categoryAxis.position === "y" ? categoryAxis._scale(cats[0]) - ((chart._heightPixels() / cats.length) / 2) : 0))
-                .attr("x2", (categoryAxis.position === "x" ? categoryAxis._scale(cats[cats.length - 1]) + ((chart._widthPixels() / cats.length) / 2) : 0))
-                .attr("y2", (categoryAxis.position === "y" ? categoryAxis._scale(cats[cats.length - 1]) - ((chart._heightPixels() / cats.length) / 2) : 0));
+                .attr("x1", (categoryAxis.position === "x" ? categoryAxis._scale(cats[0]) + ((chart.width / cats.length) / 2) : 0))
+                .attr("y1", (categoryAxis.position === "y" ? categoryAxis._scale(cats[0]) - ((chart.height / cats.length) / 2) : 0))
+                .attr("x2", (categoryAxis.position === "x" ? categoryAxis._scale(cats[cats.length - 1]) + ((chart.width / cats.length) / 2) : 0))
+                .attr("y2", (categoryAxis.position === "y" ? categoryAxis._scale(cats[cats.length - 1]) - ((chart.height / cats.length) / 2) : 0));
         }
 
         cats.forEach(function (cat, j) {
@@ -3838,9 +3722,9 @@ var dimple = {
             if (series.x.measure !== null && series.x.measure !== undefined) {
                 returnCx = series.x._scale(d.cx);
             } else if (series.x._hasCategories() && series.x.categoryFields.length >= 2) {
-                returnCx = series.x._scale(d.cx) + dimple._helpers.xGap(chart, series) + ((d.xOffset + 0.5) * (((chart._widthPixels() / series.x._max) - 2 * dimple._helpers.xGap(chart, series)) * d.width));
+                returnCx = series.x._scale(d.cx) + dimple._helpers.xGap(chart, series) + ((d.xOffset + 0.5) * (((chart.width / series.x._max) - 2 * dimple._helpers.xGap(chart, series)) * d.width));
             } else {
-                returnCx = series.x._scale(d.cx) + ((chart._widthPixels() / series.x._max) / 2);
+                returnCx = series.x._scale(d.cx) + ((chart.width / series.x._max) / 2);
             }
             return returnCx;
         },
@@ -3851,9 +3735,9 @@ var dimple = {
             if (series.y.measure !== null && series.y.measure !== undefined) {
                 returnCy = series.y._scale(d.cy);
             } else if (series.y.categoryFields !== null && series.y.categoryFields !== undefined && series.y.categoryFields.length >= 2) {
-                returnCy = (series.y._scale(d.cy) - (chart._heightPixels() / series.y._max)) +  dimple._helpers.yGap(chart, series) + ((d.yOffset + 0.5) * (((chart._heightPixels() / series.y._max) - 2 * dimple._helpers.yGap(chart, series)) * d.height));
+                returnCy = (series.y._scale(d.cy) - (chart.height / series.y._max)) +  dimple._helpers.yGap(chart, series) + ((d.yOffset + 0.5) * (((chart.height / series.y._max) - 2 * dimple._helpers.yGap(chart, series)) * d.height));
             } else {
-                returnCy = series.y._scale(d.cy) - ((chart._heightPixels() / series.y._max) / 2);
+                returnCy = series.y._scale(d.cy) - ((chart.height / series.y._max) / 2);
             }
             return returnCy;
         },
@@ -3866,7 +3750,7 @@ var dimple = {
             } else if (series.z._hasMeasure()) {
                 returnR = series.z._scale(d.r);
             } else {
-                returnR = series.z._scale(chart._heightPixels() / 100);
+                returnR = series.z._scale(chart.height / 100);
             }
             return returnR;
         },
@@ -3875,7 +3759,7 @@ var dimple = {
         xGap: function (chart, series) {
             var returnXGap = 0;
             if ((series.x.measure === null || series.x.measure === undefined) && series.barGap > 0) {
-                returnXGap = ((chart._widthPixels() / series.x._max) * (series.barGap > 0.99 ? 0.99 : series.barGap)) / 2;
+                returnXGap = ((chart.width / series.x._max) * (series.barGap > 0.99 ? 0.99 : series.barGap)) / 2;
             }
             return returnXGap;
         },
@@ -3884,7 +3768,7 @@ var dimple = {
         xClusterGap: function (d, chart, series) {
             var returnXClusterGap = 0;
             if (series.x.categoryFields !== null && series.x.categoryFields !== undefined && series.x.categoryFields.length >= 2 && series.clusterBarGap > 0 && !series.x._hasMeasure()) {
-                returnXClusterGap = (d.width * ((chart._widthPixels() / series.x._max) - (dimple._helpers.xGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
+                returnXClusterGap = (d.width * ((chart.width / series.x._max) - (dimple._helpers.xGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
             }
             return returnXClusterGap;
         },
@@ -3893,7 +3777,7 @@ var dimple = {
         yGap: function (chart, series) {
             var returnYGap = 0;
             if ((series.y.measure === null || series.y.measure === undefined) && series.barGap > 0) {
-                returnYGap = ((chart._heightPixels() / series.y._max) * (series.barGap > 0.99 ? 0.99 : series.barGap)) / 2;
+                returnYGap = ((chart.height / series.y._max) * (series.barGap > 0.99 ? 0.99 : series.barGap)) / 2;
             }
             return returnYGap;
         },
@@ -3902,7 +3786,7 @@ var dimple = {
         yClusterGap: function (d, chart, series) {
             var returnYClusterGap = 0;
             if (series.y.categoryFields !== null && series.y.categoryFields !== undefined && series.y.categoryFields.length >= 2 && series.clusterBarGap > 0 && !series.y._hasMeasure()) {
-                returnYClusterGap = (d.height * ((chart._heightPixels() / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
+                returnYClusterGap = (d.height * ((chart.height / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) * (series.clusterBarGap > 0.99 ? 0.99 : series.clusterBarGap)) / 2;
             }
             return returnYClusterGap;
         },
@@ -3928,7 +3812,7 @@ var dimple = {
             } else if (series.y.measure !== null && series.y.measure !== undefined) {
                 returnY = series.y._scale(d.y);
             } else {
-                returnY = (series.y._scale(d.y) - (chart._heightPixels() / series.y._max)) + dimple._helpers.yGap(chart, series) + (d.yOffset * (dimple._helpers.height(d, chart, series) + 2 * dimple._helpers.yClusterGap(d, chart, series))) + dimple._helpers.yClusterGap(d, chart, series);
+                returnY = (series.y._scale(d.y) - (chart.height / series.y._max)) + dimple._helpers.yGap(chart, series) + (d.yOffset * (dimple._helpers.height(d, chart, series) + 2 * dimple._helpers.yClusterGap(d, chart, series))) + dimple._helpers.yClusterGap(d, chart, series);
             }
             return returnY;
         },
@@ -3941,7 +3825,7 @@ var dimple = {
             } else if (series.x._hasTimeField()) {
                 returnWidth = series.x.floatingBarWidth;
             } else {
-                returnWidth = d.width * ((chart._widthPixels() / series.x._max) - (dimple._helpers.xGap(chart, series) * 2)) - (dimple._helpers.xClusterGap(d, chart, series) * 2);
+                returnWidth = d.width * ((chart.width / series.x._max) - (dimple._helpers.xGap(chart, series) * 2)) - (dimple._helpers.xClusterGap(d, chart, series) * 2);
             }
             return returnWidth;
         },
@@ -3954,7 +3838,7 @@ var dimple = {
             } else if (series.y.measure !== null && series.y.measure !== undefined) {
                 returnHeight = Math.abs(series.y._scale(d.y) - series.y._scale((d.y <= 0 ? d.y + d.height : d.y - d.height)));
             } else {
-                returnHeight = d.height * ((chart._heightPixels() / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) - (dimple._helpers.yClusterGap(d, chart, series) * 2);
+                returnHeight = d.height * ((chart.height / series.y._max) - (dimple._helpers.yGap(chart, series) * 2)) - (dimple._helpers.yClusterGap(d, chart, series) * 2);
             }
             return returnHeight;
         },
@@ -4000,9 +3884,7 @@ var dimple = {
     // Source: /src/methods/_parsePosition.js
     dimple._parsePosition = function (value, svgScaleValue) {
         var returnValue = value;
-        if (value === undefined || value === null) {
-            returnValue = 0;
-        } else if (!isNaN(value)) {
+        if (!isNaN(value)) {
             returnValue = value;
         } else if (value.slice(-1) === "%") {
             returnValue = svgScaleValue * (parseFloat(value.slice(0, value.length - 1)) / 100);
