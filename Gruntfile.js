@@ -13,9 +13,9 @@ module.exports = function(grunt) {
                 dest: '',
                 tag: '{version}',
                 version: 'v<%= pkg.version %>',
-                header: "<!--------------------------------------------------------------------->\n" +
-                        "<!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT {sourcefile} INSTEAD -->\n" +
-                        "<!--------------------------------------------------------------------->\n"
+                header: "<!----------------------------------------------------------------->\n" +
+                        "<!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT TEMPLATE INSTEAD -->\n" +
+                        "<!----------------------------------------------------------------->\n"
             }
         }
     });
@@ -40,13 +40,12 @@ module.exports = function(grunt) {
                 return result;
             }).map(function(filepath) {
                 // Read file source.
-                var src = grunt.file.read(filepath),
-                    head = header.split("{sourcefile}").join(filepath);
+                var src = grunt.file.read(filepath);
                 // Replace the version
                 src = src.split(tag).join(version);
                 // Write the new file
-                grunt.log.writeln(filepath + " -> " + outPath + filepath.substring(filepath.lastIndexOf("/") + 1));
-                grunt.file.write(outPath + filepath.substring(filepath.lastIndexOf("/") + 1), head + src);
+                grunt.log.writeln("Creating " + outPath + filepath.substring(filepath.lastIndexOf("/") + 1));
+                grunt.file.write(outPath + filepath.substring(filepath.lastIndexOf("/") + 1), header + src);
             });
         });
     });
