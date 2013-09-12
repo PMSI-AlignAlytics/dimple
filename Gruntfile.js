@@ -84,7 +84,10 @@ module.exports = function(grunt) {
             options: {
                 dest: 'examples/',
                 tag: '{version}',
-                version: 'v<%= pkg.version %>'
+                version: 'v<%= pkg.version %>',
+                header: "<!--------------------------------------------------------------------->\n" +
+                        "<!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT {sourcefile} INSTEAD -->\n" +
+                        "<!--------------------------------------------------------------------->\n"
             }
         }
     });
@@ -101,8 +104,11 @@ module.exports = function(grunt) {
         var options = this.options(),
             outPath = options.dest,
             tag = options.tag,
-            version = options.version;
-        // Iterate over all src-dest file pairs.
+            version = options.version,
+            header = options.header;
+        grunt.log.writeln("");
+        grunt.log.writeln("Replacing " + tag + " with " + version);
+        grunt.log.writeln("------------------------------------------------------");
         this.files.forEach(function(f) {
             f.src.filter(function(filepath) {
                 var result = true;
@@ -113,11 +119,13 @@ module.exports = function(grunt) {
                 return result;
             }).map(function(filepath) {
                 // Read file source.
-                var src = grunt.file.read(filepath);
+                var src = grunt.file.read(filepath),
+                    head = header.split("{sourcefile}").join(filepath);
                 // Replace the version
-                src = src.replace(tag, version);
+                src = src.split(tag).join(version);
                 // Write the new file
-                grunt.file.write(outPath + filepath.substring(filepath.lastIndexOf("/") + 1), src);
+                grunt.log.writeln(filepath + " -> " + outPath + filepath.substring(filepath.lastIndexOf("/") + 1));
+                grunt.file.write(outPath + filepath.substring(filepath.lastIndexOf("/") + 1), head + src);
             });
         });
     });
