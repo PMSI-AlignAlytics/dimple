@@ -76,5 +76,11 @@
         "title":"Waterfall Chart",
         "shortTitle":"Waterfall",
         "desc":"Due to the unusual data treatment in a waterfall/staircase chart creating one in dimple requires a little manipulation using a bar chart.  To use this template just update the first 5 variables. A simpler template could be created if you aren't concerned with crossing the x axis."
+    },
+    {
+        "id":"advanced_responsive_sizing",
+        "title":"Responsive Sizing",
+        "shortTitle":"Responsive Size",
+        "desc":"Example of the new responsive sizing functionality, meaning charts no longer have to have a fixed pixel size."
     }
 ]
