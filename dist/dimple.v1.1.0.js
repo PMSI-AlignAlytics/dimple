@@ -1387,31 +1387,33 @@ var dimple = {
                 }
 
                 // Add a title for the axis
-                axis.titleShape = this._group.append("text").attr("class", "axis title");
-                axis.titleShape
-                    .attr("x", titleX)
-                    .attr("y", titleY)
-                    .attr("text-anchor", "middle")
-                    .attr("transform", rotate)
-                    .text((axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
-                    .each(function () {
-                        if (!chart.noFormats) {
-                            d3.select(this)
-                                .style("font-family", "sans-serif")
-                                .style("font-size", (chartHeight / 35 > 10 ? chartHeight / 35 : 10) + "px");
-                        }
-                    });
+                if (!axis.hidden) {
+                    axis.titleShape = this._group.append("text").attr("class", "axis title");
+                    axis.titleShape
+                        .attr("x", titleX)
+                        .attr("y", titleY)
+                        .attr("text-anchor", "middle")
+                        .attr("transform", rotate)
+                        .text((axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
+                        .each(function () {
+                            if (!chart.noFormats) {
+                                d3.select(this)
+                                    .style("font-family", "sans-serif")
+                                    .style("font-size", (chartHeight / 35 > 10 ? chartHeight / 35 : 10) + "px");
+                            }
+                        });
 
-                // Offset Y position to baseline. This previously used dominant-baseline but this caused
-                // browser inconsistency
-                if (axis === firstX) {
-                    axis.titleShape.each(function () {
-                        d3.select(this).attr("y", titleY + this.getBBox().height / 1.65);
-                    });
-                } else if (axis === firstY) {
-                    axis.titleShape.each(function () {
-                        d3.select(this).attr("x", titleX + this.getBBox().height / 1.65);
-                    });
+                    // Offset Y position to baseline. This previously used dominant-baseline but this caused
+                    // browser inconsistency
+                    if (axis === firstX) {
+                        axis.titleShape.each(function () {
+                            d3.select(this).attr("y", titleY + this.getBBox().height / 1.65);
+                        });
+                    } else if (axis === firstY) {
+                        axis.titleShape.each(function () {
+                            d3.select(this).attr("x", titleX + this.getBBox().height / 1.65);
+                        });
+                    }
                 }
                // }
             }, this);
