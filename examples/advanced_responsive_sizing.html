@@ -1,52 +1,82 @@
 <!----------------------------------------------------------------->
 <!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT TEMPLATE INSTEAD -->
 <!----------------------------------------------------------------->
-<div id="chartContainer">
-    <!-- This button is just used for this example to open a resizable window to see chart code in action -->
-    <button id="showPopup"
-            onclick="window.open('/examples/advanced_responsive_sizing.html')"
-            style="position:relative; margin: -20px -50px; width:100px; top:50%; left:50%;">
-        Click Here To Open Sizable Chart
-    </button>
+<div id="chartContainer" style="height: 100%">
     <script src="/lib/d3.v3.min.js"></script>
     <script src="/dist/dimple.v1.1.0.js"></script>
     <script type="text/javascript">
+        // In version 1.1.0 it's possible to initialise any size parameter with a
+        // % value as well as pixels
+        var svg = dimple.newSvg("#chartContainer", "100%", "98%");
 
-        // This code is specific to this examples page, I'm just hiding the button and drawing the chart if this
-        // same code is opened in a popup.
-        if (document.URL.toString().indexOf("/examples/advanced_responsive_sizing.html") !== -1) {
-            d3.select("#showPopup").remove();
+        // Decide whether to draw the button or the graph
+        if (window.opener !== null && window.opener !== undefined) {
 
-            // Actual example code starts here
+            // Set up a standard chart
             var myChart;
-
-            // In version 1.1.0 it's possible to initialise any size parameter with a % value as well as pixels
-            var svg = dimple.newSvg("#chartContainer", "95%", "95%");
-
-            // Get data as usual
             d3.tsv("/data/example_data.tsv", function (data) {
-
-                // Create a standard bar chart to show off the code
                 myChart = new dimple.chart(svg, data);
 
-                // Use the new set margins method to set partially fixed and partially proportional to the svg
-                myChart.setMargins("10%", "30px", "10px", "15%");
+                // Use the new set margins method to set partially fixed and
+                // partially proportional to the svg
+                myChart.setMargins("10%", "30px", "40px", "15%");
 
                 // Continue to set up a standard chart
                 myChart.addCategoryAxis("x", "Month").addOrderRule("Date");
                 myChart.addMeasureAxis("y", "Unit Sales");
-                var s = myChart.addSeries("Channel", dimple.plot.bar);
+                myChart.addSeries("Channel", dimple.plot.bar);
                 myChart.draw();
-
             });
-
             // Add a method to draw the chart on resize of the window
             window.onresize = function () {
-                // As of 1.1.0 the second parameter here allows you to draw without reprocessing
-                // data.  This saves a lot on performance when you know the data is static.
+                // As of 1.1.0 the second parameter here allows you to draw
+                // without reprocessing data.  This saves a lot on performance
+                // when you know the data won't have changed.
                 myChart.draw(0, true);
             };
 
+        } else {
+
+            // Use d3 for the button, there are many simpler ways to add a
+            // button to a form but as we have the library loaded - and we
+            // love d3 - we may as well use it. Ignore the code from this
+            // point on unless you want to learn a way of making buttons in d3
+            var height = 50, width = 150, color = new dimple.color("#B3DE69");
+
+            svg.append("rect")
+                    .attr("x", svg.node().offsetWidth / 2 - width / 2)
+                    .attr("y", svg.node().offsetHeight / 2 - height / 2)
+                    .attr("rx", 15).attr("ry", 15)
+                    .attr("width", width).attr("height", height)
+                    .style("fill", color.fill).style("stroke", color.stroke);
+
+            svg.selectAll("title_text")
+                    .data(["Click Here", "To Open Example"])
+                    .enter().append("text")
+                    .attr("x", svg.node().offsetWidth / 2)
+                    .attr("y", function (d, i) {
+                        return svg.node().offsetHeight / 2 - 5 + i * 18;
+                    })
+                    .style("text-anchor", "middle")
+                    .style("font-family", "sans-serif")
+                    .style("font-size", "12px").style("opacity", 0.7)
+                    .text(function (d) { return d; });
+
+            svg.selectAll("text,rect")
+                    .on("mouseenter", function () {
+                        svg.selectAll("rect").style("fill", color.stroke)
+                    })
+                    .on("mouseleave", function () {
+                        svg.selectAll("rect").style("fill", color.fill)
+                    })
+                    .style("cursor", "pointer")
+                    .on("click", function () {
+                        var w = window.open(
+                                '/examples/advanced_responsive_sizing.html',
+                                'Resize Window To See Chart Resizing',
+                                'width=640px,height=480px');
+
+                    } );
         }
 
     </script>
