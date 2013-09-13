@@ -845,10 +845,10 @@ var dimple = {
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
+        // Source: /src/objects/chart/methods/_heightPixels.js
         // Access the pixel value of the height of the plot area
         this._heightPixels = function () {
-            return dimple._parsePosition(this.height, this.svg.node().offsetHeight);
+            return dimple._parseYPosition(this.height, this.svg.node());
         };
 
         // Copyright: 2013 PMSI-AlignAlytics
@@ -881,24 +881,24 @@ var dimple = {
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
+        // Source: /src/objects/chart/methods/_widthPixels.js
         // Access the pixel value of the width of the plot area
         this._widthPixels = function () {
-            return dimple._parsePosition(this.width, this.svg.node().offsetWidth);
+            return dimple._parseXPosition(this.width, this.svg.node());
         };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_xPixels.js
         // Access the pixel position of the x co-ordinate of the plot area
         this._xPixels = function () {
-            return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
+            return dimple._parseXPosition(this.x, this.svg.node());
         };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_yPixels.js
         // Access the pixel position of the y co-ordinate of the plot area
         this._yPixels = function () {
-            return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
+            return dimple._parseYPosition(this.y, this.svg.node());
         };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -1311,7 +1311,7 @@ var dimple = {
                             rotated = false;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "middle")
-                                .attr("transform", null);
+                                .attr("transform", "");
                         }
                     } else if (axis.position === "x") {
                         // If the gaps are narrower than the widest label display all labels horizontally
@@ -1335,7 +1335,7 @@ var dimple = {
                             rotated = false;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "middle")
-                                .attr("transform", null);
+                                .attr("transform", "");
                         }
                     }
                 }
@@ -1387,31 +1387,33 @@ var dimple = {
                 }
 
                 // Add a title for the axis
-                axis.titleShape = this._group.append("text").attr("class", "axis title");
-                axis.titleShape
-                    .attr("x", titleX)
-                    .attr("y", titleY)
-                    .attr("text-anchor", "middle")
-                    .attr("transform", rotate)
-                    .text((axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
-                    .each(function () {
-                        if (!chart.noFormats) {
-                            d3.select(this)
-                                .style("font-family", "sans-serif")
-                                .style("font-size", (chartHeight / 35 > 10 ? chartHeight / 35 : 10) + "px");
-                        }
-                    });
+                if (!axis.hidden) {
+                    axis.titleShape = this._group.append("text").attr("class", "axis title");
+                    axis.titleShape
+                        .attr("x", titleX)
+                        .attr("y", titleY)
+                        .attr("text-anchor", "middle")
+                        .attr("transform", rotate)
+                        .text((axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
+                        .each(function () {
+                            if (!chart.noFormats) {
+                                d3.select(this)
+                                    .style("font-family", "sans-serif")
+                                    .style("font-size", (chartHeight / 35 > 10 ? chartHeight / 35 : 10) + "px");
+                            }
+                        });
 
-                // Offset Y position to baseline. This previously used dominant-baseline but this caused
-                // browser inconsistency
-                if (axis === firstX) {
-                    axis.titleShape.each(function () {
-                        d3.select(this).attr("y", titleY + this.getBBox().height / 1.65);
-                    });
-                } else if (axis === firstY) {
-                    axis.titleShape.each(function () {
-                        d3.select(this).attr("x", titleX + this.getBBox().height / 1.65);
-                    });
+                    // Offset Y position to baseline. This previously used dominant-baseline but this caused
+                    // browser inconsistency
+                    if (axis === firstX) {
+                        axis.titleShape.each(function () {
+                            d3.select(this).attr("y", titleY + this.getBBox().height / 1.65);
+                        });
+                    } else if (axis === firstY) {
+                        axis.titleShape.each(function () {
+                            d3.select(this).attr("x", titleX + this.getBBox().height / 1.65);
+                        });
+                    }
                 }
                // }
             }, this);
@@ -1467,19 +1469,19 @@ var dimple = {
             this.height = height;
             // Access the pixel value of the x coordinate
             this._xPixels = function () {
-                return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
+                return dimple._parseXPosition(this.x, this.svg.node());
             };
             // Access the pixel value of the y coordinate
             this._yPixels = function () {
-                return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
+                return dimple._parseYPosition(this.y, this.svg.node());
             };
             // Access the pixel value of the width coordinate
             this._widthPixels = function () {
-                return dimple._parsePosition(this.width, this.svg.node().offsetWidth);
+                return dimple._parseXPosition(this.width, this.svg.node());
             };
             // Access the pixel value of the width coordinate
             this._heightPixels = function () {
-                return dimple._parsePosition(this.height, this.svg.node().offsetHeight);
+                return dimple._parseYPosition(this.height, this.svg.node());
             };
             // Refresh the axes to redraw them against the new bounds
             this.draw(0, true);
@@ -1500,19 +1502,19 @@ var dimple = {
             this.height = 0;
             // Access the pixel value of the x coordinate
             this._xPixels = function () {
-                return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
+                return dimple._parseXPosition(this.x, this.svg.node());
             };
             // Access the pixel value of the y coordinate
             this._yPixels = function () {
-                return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
+                return dimple._parseYPosition(this.y, this.svg.node());
             };
             // Access the pixel value of the width coordinate
             this._widthPixels = function () {
-                return this.svg.node().offsetWidth - this._xPixels() - dimple._parsePosition(right, this.svg.node().offsetWidth);
+                return dimple._parentWidth(this.svg.node()) - this._xPixels() - dimple._parseXPosition(right, this.svg.node());
             };
             // Access the pixel value of the width coordinate
             this._heightPixels = function () {
-                return this.svg.node().offsetHeight - this._yPixels() - dimple._parsePosition(bottom, this.svg.node().offsetHeight);
+                return dimple._parentHeight(this.svg.node()) - this._yPixels() - dimple._parseYPosition(bottom, this.svg.node());
             };
             // Refresh the axes to redraw them against the new bounds
             this.draw(0, true);
@@ -1759,32 +1761,32 @@ var dimple = {
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
-        // Access the pixel value of the height of the plot area
+        // Source: /src/objects/legend/methods/_heightPixels.js
+        // Access the pixel value of the height of the legend area
         this._heightPixels = function () {
-            return dimple._parsePosition(this.height, this.chart.svg.node().offsetHeight);
+            return dimple._parseYPosition(this.height, this.chart.svg.node());
         };
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
-        // Access the pixel value of the width of the plot area
+        // Source: /src/objects/legend/methods/_widthPixels.js
+        // Access the pixel value of the width of the legend area
         this._widthPixels = function () {
-            return dimple._parsePosition(this.width, this.chart.svg.node().offsetWidth);
+            return dimple._parseXPosition(this.width, this.chart.svg.node());
         };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
-        // Access the pixel position of the x co-ordinate of the plot area
+        // Source: /src/objects/legend/methods/_xPixels.js
+        // Access the pixel position of the x co-ordinate of the legend area
         this._xPixels = function () {
-            return dimple._parsePosition(this.x, this.chart.svg.node().offsetWidth);
+            return dimple._parseXPosition(this.x, this.chart.svg.node());
         };
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_yPixels.js
-        // Access the pixel position of the y co-ordinate of the plot area
+        // Source: /src/objects/legend/methods/_yPixels.js
+        // Access the pixel position of the y co-ordinate of the legend area
         this._yPixels = function () {
-            return dimple._parsePosition(this.y, this.chart.svg.node().offsetHeight);
+            return dimple._parseYPosition(this.y, this.chart.svg.node());
         };
     };
     // End dimple.legend
@@ -4015,15 +4017,86 @@ var dimple = {
 
     // Copyright: 2013 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-    // Source: /src/methods/_parsePosition.js
-    dimple._parsePosition = function (value, svgScaleValue) {
+    // Source: /src/methods/_parentHeight.js
+    dimple._parentHeight = function (parent) {
+        // This one seems to work in Chrome - good old Chrome!
+        var returnValue = parent.offsetHeight;
+        // This does it for IE
+        if (returnValue <= 0 || returnValue === null || returnValue === undefined) {
+            returnValue = parent.clientHeight;
+        }
+        // FireFox is the hard one this time.  See this bug report:
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=649285//
+        // It's dealt with by trying to recurse up the dom until we find something
+        // we can get a size for.  Usually the parent of the SVG.  It's a bit costly
+        // but I don't know of any other way.
+        if (returnValue <= 0 || returnValue === null || returnValue === undefined) {
+            if (parent.parentNode === null || parent.parentNode === undefined) {
+                // Give up - Recursion Exit Point
+                returnValue = 0;
+            } else {
+                // Get the size from the parent recursively
+                returnValue = dimple._parseYPosition(d3.select(parent).attr("height"), parent.parentNode);
+            }
+        }
+        return returnValue;
+    };
+
+    // Copyright: 2013 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_parentWidth.js
+    dimple._parentWidth = function (parent) {
+        // This one seems to work in Chrome - good old Chrome!
+        var returnValue = parent.offsetWidth;
+        // This does it for IE
+        if (returnValue <= 0 || returnValue === null || returnValue === undefined) {
+            returnValue = parent.clientWidth;
+        }
+        // FireFox is the hard one this time.  See this bug report:
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=649285//
+        // It's dealt with by trying to recurse up the dom until we find something
+        // we can get a size for.  Usually the parent of the SVG.  It's a bit costly
+        // but I don't know of any other way.
+        if (returnValue <= 0 || returnValue === null || returnValue === undefined) {
+            if (parent.parentNode === null || parent.parentNode === undefined) {
+                // Give up - Recursion Exit Point
+                returnValue = 0;
+            } else {
+                // Get the size from the parent recursively
+                returnValue = dimple._parseXPosition(d3.select(parent).attr("width"), parent.parentNode);
+            }
+        }
+        return returnValue;
+    };
+
+    // Copyright: 2013 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_parseXPosition.js
+    dimple._parseXPosition = function (value, parent) {
         var returnValue = value;
         if (value === undefined || value === null) {
             returnValue = 0;
         } else if (!isNaN(value)) {
             returnValue = value;
         } else if (value.slice(-1) === "%") {
-            returnValue = svgScaleValue * (parseFloat(value.slice(0, value.length - 1)) / 100);
+            returnValue = dimple._parentWidth(parent) * (parseFloat(value.slice(0, value.length - 1)) / 100);
+        } else if (value.slice(-2) === "px") {
+            returnValue = parseFloat(value.slice(0, value.length - 2));
+        }
+        return returnValue;
+    };
+
+    // Copyright: 2013 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_parseYPosition.js
+    dimple._parseYPosition = function (value, parent) {
+        var returnValue = value;
+        if (value === undefined || value === null) {
+            returnValue = 0;
+        } else if (!isNaN(value)) {
+            returnValue = value;
+        } else if (value.slice(-1) === "%") {
+            returnValue = dimple._parentHeight(parent) * (parseFloat(value.slice(0, value.length - 1)) / 100);
         } else if (value.slice(-2) === "px") {
             returnValue = parseFloat(value.slice(0, value.length - 2));
         }
