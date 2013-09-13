@@ -1098,7 +1098,11 @@ var dimple = {
                 firstY = null,
                 distinctCats,
                 xGridSet = false,
-                yGridSet = false;
+                yGridSet = false,
+                chartX = this._xPixels(),
+                chartY = this._yPixels(),
+                chartWidth = this._widthPixels(),
+                chartHeight = this._heightPixels();
 
             // Many of the draw methods use positioning data in each series.  Therefore we should
             // decorate the series with it now
@@ -1210,19 +1214,19 @@ var dimple = {
                 }
                 // If this is the first x and there is a y axis cross them at zero
                 if (axis === firstX && firstY !== null) {
-                    transform = "translate(0, " + (firstY.categoryFields === null || firstY.categoryFields.length === 0 ? firstY._scale(0) : this._yPixels() + this._heightPixels()) + ")";
-                    gridTransform = "translate(0, " + (axis === firstX ? this._yPixels() + this._heightPixels() : this._yPixels()) + ")";
-                    gridSize = -this._heightPixels();
+                    transform = "translate(0, " + (firstY.categoryFields === null || firstY.categoryFields.length === 0 ? firstY._scale(0) : chartY + chartHeight) + ")";
+                    gridTransform = "translate(0, " + (axis === firstX ? chartY + chartHeight : chartY) + ")";
+                    gridSize = -chartHeight;
                 } else if (axis === firstY && firstX !== null) {
-                    transform = "translate(" + (firstX.categoryFields === null || firstX.categoryFields.length === 0 ? firstX._scale(0) : this._xPixels()) + ", 0)";
-                    gridTransform = "translate(" + (axis === firstY ? this._xPixels() : this._xPixels() + this._widthPixels()) + ", 0)";
-                    gridSize = -this._widthPixels();
+                    transform = "translate(" + (firstX.categoryFields === null || firstX.categoryFields.length === 0 ? firstX._scale(0) : chartX) + ", 0)";
+                    gridTransform = "translate(" + (axis === firstY ? chartX : chartX + chartWidth) + ", 0)";
+                    gridSize = -chartWidth;
                 } else if (axis.position === "x") {
-                    gridTransform = transform = "translate(0, " + (axis === firstX ? this._yPixels() + this._heightPixels() : this._yPixels()) + ")";
-                    gridSize = -this._heightPixels();
+                    gridTransform = transform = "translate(0, " + (axis === firstX ? chartY + chartHeight : chartY) + ")";
+                    gridSize = -chartHeight;
                 } else if (axis.position === "y") {
-                    gridTransform = transform = "translate(" + (axis === firstY ? this._xPixels() : this._xPixels() + this._widthPixels()) + ", 0)";
-                    gridSize = -this._widthPixels();
+                    gridTransform = transform = "translate(" + (axis === firstY ? chartX : chartX + chartWidth) + ", 0)";
+                    gridSize = -chartWidth;
                 }
                 // Draw the axis
                 // This code might seem unneccesary but even applying a duration of 0 to a transition will cause the code to execute after the 
@@ -1252,19 +1256,19 @@ var dimple = {
                     // Move labels around
                     if (axis.measure === null || axis.measure === undefined) {
                         if (axis.position === "x") {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", (this._widthPixels() / axis._max) / 2);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", (chartWidth / axis._max) / 2);
                         } else if (axis.position === "y") {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", -1 * (this._heightPixels() / axis._max) / 2);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", -1 * (chartHeight / axis._max) / 2);
                         }
                     }
                     if (axis.categoryFields !== null && axis.categoryFields !== undefined && axis.categoryFields.length > 0) {
                         // Off set the labels to counter the transform.  This will put the labels along the outside of the chart so they
                         // don't interfere with the chart contents
                         if (axis === firstX && (firstY.categoryFields === null || firstY.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", this._yPixels() + this._heightPixels() - firstY._scale(0) + 9);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", chartY + chartHeight - firstY._scale(0) + 9);
                         }
                         if (axis === firstY && (firstX.categoryFields === null || firstX.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", -1 * (firstX._scale(0) - this._xPixels()) - 9);
+                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", -1 * (firstX._scale(0) - chartX) - 9);
                         }
                     }
                 }
@@ -1272,7 +1276,7 @@ var dimple = {
                 if (!this.noFormats) {
                     handleTrans(axis.shapes.selectAll(".axis text"))
                         .style("font-family", "sans-serif")
-                        .style("font-size", (this._heightPixels() / 35 > 10 ? this._heightPixels() / 35 : 10) + "px");
+                        .style("font-size", (chartHeight / 35 > 10 ? chartHeight / 35 : 10) + "px");
                     handleTrans(axis.shapes.selectAll(".axis path, .axis line"))
                         .style("fill", "none")
                         .style("stroke", "black")
@@ -1293,7 +1297,7 @@ var dimple = {
                             var w = this.getComputedTextLength();
                             widest = (w > widest ? w : widest);
                         });
-                        if (widest > this._widthPixels() / axis.shapes.selectAll(".axis text")[0].length) {
+                        if (widest > chartWidth / axis.shapes.selectAll(".axis text")[0].length) {
                             rotated = true;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "start")
@@ -1302,6 +1306,12 @@ var dimple = {
                                     d3.select(this)
                                         .attr("transform", "rotate(90," + rec.x + "," + (rec.y + (rec.height / 2)) + ") translate(-5, 0)");
                                 });
+                        } else {
+                            // For redraw operations we need to clear the transform
+                            rotated = false;
+                            axis.shapes.selectAll(".axis text")
+                                .style("text-anchor", "middle")
+                                .attr("transform", null);
                         }
                     } else if (axis.position === "x") {
                         // If the gaps are narrower than the widest label display all labels horizontally
@@ -1311,7 +1321,7 @@ var dimple = {
                                 var w = this.getComputedTextLength();
                                 widest = (w > widest ? w : widest);
                             });
-                        if (widest > this._widthPixels() / axis.shapes.selectAll(".axis text")[0].length) {
+                        if (widest > chartWidth / axis.shapes.selectAll(".axis text")[0].length) {
                             rotated = true;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "end")
@@ -1320,82 +1330,90 @@ var dimple = {
                                     d3.select(this)
                                         .attr("transform", "rotate(90," + (rec.x + rec.width) + "," + (rec.y + (rec.height / 2)) + ") translate(5, 0)");
                                 });
+                        } else {
+                            // For redraw operations we need to clear the transform
+                            rotated = false;
+                            axis.shapes.selectAll(".axis text")
+                                .style("text-anchor", "middle")
+                                .attr("transform", null);
                         }
                     }
                 }
-                if (axis.titleShape === null && axis.shapes !== null && axis.shapes.node().firstChild !== null) {
-                    // Get the bounds of the axis objects
-                    axis.shapes.selectAll(".axis text")
-                        .each(function () {
-                            var rec = this.getBBox();
-                            if (box.l === null ||  -9 - rec.width < box.l) {
-                                box.l = -9 - rec.width;
-                            }
-                            if (box.r === null || rec.x + rec.width > box.r) {
-                                box.r = rec.x + rec.width;
-                            }
-                            if (rotated) {
-                                if (box.t === null || rec.y + rec.height - rec.width < box.t) {
-                                    box.t = rec.y + rec.height - rec.width;
-                                }
-                                if (box.b === null || rec.height + rec.width > box.b) {
-                                    box.b = rec.height + rec.width;
-                                }
-                            } else {
-                                if (box.t === null || rec.y < box.t) {
-                                    box.t = rec.y;
-                                }
-                                if (box.b === null || 9 + rec.height > box.b) {
-                                    box.b = 9 + rec.height;
-                                }
-                            }
-                        });
-
-                    if (axis.position === "x") {
-                        if (axis === firstX) {
-                            titleY = this._yPixels() + this._heightPixels() + box.b + 5;
-                        } else {
-                            titleY = this._yPixels() + box.t - 10;
+                if (axis.titleShape !== null && axis.titleShape !== undefined) {
+                    axis.titleShape.remove();
+                }
+                // Get the bounds of the axis objects
+                axis.shapes.selectAll(".axis text")
+                    .each(function () {
+                        var rec = this.getBBox();
+                        if (box.l === null ||  -9 - rec.width < box.l) {
+                            box.l = -9 - rec.width;
                         }
-                        titleX = this._xPixels() + (this._widthPixels() / 2);
-                    } else if (axis.position === "y") {
-                        if (axis === firstY) {
-                            titleX = this._xPixels() + box.l - 10;
-                        } else {
-                            titleX = this._xPixels() + this._widthPixels() + box.r + 20;
+                        if (box.r === null || rec.x + rec.width > box.r) {
+                            box.r = rec.x + rec.width;
                         }
-                        titleY = this._yPixels() + (this._heightPixels() / 2);
-                        rotate = "rotate(270, " + titleX + ", " + titleY + ")";
-                    }
-
-                    // Add a title for the axis
-                    axis.titleShape = this._group.append("text").attr("class", "axis title");
-                    axis.titleShape
-                        .attr("x", titleX)
-                        .attr("y", titleY)
-                        .attr("text-anchor", "middle")
-                        .attr("transform", rotate)
-                        .text((axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
-                        .each(function () {
-                            if (!chart.noFormats) {
-                                d3.select(this)
-                                    .style("font-family", "sans-serif")
-                                    .style("font-size", (chart._heightPixels() / 35 > 10 ? chart._heightPixels() / 35 : 10) + "px");
+                        if (rotated) {
+                            if (box.t === null || rec.y + rec.height - rec.width < box.t) {
+                                box.t = rec.y + rec.height - rec.width;
                             }
-                        });
+                            if (box.b === null || rec.height + rec.width > box.b) {
+                                box.b = rec.height + rec.width;
+                            }
+                        } else {
+                            if (box.t === null || rec.y < box.t) {
+                                box.t = rec.y;
+                            }
+                            if (box.b === null || 9 + rec.height > box.b) {
+                                box.b = 9 + rec.height;
+                            }
+                        }
+                    });
 
-                    // Offset Y position to baseline. This previously used dominant-baseline but this caused
-                    // browser inconsistency
+                if (axis.position === "x") {
                     if (axis === firstX) {
-                        axis.titleShape.each(function () {
-                            d3.select(this).attr("y", titleY + this.getBBox().height / 1.65);
-                        });
-                    } else if (axis === firstY) {
-                        axis.titleShape.each(function () {
-                            d3.select(this).attr("x", titleX + this.getBBox().height / 1.65);
-                        });
+                        titleY = chartY + chartHeight + box.b + 5;
+                    } else {
+                        titleY = chartY + box.t - 10;
                     }
+                    titleX = chartX + (chartWidth / 2);
+                } else if (axis.position === "y") {
+                    if (axis === firstY) {
+                        titleX = chartX + box.l - 10;
+                    } else {
+                        titleX = chartX + chartWidth + box.r + 20;
+                    }
+                    titleY = chartY + (chartHeight / 2);
+                    rotate = "rotate(270, " + titleX + ", " + titleY + ")";
                 }
+
+                // Add a title for the axis
+                axis.titleShape = this._group.append("text").attr("class", "axis title");
+                axis.titleShape
+                    .attr("x", titleX)
+                    .attr("y", titleY)
+                    .attr("text-anchor", "middle")
+                    .attr("transform", rotate)
+                    .text((axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
+                    .each(function () {
+                        if (!chart.noFormats) {
+                            d3.select(this)
+                                .style("font-family", "sans-serif")
+                                .style("font-size", (chartHeight / 35 > 10 ? chartHeight / 35 : 10) + "px");
+                        }
+                    });
+
+                // Offset Y position to baseline. This previously used dominant-baseline but this caused
+                // browser inconsistency
+                if (axis === firstX) {
+                    axis.titleShape.each(function () {
+                        d3.select(this).attr("y", titleY + this.getBBox().height / 1.65);
+                    });
+                } else if (axis === firstY) {
+                    axis.titleShape.each(function () {
+                        d3.select(this).attr("x", titleX + this.getBBox().height / 1.65);
+                    });
+                }
+               // }
             }, this);
 
             // Iterate the series
