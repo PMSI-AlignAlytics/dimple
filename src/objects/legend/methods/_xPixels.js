@@ -1,7 +1,7 @@
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/_xPixels.js
-        // Access the pixel position of the x co-ordinate of the plot area
+        // Source: /src/objects/legend/methods/_xPixels.js
+        // Access the pixel position of the x co-ordinate of the legend area
         this._xPixels = function () {
-            return dimple._parsePosition(this.x, this.chart.svg.node().offsetWidth);
+            return dimple._parseXPosition(this.x, this.chart.svg.node());
         };

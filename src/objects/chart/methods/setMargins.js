@@ -10,19 +10,19 @@
             this.height = 0;
             // Access the pixel value of the x coordinate
             this._xPixels = function () {
-                return dimple._parsePosition(this.x, this.svg.node().offsetWidth);
+                return dimple._parseXPosition(this.x, this.svg.node());
             };
             // Access the pixel value of the y coordinate
             this._yPixels = function () {
-                return dimple._parsePosition(this.y, this.svg.node().offsetHeight);
+                return dimple._parseYPosition(this.y, this.svg.node());
             };
             // Access the pixel value of the width coordinate
             this._widthPixels = function () {
-                return this.svg.node().offsetWidth - this._xPixels() - dimple._parsePosition(right, this.svg.node().offsetWidth);
+                return dimple._parentWidth(this.svg.node()) - this._xPixels() - dimple._parseXPosition(right, this.svg.node());
             };
             // Access the pixel value of the width coordinate
             this._heightPixels = function () {
-                return this.svg.node().offsetHeight - this._yPixels() - dimple._parsePosition(bottom, this.svg.node().offsetHeight);
+                return dimple._parentHeight(this.svg.node()) - this._yPixels() - dimple._parseYPosition(bottom, this.svg.node());
             };
             // Refresh the axes to redraw them against the new bounds
             this.draw(0, true);

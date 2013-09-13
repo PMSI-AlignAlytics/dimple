@@ -38,42 +38,42 @@
             // button to a form but as we have the library loaded - and we
             // love d3 - we may as well use it. Ignore the code from this
             // point on unless you want to learn a way of making buttons in d3
-            var height = 50, width = 150, color = new dimple.color("#B3DE69");
+            var height = 60, width = 180, color = new dimple.color("#B3DE69");
 
             svg.append("rect")
-                    .attr("x", svg.node().offsetWidth / 2 - width / 2)
-                    .attr("y", svg.node().offsetHeight / 2 - height / 2)
-                    .attr("rx", 15).attr("ry", 15)
-                    .attr("width", width).attr("height", height)
-                    .style("fill", color.fill).style("stroke", color.stroke);
+                .attr("x", dimple._parentWidth(svg.node()) / 2 - width / 2)
+                .attr("y", dimple._parentHeight(svg.node()) / 2 - height / 2)
+                .attr("rx", 15).attr("ry", 15)
+                .attr("width", width).attr("height", height)
+                .style("fill", color.fill).style("stroke", color.stroke);
 
             svg.selectAll("title_text")
-                    .data(["Click Here", "To Open Example"])
-                    .enter().append("text")
-                    .attr("x", svg.node().offsetWidth / 2)
-                    .attr("y", function (d, i) {
-                        return svg.node().offsetHeight / 2 - 5 + i * 18;
-                    })
-                    .style("text-anchor", "middle")
-                    .style("font-family", "sans-serif")
-                    .style("font-size", "12px").style("opacity", 0.7)
-                    .text(function (d) { return d; });
+                .data(["Click Here To", "To Open Resizable Popup"])
+                .enter().append("text")
+                .attr("x", dimple._parentWidth(svg.node()) / 2)
+                .attr("y", function (d, i) {
+                    return dimple._parentHeight(svg.node()) / 2 - 5 + i * 18;
+                })
+                .style("text-anchor", "middle")
+                .style("font-family", "sans-serif")
+                .style("font-size", "12px").style("opacity", 0.7)
+                .text(function (d) { return d; });
 
             svg.selectAll("text,rect")
-                    .on("mouseenter", function () {
-                        svg.selectAll("rect").style("fill", color.stroke)
-                    })
-                    .on("mouseleave", function () {
-                        svg.selectAll("rect").style("fill", color.fill)
-                    })
-                    .style("cursor", "pointer")
-                    .on("click", function () {
-                        var w = window.open(
-                                '/examples/advanced_responsive_sizing.html',
-                                'Resize Window To See Chart Resizing',
-                                'width=640px,height=480px');
-
-                    } );
+                .on("mouseenter", function () {
+                    svg.selectAll("rect").style("fill", color.stroke)
+                })
+                .on("mouseleave", function () {
+                    svg.selectAll("rect").style("fill", color.fill)
+                })
+                .style("cursor", "pointer")
+                .on("click", function () {
+                    var w = window.open(
+                        '/examples/advanced_responsive_sizing.html',
+                        'Resize Window To See Chart Resizing',
+                        'width=640px,height=480px,resizable=1,' +
+                        'toolbar=0,menubar=0,scrollbars=0');
+                });
         }
 
     </script>

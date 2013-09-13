@@ -223,7 +223,7 @@
                             rotated = false;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "middle")
-                                .attr("transform", null);
+                                .attr("transform", "");
                         }
                     } else if (axis.position === "x") {
                         // If the gaps are narrower than the widest label display all labels horizontally
@@ -247,7 +247,7 @@
                             rotated = false;
                             axis.shapes.selectAll(".axis text")
                                 .style("text-anchor", "middle")
-                                .attr("transform", null);
+                                .attr("transform", "");
                         }
                     }
                 }
