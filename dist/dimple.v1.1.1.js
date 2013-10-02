@@ -1387,7 +1387,7 @@ var dimple = {
                 }
 
                 // Add a title for the axis
-                if (!axis.hidden) {
+                if (!axis.hidden && (axis.position === "x" || axis.position === "y")) {
                     axis.titleShape = this._group.append("text").attr("class", "axis title");
                     axis.titleShape
                         .attr("x", titleX)
