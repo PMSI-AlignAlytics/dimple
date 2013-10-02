@@ -168,33 +168,33 @@
                     // Move labels around
                     if (axis.measure === null || axis.measure === undefined) {
                         if (axis.position === "x") {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", (chartWidth / axis._max) / 2);
+                            handleTrans(axis.shapes.selectAll("text")).attr("x", (chartWidth / axis._max) / 2);
                         } else if (axis.position === "y") {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", -1 * (chartHeight / axis._max) / 2);
+                            handleTrans(axis.shapes.selectAll("text")).attr("y", -1 * (chartHeight / axis._max) / 2);
                         }
                     }
                     if (axis.categoryFields !== null && axis.categoryFields !== undefined && axis.categoryFields.length > 0) {
                         // Off set the labels to counter the transform.  This will put the labels along the outside of the chart so they
                         // don't interfere with the chart contents
                         if (axis === firstX && (firstY.categoryFields === null || firstY.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("y", chartY + chartHeight - firstY._scale(0) + 9);
+                            handleTrans(axis.shapes.selectAll("text")).attr("y", chartY + chartHeight - firstY._scale(0) + 9);
                         }
                         if (axis === firstY && (firstX.categoryFields === null || firstX.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll(".axis text")).attr("x", -1 * (firstX._scale(0) - chartX) - 9);
+                            handleTrans(axis.shapes.selectAll("text")).attr("x", -1 * (firstX._scale(0) - chartX) - 9);
                         }
                     }
                 }
                 // Set some initial css values
                 if (!this.noFormats) {
-                    handleTrans(axis.shapes.selectAll(".axis text"))
+                    handleTrans(axis.shapes.selectAll("text"))
                         .style("font-family", "sans-serif")
                         .style("font-size", (chartHeight / 35 > 10 ? chartHeight / 35 : 10) + "px");
-                    handleTrans(axis.shapes.selectAll(".axis path, .axis line"))
+                    handleTrans(axis.shapes.selectAll("path, line"))
                         .style("fill", "none")
                         .style("stroke", "black")
                         .style("shape-rendering", "crispEdges");
                     if (axis.gridlineShapes !== null) {
-                        handleTrans(axis.gridlineShapes.selectAll(".gridlines line"))
+                        handleTrans(axis.gridlineShapes.selectAll("line"))
                             .style("fill", "none")
                             .style("stroke", "lightgray")
                             .style("opacity", 0.8);
@@ -205,13 +205,13 @@
                     if (axis === firstX) {
                         // If the gaps are narrower than the widest label display all labels horizontally
                         widest = 0;
-                        axis.shapes.selectAll(".axis text").each(function () {
+                        axis.shapes.selectAll("text").each(function () {
                             var w = this.getComputedTextLength();
                             widest = (w > widest ? w : widest);
                         });
-                        if (widest > chartWidth / axis.shapes.selectAll(".axis text")[0].length) {
+                        if (widest > chartWidth / axis.shapes.selectAll("text")[0].length) {
                             rotated = true;
-                            axis.shapes.selectAll(".axis text")
+                            axis.shapes.selectAll("text")
                                 .style("text-anchor", "start")
                                 .each(function () {
                                     var rec = this.getBBox();
@@ -221,21 +221,21 @@
                         } else {
                             // For redraw operations we need to clear the transform
                             rotated = false;
-                            axis.shapes.selectAll(".axis text")
+                            axis.shapes.selectAll("text")
                                 .style("text-anchor", "middle")
                                 .attr("transform", "");
                         }
                     } else if (axis.position === "x") {
                         // If the gaps are narrower than the widest label display all labels horizontally
                         widest = 0;
-                        axis.shapes.selectAll(".axis text")
+                        axis.shapes.selectAll("text")
                             .each(function () {
                                 var w = this.getComputedTextLength();
                                 widest = (w > widest ? w : widest);
                             });
-                        if (widest > chartWidth / axis.shapes.selectAll(".axis text")[0].length) {
+                        if (widest > chartWidth / axis.shapes.selectAll("text")[0].length) {
                             rotated = true;
-                            axis.shapes.selectAll(".axis text")
+                            axis.shapes.selectAll("text")
                                 .style("text-anchor", "end")
                                 .each(function () {
                                     var rec = this.getBBox();
@@ -245,7 +245,7 @@
                         } else {
                             // For redraw operations we need to clear the transform
                             rotated = false;
-                            axis.shapes.selectAll(".axis text")
+                            axis.shapes.selectAll("text")
                                 .style("text-anchor", "middle")
                                 .attr("transform", "");
                         }
@@ -255,7 +255,7 @@
                     axis.titleShape.remove();
                 }
                 // Get the bounds of the axis objects
-                axis.shapes.selectAll(".axis text")
+                axis.shapes.selectAll("text")
                     .each(function () {
                         var rec = this.getBBox();
                         if (box.l === null ||  -9 - rec.width < box.l) {
