@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title id="title"></title>
     <script type="application/javascript" src="/lib/d3.v3.min.js"></script>
-    <script type="application/javascript" src="/dist/dimple.v1.1.1.min.js"></script>
+    <script type="application/javascript" src="/dist/dimple.v1.1.2.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/styles.css">
     <link rel="stylesheet" href="/stylesheets/pygment_trac.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -55,11 +55,11 @@
         </p>
         <h3>Libraries</h3>
         <p>
-          <a href="/dist/dimple.v1.1.1.js"
+          <a href="/dist/dimple.v1.1.2.js"
              onClick="trackOutboundLink(this, 'Libraries', 'Full Javascript')">
               Full Javascript Library With Comments
           </a><br/>
-          <a href="/dist/dimple.v1.1.1.min.js"
+          <a href="/dist/dimple.v1.1.2.min.js"
              onClick="trackOutboundLink(this, 'Libraries', 'Minified Javascript')">
               Minified Javascript Library
           </a><br/>
@@ -134,12 +134,12 @@
             $.get("examples/" + spec.id + ".html", function (page) {
                 $("#codeContainer").text(
                         page.slice(page.indexOf("<div"))
-                                .replace("src=\"/dist/dimple.v1.1.1.js\"", "src=\"http://dimplejs.org/dist/dimple.v1.1.1.min.js\"")
+                                .replace("src=\"/dist/dimple.v1.1.2.js\"", "src=\"http://dimplejs.org/dist/dimple.v1.1.2.min.js\"")
                                 .replace("src=\"/lib/d3.v3.min.js\"", "src=\"http://d3js.org/d3.v3.min.js\"")
                 );
                 $("#chartBox").html(
                         page.slice(page.indexOf("<div"))
-                                .replace("src=\"/dist/dimple.v1.1.1.js\"", "")
+                                .replace("src=\"/dist/dimple.v1.1.2.js\"", "")
                                 .replace("src=\"/lib/d3.v3.min.js\"", "")
                 );
             });
