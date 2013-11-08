@@ -170,8 +170,14 @@
                 }
             }
 
-            // Populate the origin
-            origin = this._scale.copy()(0);
+            // Populate the origin.  Previously this incorrectly looked up 0 on the axis which only works
+            // for measure axes leading to Issue #19.  This fix uses the first category value in cases where
+            // one is required.
+            if (distinctCats !== null && distinctCats !== undefined && distinctCats.length > 0) {
+                origin = this._scale.copy()(distinctCats[0]);
+            } else {
+                origin = this._scale.copy()(0);
+            }
 
             if (this._origin !== origin) {
                 this._previousOrigin = (this._origin === null ? origin : this._origin);
