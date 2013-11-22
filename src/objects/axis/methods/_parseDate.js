@@ -4,7 +4,10 @@
         this._parseDate = function (inDate) {
             // A javascript date object
             var outDate;
-            if (this.dateParseFormat === null || this.dateParseFormat === undefined) {
+            if (!isNaN(inDate)) {
+                // If inDate is a number, assume it's epoch time
+                outDate = new Date(inDate);
+            } else if (this.dateParseFormat === null || this.dateParseFormat === undefined) {
                 // If nothing has been explicity defined you are in the hands of the browser gods
                 // may they smile upon you...
                 outDate = Date.parse(inDate);
