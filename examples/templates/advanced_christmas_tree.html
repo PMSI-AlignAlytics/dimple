@@ -1,0 +1,71 @@
+<div id="chartContainer">
+    <script src="/lib/d3.v3.min.js"></script>
+    <script src="/dist/dimple.v1.1.2.js"></script>
+    <script type="text/javascript">
+        var svg = dimple.newSvg("#chartContainer", 590, 400);
+
+        // Unlike other dimple charts this relies on some special Christmas
+        // data collated from Santa's Naughty:Nice data store
+        d3.tsv("/data/christmas_data.tsv", function (data) {
+
+            // Create the chart as usual
+            var chart = new dimple.chart(svg, data);
+            chart.setMargins(80, 50, 60, 40);
+
+            // Add a measure axis on x for Festivity
+            var festivity = chart.addMeasureAxis("x", "Festivity");
+            festivity.overrideMin = -200;
+            festivity.overrideMax = 200;
+
+            // Add a secondary x axis for Good Cheer
+            var cheer = chart.addMeasureAxis("x", "Cheer");
+            cheer.overrideMin = -200;
+            cheer.overrideMax = 200;
+
+            // We need to view these metrics against the Countdown to Christmas,
+            // this is visualised with the dimple time axis
+            var countdown = chart.addTimeAxis("y", "Countdown", "%d/%m/%Y %H:%M", "%d %b");
+
+            // Add a final Y axis for sparkle
+            var sparkle = chart.addMeasureAxis("y", "Sparkle");
+            sparkle.overrideMin = -200;
+            sparkle.overrideMax = 200;
+
+            // Bauble size will be based on Magic (everyone knows that)
+            var magic = chart.addMeasureAxis("z", "Magic");
+            magic.overrideMax = 100;
+
+            // Add the three series for this visualisation
+            // First, a vertical area chart plotting festivity through December
+            // (I knew I'd find an application for that chart type eventually!)
+            chart.addSeries("Tree", dimple.plot.area, [countdown, festivity]);
+
+            // Add a two measure line chart of Tinsel's impact on Cheer and Sparkle
+            var tinsel = chart.addSeries(["Countdown", "Tinsel"], dimple.plot.line, [cheer, sparkle]);
+            tinsel.lineWeight = 5;
+
+            // Add a bubble chart showing how Cheer and Sparkle are affected by Magic
+            chart.addSeries(["Countdown", "Baubles"], dimple.plot.bubble, [cheer, sparkle, magic]);
+
+            // Map colors to different series values
+            chart.assignColor("none", "#FFFFFF", "#FFFFFF", 0);
+            chart.assignColor("left", "Green", "DarkGreen");
+            chart.assignColor("right", "Green", "DarkGreen");
+            chart.assignColor("left trunk", "Sienna", "SaddleBrown");
+            chart.assignColor("right trunk", "Sienna", "SaddleBrown");
+            chart.assignColor("tinsel 1", "Gold", "Gold", 1);
+            chart.assignColor("tinsel 2", "Red", "Red", 1);
+            chart.assignColor("tinsel 3", "Gold", "Gold", 1);
+            chart.assignColor("tinsel 4", "Red", "Red", 1);
+            chart.assignColor("tinsel 5", "Gold", "Gold", 1);
+            chart.assignColor("bauble 1", "Gold", "Gold", 1);
+            chart.assignColor("bauble 2", "Fuchsia ", "MediumVioletRed", 1);
+            chart.assignColor("bauble 3", "Red", "Crimson", 1);
+            chart.assignColor("bauble 4", "DeepSkyBlue", "DodgerBlue", 1);
+
+            // Sprinkle the magic dust
+            chart.draw();
+
+        });
+    </script>
+</div>

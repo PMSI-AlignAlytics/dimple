@@ -1,0 +1,63 @@
+Festivity	Countdown	Tree	Tinsel	Baubles	Cheer	Sparkle	Magic
+-10	09/12/2013 00:00	left trunk	none	none	0	0	0
+10	09/12/2013 00:00	right trunk	none	none	0	0	0
+-10	11/12/2013 02:00	left trunk	none	none	0	0	0
+10	11/12/2013 02:00	right trunk	none	none	0	0	0
+-100	11/12/2013 03:00	left	none	none	0	0	0
+100	11/12/2013 03:00	right	none	none	0	0	0
+-60	13/12/2013 00:00	left	none	none	0	0	0
+60	13/12/2013 00:00	right	none	none	0	0	0
+-90	13/12/2013 03:00	left	none	none	0	0	0
+90	13/12/2013 03:00	right	none	none	0	0	0
+-50	15/12/2013 00:00	left	none	none	0	0	0
+50	15/12/2013 00:00	right	none	none	0	0	0
+-80	15/12/2013 03:00	left	none	none	0	0	0
+80	15/12/2013 03:00	right	none	none	0	0	0
+-40	17/12/2013 00:00	left	none	none	0	0	0
+40	17/12/2013 00:00	right	none	none	0	0	0
+-70	17/12/2013 03:00	left	none	none	0	0	0
+70	17/12/2013 03:00	right	none	none	0	0	0
+-30	19/12/2013 00:00	left	none	none	0	0	0
+30	19/12/2013 00:00	right	none	none	0	0	0
+-60	19/12/2013 03:00	left	none	none	0	0	0
+60	19/12/2013 03:00	right	none	none	0	0	0
+-20	21/12/2013 00:00	left	none	none	0	0	0
+20	21/12/2013 00:00	right	none	none	0	0	0
+-50	21/12/2013 03:00	left	none	none	0	0	0
+50	21/12/2013 03:00	right	none	none	0	0	0
+-10	23/12/2013 00:00	left	none	none	0	0	0
+10	23/12/2013 00:00	right	none	none	0	0	0
+-40	23/12/2013 03:00	left	none	none	0	0	0
+40	23/12/2013 03:00	right	none	none	0	0	0
+0	25/12/2013 00:00	left	none	none	0	0	0
+0	25/12/2013 00:00	right	none	none	0	0	0
+0	24/12/2013 00:00	none	tinsel 1	none	55	-50	0
+0	25/12/2013 00:00	none	tinsel 1	none	-65	-100	0
+0	24/12/2013 00:00	none	tinsel 2	none	45	-5	0
+0	25/12/2013 00:00	none	tinsel 2	none	-60	-50	0
+0	24/12/2013 00:00	none	tinsel 3	none	38	42	0
+0	25/12/2013 00:00	none	tinsel 3	none	-50	0	0
+0	24/12/2013 00:00	none	tinsel 4	none	30	90	0
+0	25/12/2013 00:00	none	tinsel 4	none	-45	50	0
+0	24/12/2013 00:00	none	tinsel 5	none	25	135	0
+0	25/12/2013 00:00	none	tinsel 5	none	-40	100	0
+0	18/12/2013 00:00	none	none	bauble 1	-100	-150	15
+0	19/12/2013 00:00	none	none	bauble 1	75	-50	14
+0	20/12/2013 00:00	none	none	bauble 1	0	0	15
+0	21/12/2013 00:00	none	none	bauble 1	50	50	13
+0	22/12/2013 00:00	none	none	bauble 1	-40	150	15
+0	18/12/2013 00:00	none	none	bauble 2	-100	-150	15
+0	19/12/2013 00:00	none	none	bauble 2	-25	75	14
+0	20/12/2013 00:00	none	none	bauble 2	-70	5	15
+0	21/12/2013 00:00	none	none	bauble 2	40	-50	13
+0	22/12/2013 00:00	none	none	bauble 2	-25	-125	15
+0	18/12/2013 00:00	none	none	bauble 3	40	150	15
+0	19/12/2013 00:00	none	none	bauble 3	5	120	14
+0	20/12/2013 00:00	none	none	bauble 3	20	50	15
+0	21/12/2013 00:00	none	none	bauble 3	-25	-50	13
+0	22/12/2013 00:00	none	none	bauble 3	100	-150	15
+0	18/12/2013 00:00	none	none	bauble 4	40	-100	15
+0	19/12/2013 00:00	none	none	bauble 4	-50	-75	14
+0	20/12/2013 00:00	none	none	bauble 4	40	-10	15
+0	21/12/2013 00:00	none	none	bauble 4	-10	45	13
+0	22/12/2013 00:00	none	none	bauble 4	0	175	15
