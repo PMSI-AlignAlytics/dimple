@@ -150,6 +150,12 @@
                     .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
                     .domain([this._min, this._max]);
             }
+            // Apply this scale to all slaves as well
+            if (this._slaves !== null && this._slaves !== undefined && this._slaves.length > 0) {
+                this._slaves.forEach(function (slave) {
+                    slave._scale = this._scale;
+                }, this);
+            }
             // Check that the axis ends on a labelled tick
             if ((refactor === null || refactor === undefined || refactor === false) && !this._hasTimeField() && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0 && (this.position === "x" || this.position === "y")) {
 

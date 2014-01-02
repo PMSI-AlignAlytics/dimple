@@ -62,6 +62,10 @@ var dimple = {
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logBase
         this.logBase = 10;
 
+        // If this is a slave axis to a master composite axis, this stores a reference to the master
+        this._master = null;
+        // If this is a composite axis, store links to all slaves
+        this._slaves = [];
         // The scale determined by the update method
         this._scale = null;
         // The minimum and maximum axis values
@@ -166,6 +170,18 @@ var dimple = {
             return outPeriod;
         };
 
+
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/axis/methods/_getTopMaster.js
+        this._getTopMaster = function () {
+            // The highest level master
+            var topMaster = this;
+            if (this.master !== null && this.master !== undefined) {
+                topMaster = this.master._getTopMaster();
+            }
+            return topMaster;
+        };
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -367,6 +383,12 @@ var dimple = {
                 this._scale = d3.scale.linear()
                     .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
                     .domain([this._min, this._max]);
+            }
+            // Apply this scale to all slaves as well
+            if (this._slaves !== null && this._slaves !== undefined && this._slaves.length > 0) {
+                this._slaves.forEach(function (slave) {
+                    slave._scale = this._scale;
+                }, this);
             }
             // Check that the axis ends on a labelled tick
             if ((refactor === null || refactor === undefined || refactor === false) && !this._hasTimeField() && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0 && (this.position === "x" || this.position === "y")) {
@@ -917,21 +939,53 @@ var dimple = {
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addAxis
-        this.addAxis = function (position, categoryFields, measure, timeField) {
+        this.addAxis  = function (position, categoryFields, measure, timeField) {
+            // The axis to return
+            var axis = null,
+                master = null;
             // Convert the passed category fields to an array in case a single string is sent
             if (categoryFields !== null && categoryFields !== undefined) {
                 categoryFields = [].concat(categoryFields);
             }
-            // Create the axis object based on the passed parameters
-            var axis = new dimple.axis(
-                this,
-                position,
-                categoryFields,
-                measure,
-                timeField
-            );
-            // Add the axis to the array for the chart
-            this.axes.push(axis);
+            // If this is a standard axis a position will have been passed as a string
+            if ((typeof position) === "string" || (position instanceof String)) {
+                // Create the axis object based on the passed parameters
+                axis = new dimple.axis(
+                    this,
+                    position,
+                    categoryFields,
+                    measure,
+                    timeField
+                );
+                // Add the axis to the array for the chart
+                this.axes.push(axis);
+
+            } else {
+                // In the case of a composite axis the position will contain another axis
+                // To make this code more readable reassign the position to a different variable
+                master = position;
+                // Construct the axis object
+                axis = new dimple.axis(
+                    this,
+                    master.position,
+                    categoryFields,
+                    measure,
+                    timeField
+                );
+                // Validate that the master and child axes are compatible
+                if (axis._hasMeasure() !== master._hasMeasure()) {
+                    throw "You have specified a composite axis where some but not all axes have a measure - this is not supported, all axes must be of the same type.";
+                } else if (axis._hasTimeField() !== master._hasTimeField()) {
+                    throw "You have specified a composite axis where some but not all axes have a time field - this is not supported, all axes must be of the same type.";
+                } else if ((axis.categoryFields === null || axis.categoryFields === undefined ? 0 : axis.categoryFields.length) !== (master.categoryFields === null || master.categoryFields === undefined ? 0 : master.categoryFields.length)) {
+                    throw "You have specified a composite axis where axes have differing numbers of category fields - this is not supported, all axes must be of the same type.";
+                }
+                // Set the master, meaning that rather than rendering itself, this axis will contribute to the
+                // scaling of the master
+                axis._master = master;
+                // Do not add the axis to the chart's axes array, instead add it the master
+                master._slaves.push(axis);
+            }
             // return the axis
             return axis;
         };
@@ -1115,7 +1169,8 @@ var dimple = {
                 chartX = this._xPixels(),
                 chartY = this._yPixels(),
                 chartWidth = this._widthPixels(),
-                chartHeight = this._heightPixels();
+                chartHeight = this._heightPixels(),
+                linkedDimensions = [];
 
             // Many of the draw methods use positioning data in each series.  Therefore we should
             // decorate the series with it now
@@ -1135,7 +1190,7 @@ var dimple = {
                     // Find any linked series
                     this.series.forEach(function (series) {
                         // if this axis is linked
-                        if (series[axis.position] === axis) {
+                        if (series._deepMatch(axis)) {
                             // Get the bounds
                             var bounds = series._axisBounds(axis.position);
                             if (axis._min > bounds.min) { axis._min = bounds.min; }
@@ -1156,27 +1211,53 @@ var dimple = {
                     // Parse the dates and assign the min and max
                     axis._min = null;
                     axis._max = null;
+                    // Create an array of dimensions for this axis
+                    this.series.forEach(function (series) {
+                        // if this axis is linked
+                        if (series._deepMatch(axis)
+                                && series[axis.position].timeField !== null
+                                && series[axis.position].timeField !== undefined
+                                && linkedDimensions.indexOf(series[axis.position].timeField) === -1) {
+                            linkedDimensions.push(series[axis.position].timeField);
+                        }
+                    }, this);
+                    // Iterate the data
                     this.data.forEach(function (d) {
-                        var dt = axis._parseDate(d[axis.timeField]);
-                        if (axis._min === null || dt < axis._min) {
-                            axis._min = dt;
-                        }
-                        if (axis._max === null || dt > axis._max) {
-                            axis._max = dt;
-                        }
+                        // Find any linked series
+                        linkedDimensions.forEach(function (dimension) {
+                            // Check it's timeField
+                            var dt = axis._parseDate(d[dimension]);
+                            if (axis._min === null || dt < axis._min) {
+                                axis._min = dt;
+                            }
+                            if (axis._max === null || dt > axis._max) {
+                                axis._max = dt;
+                            }
+                        }, this);
                     }, this);
                 } else if (axis._hasCategories()) {
                     // A category axis is just set to show the number of categories
                     axis._min = 0;
                     distinctCats = [];
-                    this.data.forEach(function (d) {
-                        if (distinctCats.indexOf(d[axis.categoryFields[0]]) === -1) {
-                            distinctCats.push(d[axis.categoryFields[0]]);
+                    // Create an array of dimensions for this axis
+                    this.series.forEach(function (series) {
+                        // if this axis is linked
+                        if (series._deepMatch(axis)
+                                && series[axis.position].categoryFields[0] !== null
+                                && series[axis.position].categoryFields[0] !== undefined
+                                && linkedDimensions.indexOf(series[axis.position].categoryFields[0]) === -1) {
+                            linkedDimensions.push(series[axis.position].categoryFields[0]);
                         }
+                    }, this);
+                    this.data.forEach(function (d) {
+                        linkedDimensions.forEach(function (dimension) {
+                            if (distinctCats.indexOf(d[dimension]) === -1) {
+                                distinctCats.push(d[dimension]);
+                            }
+                        }, this);
                     }, this);
                     axis._max = distinctCats.length;
                 }
-
 
                 // Update the axis now we have all information set
                 axis._update();
@@ -1958,6 +2039,23 @@ var dimple = {
                 }, this);
             }
             return bounds;
+        };
+
+
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/series/methods/_deepMatch.js
+        this._deepMatch = function (axis) {
+            // Return true if this series is dependant on the axis or any of its dependants
+            var match = false;
+            if (this[axis.position] === axis) {
+                match = true;
+            } else if (axis._slaves !== undefined && axis._slaves !== null && axis._slaves.length > 0) {
+                axis._slaves.forEach(function (slave) {
+                    match = (match || this._deepMatch(slave));
+                }, this);
+            }
+            return match;
         };
 
 
