@@ -53,17 +53,6 @@ module.exports = function(grunt) {
                 }
             }
         },
-        qunit: {
-            all: {
-                options: {
-                    urls: [
-                        'http://localhost:3001/test/methods/_getOrderedList.html',
-                        'http://localhost:3001/test/methods/_rollUp.html',
-                        'http://localhost:3001/test/methods/newSvg.html'
-                    ]
-                }
-            }
-        },
         jslint: {
             files: [
                 'Gruntfile.js',
@@ -113,13 +102,13 @@ module.exports = function(grunt) {
                 singleRun: true
             },
             continuous: {
-                background: true,
+                background: true
             }
         },
         watch: {
             src: {
                 files: [
-                    '<%= concat.test.src %>',
+                    '<%= concat.test.src %>'
                 ],
                 tasks: ['concat:test', 'karma:continuous:run']
             },
@@ -173,7 +162,7 @@ module.exports = function(grunt) {
     });
 
     // Default tasks
-    grunt.registerTask('default', ['concat', 'jslint', 'uglify', 'connect', 'qunit', 'prop']);
+    grunt.registerTask('default', ['concat', 'jslint', 'uglify', 'connect', 'prop']);
     grunt.registerTask('test:unit', ['concat:test', 'karma:unit']);
     grunt.registerTask('test', ['karma:continuous:start', 'watch']);
 
