@@ -32,6 +32,10 @@ module.exports = function(grunt) {
                     "src/end.js"
                 ],
                 dest: 'dist/<%= pkg.name %>.v<%= pkg.version %>.js'
+            },
+            test: {
+                src: '<%= concat.dist.src %>',
+                dest: 'tmp/<%= pkg.name %>.js'
             }
         },
         uglify: {
@@ -89,6 +93,42 @@ module.exports = function(grunt) {
                         "<!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT TEMPLATE INSTEAD -->\n" +
                         "<!----------------------------------------------------------------->\n"
             }
+        },
+        karma: {
+            options: {
+                basepath: '',
+                frameworks: ['jasmine'],
+                files: [
+                    'tmp/*.js',
+                    'test/**/*.spec.js',
+                    'test/*.spec.js'
+                ],
+                reporters: ['progress'],
+                port: 9876,
+                colors: true,
+                browsers: ['PhantomJS']
+            },
+            unit: {
+                singleRun: true
+            },
+            continuous: {
+                background: true,
+            }
+        },
+        watch: {
+            src: {
+                files: [
+                    '<%= concat.test.src %>',
+                ],
+                tasks: ['concat:test', 'karma:continuous:run']
+            },
+            test: {
+                files: [
+                    'test/**/*.spec.js',
+                    'test/*.spec.js'
+                ],
+                tasks: ['karma:continuous:run']
+            }
         }
     });
 
@@ -98,6 +138,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-jslint');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-karma');
 
     // Propogate version into relevant files
     grunt.registerMultiTask('prop', 'Propagate Versions.', function() {
@@ -131,5 +173,7 @@ module.exports = function(grunt) {
 
     // Default tasks
     grunt.registerTask('default', ['concat', 'jslint', 'uglify', 'connect', 'qunit', 'prop']);
+    grunt.registerTask('test', ['karma:continuous:start', 'watch']);
+    grunt.registerTask('test:unit', ['concat:test', 'karma:unit']);
 
 };
