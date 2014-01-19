@@ -99,6 +99,7 @@ module.exports = function(grunt) {
                 basepath: '',
                 frameworks: ['jasmine'],
                 files: [
+                    'lib/d3.v3.min.js',
                     'tmp/*.js',
                     'test/**/*.spec.js',
                     'test/*.spec.js'
@@ -173,7 +174,7 @@ module.exports = function(grunt) {
 
     // Default tasks
     grunt.registerTask('default', ['concat', 'jslint', 'uglify', 'connect', 'qunit', 'prop']);
-    grunt.registerTask('test', ['karma:continuous:start', 'watch']);
     grunt.registerTask('test:unit', ['concat:test', 'karma:unit']);
+    grunt.registerTask('test', ['karma:continuous:start', 'watch']);
 
 };

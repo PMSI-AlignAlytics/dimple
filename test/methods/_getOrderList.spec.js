@@ -1,0 +1,77 @@
+describe("_getOrderedList", function() {
+    var data;
+    var getResults
+
+    beforeEach(function() {
+        data = [
+            { "Int": 1, "Float":234, "Text":"XFBGR", "Date":"12/5/99", "Group":"A"},
+            { "Int": 2, "Float":54.35, "Text":"YTREB", "Date":"1/1/00", "Group":"A"},
+            { "Int": 3, "Float":-453, "Text":"XGFDY", "Date":"2 February 2007", "Group":"B"},
+            { "Int": 4, "Float":5436546, "Text":"XGFDE", "Date":"2000-03-01", "Group":"B"},
+            { "Int": 5, "Float":4323, "Text":"YTREB", "Date":"10/10/2000", "Group":"C"},
+            { "Int": 6, "Float":0, "Text":"GFDHN", "Date":"11/10/2000", "Group":"C"},
+            { "Int": 7, "Float":-453, "Text":"TRET", "Date":"10/9/2000", "Group":"D"},
+            { "Int": 1, "Float":5436546, "Text":"GFDGFDHG", "Date":"10/10/2000", "Group":"E"}
+        ];
+
+        getResults = function(data, field, levelDefinitions) {
+            var ordered = dimple._getOrderedList(data, field, levelDefinitions);
+            var retString = "";
+            ordered.forEach(function (d, i) {
+                retString += (i > 0 ? ", " : "") + d;
+            });
+            return retString;
+        }
+    });
+
+    it("Implicit Single Dimension Ordering", function() {
+        expect(getResults(data, "Int")).toEqual( "1, 2, 3, 4, 5, 6, 7");
+        expect(getResults(data, "Float")).toEqual( "-453, 0, 54.35, 234, 4323, 5436546");
+        expect(getResults(data, "Text")).toEqual( "GFDGFDHG, GFDHN, TRET, XFBGR, XGFDE, XGFDY, YTREB");
+        expect(getResults(data, "Date")).toEqual( "12/5/99, 1/1/00, 2000-03-01, 10/9/2000, 10/10/2000, 11/10/2000, 2 February 2007");
+    });
+
+    it("Explicit Single Dimension Ordering", function() {
+        expect(getResults(data, "Int", { ordering : "Int" })).toEqual( "1, 2, 3, 4, 5, 6, 7");
+        expect(getResults(data, "Float", { ordering : "Float" })).toEqual( "-453, 0, 54.35, 234, 4323, 5436546");
+        expect(getResults(data, "Text", { ordering : "Text" })).toEqual( "GFDGFDHG, GFDHN, TRET, XFBGR, XGFDE, XGFDY, YTREB");
+        expect(getResults(data, "Date", { ordering : "Date" })).toEqual( "12/5/99, 1/1/00, 2000-03-01, 10/9/2000, 10/10/2000, 11/10/2000, 2 February 2007");
+    });
+
+    it("Descending Single Dimension Ordering", function() {
+        expect(getResults(data, "Int", { ordering : "Int", desc : true })).toEqual( "7, 6, 5, 4, 3, 2, 1");
+        expect(getResults(data, "Float", { ordering : "Float", desc : true })).toEqual( "5436546, 4323, 234, 54.35, 0, -453");
+        expect(getResults(data, "Text", { ordering : "Text", desc : true })).toEqual( "YTREB, XGFDY, XGFDE, XFBGR, TRET, GFDHN, GFDGFDHG");
+        expect(getResults(data, "Date", { ordering : "Date", desc : true })).toEqual( "2 February 2007, 11/10/2000, 10/10/2000, 10/9/2000, 2000-03-01, 1/1/00, 12/5/99");
+    });
+
+    it("List Ordering", function() {
+        expect(getResults(data, "Int", { ordering : [3, 7, 4, 5, 2, 1, 6] })).toEqual( "3, 7, 4, 5, 2, 1, 6");
+        expect(getResults(data, "Int", { ordering : [3, 7, 4, 5, 2, 1, 6], desc : true })).toEqual( "6, 1, 2, 5, 4, 7, 3");
+        expect(getResults(data, "Int", { ordering : [3, 7, 4] })).toEqual( "3, 7, 4, 1, 2, 5, 6");
+        expect(getResults(data, "Int", { ordering : [3, 7, 4], desc : true })).toEqual( "4, 7, 3, 1, 2, 5, 6");
+        expect(getResults(data, "Int", { ordering : ["3", "7", "4", "5", "2", "1", "6"] })).toEqual( "3, 7, 4, 5, 2, 1, 6");
+        expect(getResults(data, "Int", { ordering : ["3", "7", "4", "5", "2", "1", "6"], desc : true })).toEqual( "6, 1, 2, 5, 4, 7, 3");
+        expect(getResults(data, "Int", { ordering : ["3", "7", "4"] })).toEqual( "3, 7, 4, 1, 2, 5, 6");
+        expect(getResults(data, "Int", { ordering : ["3", "7", "4"], desc : true })).toEqual( "4, 7, 3, 1, 2, 5, 6");
+    });
+
+    it("Functional Ordering", function() {
+        expect(getResults(data, "Text", { ordering : function (a, b) { return a.Text.length - b.Text.length; } })).toEqual( "TRET, GFDHN, XFBGR, XGFDE, XGFDY, YTREB, GFDGFDHG");
+        expect(getResults(data, "Text", { ordering : function (a, b) { return a.Text.length - b.Text.length; }, desc : true })).toEqual( "GFDGFDHG, GFDHN, XFBGR, XGFDE, XGFDY, YTREB, TRET");
+    });
+
+    it("Secondary Category Ordering", function() {
+        expect(getResults(data, "Int", { ordering : "Text" })).toEqual( "6, 7, 1, 4, 3, 2, 5");
+        expect(getResults(data, "Int", { ordering : "Text", desc : true } )).toEqual( "2, 5, 3, 4, 1, 7, 6");
+        expect(getResults(data, "Group", { ordering : "Float" } )).toEqual( "D, A, C, B, E");
+        expect(getResults(data, "Group", { ordering : "Float", desc : true } )).toEqual( "E, B, C, A, D");
+    });
+
+    it("Tertiary Category Ordering", function() {
+        expect(getResults(data, "Int", [{ ordering : "Group" }, { ordering : "Float" }])).toEqual( "2, 1, 3, 4, 6, 5, 7");
+        expect(getResults(data, "Int", [{ ordering : "Group", desc : true}, { ordering : "Float" }])).toEqual( "7, 6, 5, 3, 4, 2, 1");
+        expect(getResults(data, "Int", [{ ordering : "Group"}, { ordering : "Float", desc : true }])).toEqual( "1, 2, 4, 3, 5, 6, 7");
+        expect(getResults(data, "Int", [{ ordering : "Group", desc : true}, { ordering : "Float", desc : true }])).toEqual( "7, 5, 6, 4, 3, 1, 2");
+    });
+});
