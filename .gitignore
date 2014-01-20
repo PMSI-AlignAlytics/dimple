@@ -4,3 +4,4 @@ node_modules
 *.komodo*
 help
 image_creator
+tmp
