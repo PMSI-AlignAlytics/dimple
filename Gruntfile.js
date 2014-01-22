@@ -56,6 +56,7 @@ module.exports = function(grunt) {
         jslint: {
             files: [
                 'Gruntfile.js',
+                'test/**/*.spec.js',
                 'dist/<%= pkg.name %>.v<%= pkg.version %>.js'
             ],
             directives: {
@@ -64,7 +65,9 @@ module.exports = function(grunt) {
                 predef: [
                     'd3',
                     'module',
-                    'console'
+                    'console',
+                    'jasmine',
+                    'dimple'
                 ]
             }
         },
