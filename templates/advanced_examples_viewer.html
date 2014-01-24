@@ -16,25 +16,13 @@
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <script type="application/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script type="text/javascript">
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-41100937-1']);
-      _gaq.push(['_trackPageview']);
-      (function() {
-          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-    </script>
-    <script type="text/javascript">
-      function trackOutboundLink(link, category, action) {
-          try {
-              _gaq.push(['_trackEvent', category , action]);
-          } catch(err){}
-          setTimeout(function() {
-              document.location.href = link.href;
-          }, 100);
-      }
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+           m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-47450855-1', 'dimplejs.org');
+      ga('send', 'pageview');
     </script>
   </head>
   <body>
@@ -52,20 +40,16 @@
         </p>
         <h3>Libraries</h3>
         <p>
-          <a href="/dist/dimple.{version}.js"
-             onClick="trackOutboundLink(this, 'Libraries', 'Full Javascript')">
+          <a href="/dist/dimple.{version}.js">
               Full Javascript Library With Comments
           </a><br/>
-          <a href="/dist/dimple.{version}.min.js"
-             onClick="trackOutboundLink(this, 'Libraries', 'Minified Javascript')">
+          <a href="/dist/dimple.{version}.min.js">
               Minified Javascript Library
           </a><br/>
-          <a href="https://github.com/PMSI-AlignAlytics/dimple/zipball/master"
-             onClick="trackOutboundLink(this, 'Libraries', 'Zip Ball')">
+          <a href="https://github.com/PMSI-AlignAlytics/dimple/zipball/master">
               Zip File
           </a><br/>
-          <a href="https://github.com/PMSI-AlignAlytics/dimple/tarball/master"
-             onClick="trackOutboundLink(this, 'Libraries', 'Tar Ball')">
+          <a href="https://github.com/PMSI-AlignAlytics/dimple/tarball/master">
               Tar Ball
           </a><br/>
         </p>
@@ -77,12 +61,10 @@
           <a href="/advanced_examples_index.html">
               Advanced Examples
           </a><br/>
-          <a href="https://github.com/PMSI-AlignAlytics/dimple"
-             onClick="trackOutboundLink(this, 'GitHub', 'Repository')">
+          <a href="https://github.com/PMSI-AlignAlytics/dimple">
               View On GitHub
           </a><br/>
-          <a href="https://github.com/PMSI-AlignAlytics/dimple/wiki"
-             onClick="trackOutboundLink(this, 'GitHub', 'Wiki')">
+          <a href="https://github.com/PMSI-AlignAlytics/dimple/wiki">
               Full API Documentation
           </a><br/>
         </p>
@@ -99,8 +81,7 @@
       <footer>
           <p>
               This is an open-source project by <br/>
-              <a href="http://www.pmsi-consulting.com"
-                 onClick="trackOutboundLink(this, 'Outbound', 'PMSI')">
+              <a href="http://www.align-alytics.com">
                   PMSI-AlignAlytics</a>
           </p>
       </footer>
