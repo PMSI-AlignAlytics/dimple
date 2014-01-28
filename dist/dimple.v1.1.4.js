@@ -544,7 +544,7 @@ var dimple = {
                         yCat = "",
                         ySortArray = [],
                         rules = [],
-                        sortedData = this.data,
+                        sortedData =series.data || this.data,
                         groupRules = [];
 
                     if (this.storyboard !== null && this.storyboard !== undefined && this.storyboard.categoryFields.length > 0) {
