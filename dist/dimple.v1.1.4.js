@@ -898,8 +898,16 @@ var dimple = {
         this._registerEventHandlers = function (series) {
             if (series._eventHandlers !== null && series._eventHandlers.length > 0) {
                 series._eventHandlers.forEach(function (thisHandler) {
+                    var shapes = null;
                     if (thisHandler.handler !== null && typeof (thisHandler.handler) === "function") {
-                        series.shapes.on(thisHandler.event, function (d) {
+                        // Some classes work from markers rather than the shapes (line and area for example)
+                        // in these cases the events should be applied to the markers instead.  Issue #15
+                        if (series._markers !== null && series._markers !== undefined) {
+                            shapes = series._markers;
+                        } else {
+                            shapes = series.shapes;
+                        }
+                        shapes.on(thisHandler.event, function (d) {
                             var e = new dimple.eventArgs();
                             if (series.chart.storyboard !== null) {
                                 e.frameValue = series.chart.storyboard.getFrameValue();
@@ -2322,7 +2330,8 @@ var dimple = {
                 graded = false,
                 line,
                 catPoints = {},
-                markers;
+                markers,
+                markerBacks;
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
                 chart._tooltipGroup.remove();
@@ -2372,7 +2381,7 @@ var dimple = {
                 .data(uniqueValues)
                 .transition()
                 .duration(duration)
-                .attr("class", function (d) { return "series area " + d.replace(" ", ""); })
+                .attr("class", function (d) { return "series area " + d.split(" ").join("_"); })
                 .attr("d", function (d) {
                     var seriesData,
                         baseline = [],
@@ -2454,43 +2463,101 @@ var dimple = {
                     }
                 });
 
-            // Add line markers.  
-            markers = chart._group.selectAll(".markers")
-                .data(data)
-                .enter();
-
-            // Add a fully opaque white circle first so we don't see a ghost of the line
             if (series.lineMarkers) {
-                markers.append("circle")
+                if (series._markerBacks === null || series._markerBacks === undefined) {
+                    markerBacks = chart._group.selectAll(".markerBacks").data(data);
+                } else {
+                    markerBacks = series._markerBacks.data(data, function (d) { return d.key; });
+                }
+                // Add
+                markerBacks
+                    .enter()
+                    .append("circle")
+                    .attr("id", function (d) { return d.key; })
+                    .attr("class", "markerBacks")
+                    .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
+                    .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
+                    .attr("r", 0)
+                    .attr("fill", "white")
+                    .attr("stroke", "none");
+
+                // Update
+                markerBacks
                     .transition().duration(duration)
-                        .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
-                        .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                        .attr("r", 2 + series.lineWeight)
-                        .attr("fill", "white")
-                        .attr("stroke", "none");
+                    .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
+                    .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
+                    .attr("r", 2 + series.lineWeight);
+                // Remove
+                markerBacks
+                    .exit()
+                    .transition().duration(duration)
+                    .attr("r", 0)
+                    .each("end", function () {
+                        d3.select(this).remove();
+                    });
+                series._markerBacks = markerBacks;
             }
+
+            // Deal with markers in the same way as main series to fix #28
+            if (series._markers === null || series._markers === undefined) {
+                markers = chart._group.selectAll(".markers").data(data);
+            } else {
+                markers = series._markers.data(data, function (d) { return d.key; });
+            }
+
 
             // Add the actual marker. We need to do this even if we aren't displaying them because they
             // catch hover events
-            markers.append("circle")
+            markers
+                .enter()
+                .append("circle")
+                .attr("id", function (d) { return d.key; })
+                .attr("class", "markers")
                 .on("mouseover", function (e) {
                     self.enterEventHandler(e, this, chart, series);
                 })
                 .on("mouseleave", function (e) {
                     self.leaveEventHandler(e, this, chart, series);
                 })
-                .transition().duration(duration)
                 .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
                 .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                .attr("r", 2 + series.lineWeight)
+                .attr("r", 0)
                 .attr("opacity", function (d) { return (series.lineMarkers ? chart.getColor(d).opacity : 0); })
                 .call(function () {
                     if (!chart.noFormats) {
                         this.attr("fill", "white")
                             .style("stroke-width", series.lineWeight)
-                            .attr("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
+                            .attr("stroke", function (d) {
+                                return (graded ? dimple._helpers.fill(d, chart, series) : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
+                            });
                     }
                 });
+
+            markers
+                .transition().duration(duration)
+                .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
+                .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
+                .attr("r", 2 + series.lineWeight)
+                .call(function () {
+                    if (!chart.noFormats) {
+                        this.attr("fill", "white")
+                            .style("stroke-width", series.lineWeight)
+                            .attr("stroke", function (d) {
+                                return (graded ? dimple._helpers.fill(d, chart, series) : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
+                            });
+                    }
+                });
+
+            markers
+                .exit()
+                .transition().duration(duration)
+                .attr("r", 0)
+                .each("end", function () {
+                    d3.select(this).remove();
+                });
+
+            // Save the shapes to the series array
+            series._markers = markers;
         },
 
         // Handle the mouse enter event
@@ -2600,7 +2667,8 @@ var dimple = {
             // Add a group for text
             t = chart._tooltipGroup.append("g");
             // Create a box for the popup in the text group
-            box = t.append("rect");
+            box = t.append("rect")
+                .attr("class", "tooltip");
 
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
@@ -2653,6 +2721,7 @@ var dimple = {
             // Create a text object for every row in the popup
             t.selectAll(".textHoverShapes").data(rows).enter()
                 .append("text")
+                    .attr("class", "tooltip")
                     .text(function (d) { return d; })
                     .style("font-family", "sans-serif")
                     .style("font-size", "10px");
@@ -2744,7 +2813,12 @@ var dimple = {
                 .enter()
                 .append("rect")
                 .attr("id", function (d) { return d.key; })
-                .attr("class", function (d) { return className + " bar " + d.aggField.join(" ") + " " + d.xField.join(" ") + " " + d.yField.join(" "); })
+                .attr("class", function (d) {
+                    return className + " bar " +
+                        d.aggField.join(" ").split(" ").join("_") + " " +
+                        d.xField.join(" ").split(" ").join("_") + " " +
+                        d.yField.join(" ").split(" ").join("_");
+                })
                 .attr("x", function (d) { return dimple._helpers.x(d, chart, series); })
                 .attr("y", function (d) { return dimple._helpers.y(d, chart, series) + dimple._helpers.height(d, chart, series); })
                 .attr("width", function (d) {return (d.xField !== null && d.xField.length > 0 ? dimple._helpers.width(d, chart, series) : 0); })
@@ -2884,7 +2958,8 @@ var dimple = {
             // Add a group for text
             t = chart._tooltipGroup.append("g");
             // Create a box for the popup in the text group
-            box = t.append("rect");
+            box = t.append("rect")
+                .attr("class", "tooltip");
 
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
@@ -2932,6 +3007,7 @@ var dimple = {
             // Create a text object for every row in the popup
             t.selectAll(".textHoverShapes").data(rows).enter()
                 .append("text")
+                    .attr("class", "tooltip")
                     .text(function (d) { return d; })
                     .style("font-family", "sans-serif")
                     .style("font-size", "10px");
@@ -3039,7 +3115,13 @@ var dimple = {
                 .enter()
                 .append("circle")
                 .attr("id", function (d) { return d.key; })
-                .attr("class", function (d) { return className + " bubble " + d.aggField.join(" ") + " " + d.xField.join(" ") + " " + d.yField.join(" ") + " " + d.zField.join(" "); })
+                .attr("class", function (d) {
+                    return className + " bubble " +
+                        d.aggField.join(" ").split(" ").join("_") + " " +
+                        d.xField.join(" ").split(" ").join("_") + " " +
+                        d.yField.join(" ").split(" ").join("_") + " " +
+                        d.zField.join(" ").split(" ").join("_");
+                })
                 .attr("cx", function (d) {
                     return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin);
                 })
@@ -3200,7 +3282,8 @@ var dimple = {
             // Add a group for text
             t = chart._tooltipGroup.append("g");
             // Create a box for the popup in the text group
-            box = t.append("rect");
+            box = t.append("rect")
+                .attr("class", "tooltip");
 
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
@@ -3253,6 +3336,7 @@ var dimple = {
             // Create a text object for every row in the popup
             t.selectAll(".textHoverShapes").data(rows).enter()
                 .append("text")
+                    .attr("class", "tooltip")
                     .text(function (d) { return d; })
                     .style("font-family", "sans-serif")
                     .style("font-size", "10px");
@@ -3323,7 +3407,8 @@ var dimple = {
                 firstAgg = 1,
                 graded = false,
                 line,
-                markers;
+                markers,
+                markerBacks;
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
                 chart._tooltipGroup.remove();
@@ -3373,7 +3458,7 @@ var dimple = {
             series.shapes
                 .data(uniqueValues)
                 .transition().duration(duration)
-                .attr("class", function (d) { return "series line " + d.join("_").replace(" ", ""); })
+                .attr("class", function (d) { return "series line " + d.join("_").split(" ").join("_"); })
                 .attr("d", function (d) {
                     var seriesData = [];
                     data.forEach(function (r) {
@@ -3414,35 +3499,65 @@ var dimple = {
                     }
                 });
 
-            // Add line markers.  
-            markers = chart._group.selectAll(".markers")
-                .data(data)
-                .enter();
-
-            // Add a fully opaque white circle first so we don't see a ghost of the line
             if (series.lineMarkers) {
-                markers.append("circle")
+                if (series._markerBacks === null || series._markerBacks === undefined) {
+                    markerBacks = chart._group.selectAll(".markerBacks").data(data);
+                } else {
+                    markerBacks = series._markerBacks.data(data, function (d) { return d.key; });
+                }
+                // Add
+                markerBacks
+                    .enter()
+                    .append("circle")
+                    .attr("id", function (d) { return d.key; })
+                    .attr("class", "markerBacks")
+                    .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
+                    .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
+                    .attr("r", 0)
+                    .attr("fill", "white")
+                    .attr("stroke", "none");
+
+                // Update
+                markerBacks
                     .transition().duration(duration)
                     .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
                     .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                    .attr("r", 2 + series.lineWeight)
-                    .attr("fill", "white")
-                    .attr("stroke", "none");
+                    .attr("r", 2 + series.lineWeight);
+                // Remove
+                markerBacks
+                    .exit()
+                    .transition().duration(duration)
+                    .attr("r", 0)
+                    .each("end", function () {
+                        d3.select(this).remove();
+                    });
+                series._markerBacks = markerBacks;
             }
+
+            // Deal with markers in the same way as main series to fix #28
+            if (series._markers === null || series._markers === undefined) {
+                markers = chart._group.selectAll(".markers").data(data);
+            } else {
+                markers = series._markers.data(data, function (d) { return d.key; });
+            }
+
 
             // Add the actual marker. We need to do this even if we aren't displaying them because they
             // catch hover events
-            markers.append("circle")
+            markers
+                .enter()
+                .append("circle")
+                .attr("id", function (d) { return d.key; })
+                .attr("class", "markers")
                 .on("mouseover", function (e) {
                     self.enterEventHandler(e, this, chart, series);
                 })
                 .on("mouseleave", function (e) {
                     self.leaveEventHandler(e, this, chart, series);
                 })
-                .transition().duration(duration)
                 .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
                 .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                .attr("r", 2 + series.lineWeight)
+                .attr("r", 0)
                 .attr("opacity", function (d) { return (series.lineMarkers ? chart.getColor(d).opacity : 0); })
                 .call(function () {
                     if (!chart.noFormats) {
@@ -3453,6 +3568,32 @@ var dimple = {
                             });
                     }
                 });
+
+            markers
+                .transition().duration(duration)
+                .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
+                .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
+                .attr("r", 2 + series.lineWeight)
+                .call(function () {
+                    if (!chart.noFormats) {
+                        this.attr("fill", "white")
+                            .style("stroke-width", series.lineWeight)
+                            .attr("stroke", function (d) {
+                                return (graded ? dimple._helpers.fill(d, chart, series) : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
+                            });
+                    }
+                });
+
+            markers
+                .exit()
+                .transition().duration(duration)
+                .attr("r", 0)
+                .each("end", function () {
+                    d3.select(this).remove();
+                });
+
+            // Save the shapes to the series array
+            series._markers = markers;
 
             // Deal with single point lines if there are no markers
             if (!series.lineMarkers) {
@@ -3583,7 +3724,8 @@ var dimple = {
             // Add a group for text
             t = chart._tooltipGroup.append("g");
             // Create a box for the popup in the text group
-            box = t.append("rect");
+            box = t.append("rect")
+                .attr("class", "tooltip");
 
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
@@ -3642,6 +3784,7 @@ var dimple = {
             // Create a text object for every row in the popup
             t.selectAll(".textHoverShapes").data(rows).enter()
                 .append("text")
+                    .attr("class", "tooltip")
                     .text(function (d) { return d; })
                     .style("font-family", "sans-serif")
                     .style("font-size", "10px");

@@ -35,7 +35,12 @@
                 .enter()
                 .append("rect")
                 .attr("id", function (d) { return d.key; })
-                .attr("class", function (d) { return className + " bar " + d.aggField.join(" ") + " " + d.xField.join(" ") + " " + d.yField.join(" "); })
+                .attr("class", function (d) {
+                    return className + " bar " +
+                        d.aggField.join(" ").split(" ").join("_") + " " +
+                        d.xField.join(" ").split(" ").join("_") + " " +
+                        d.yField.join(" ").split(" ").join("_");
+                })
                 .attr("x", function (d) { return dimple._helpers.x(d, chart, series); })
                 .attr("y", function (d) { return dimple._helpers.y(d, chart, series) + dimple._helpers.height(d, chart, series); })
                 .attr("width", function (d) {return (d.xField !== null && d.xField.length > 0 ? dimple._helpers.width(d, chart, series) : 0); })
@@ -175,7 +180,8 @@
             // Add a group for text
             t = chart._tooltipGroup.append("g");
             // Create a box for the popup in the text group
-            box = t.append("rect");
+            box = t.append("rect")
+                .attr("class", "tooltip");
 
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
@@ -223,6 +229,7 @@
             // Create a text object for every row in the popup
             t.selectAll(".textHoverShapes").data(rows).enter()
                 .append("text")
+                    .attr("class", "tooltip")
                     .text(function (d) { return d; })
                     .style("font-family", "sans-serif")
                     .style("font-size", "10px");
