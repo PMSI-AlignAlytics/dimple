@@ -47,22 +47,22 @@
                         yCat = "",
                         ySortArray = [],
                         rules = [],
-                        sortedData = this.data,
+                        sortedData = series.data || this.data,
                         groupRules = [];
 
                     if (this.storyboard !== null && this.storyboard !== undefined && this.storyboard.categoryFields.length > 0) {
                         storyCat = this.storyboard.categoryFields[0];
-                        orderedStoryboardArray = dimple._getOrderedList(this.data, storyCat, this.storyboard._orderRules);
+                        orderedStoryboardArray = dimple._getOrderedList(sortedData, storyCat, this.storyboard._orderRules);
                     }
 
                     // Deal with mekkos
                     if (series.x._hasCategories() && series.x._hasMeasure()) {
                         xCat = series.x.categoryFields[0];
-                        xSortArray = dimple._getOrderedList(this.data, xCat, series.x._orderRules.concat([{ ordering : series.x.measure, desc : true }]));
+                        xSortArray = dimple._getOrderedList(sortedData, xCat, series.x._orderRules.concat([{ ordering : series.x.measure, desc : true }]));
                     }
                     if (series.y._hasCategories() && series.y._hasMeasure()) {
                         yCat = series.y.categoryFields[0];
-                        ySortArray = dimple._getOrderedList(this.data, yCat, series.y._orderRules.concat([{ ordering : series.y.measure, desc : true }]));
+                        ySortArray = dimple._getOrderedList(sortedData, yCat, series.y._orderRules.concat([{ ordering : series.y.measure, desc : true }]));
                     }
 
                     if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
@@ -79,7 +79,7 @@
                         } else if (series.y._hasMeasure()) {
                             rules.push({ ordering : series.y.measure, desc : true });
                         }
-                        orderedSeriesArray = dimple._getOrderedList(this.data, seriesCat, rules);
+                        orderedSeriesArray = dimple._getOrderedList(sortedData, seriesCat, rules);
                     }
 
                     sortedData.sort(function (a, b) {
@@ -224,14 +224,14 @@
                         if (series.y._hasMeasure()) {
                             groupRules.push({ ordering : series.y.measure, desc : true });
                         }
-                        secondaryElements.x = dimple._getOrderedList(this.data, series.x.categoryFields[1], series.x._groupOrderRules.concat(groupRules));
+                        secondaryElements.x = dimple._getOrderedList(sortedData, series.x.categoryFields[1], series.x._groupOrderRules.concat(groupRules));
                     }
                     if (series.y !== null && series.y !== undefined && series.y._hasCategories() && series.y.categoryFields.length > 1 && secondaryElements.y !== undefined) {
                         groupRules = [];
                         if (series.x._hasMeasure()) {
                             groupRules.push({ ordering : series.x.measure, desc : true });
                         }
-                        secondaryElements.y = dimple._getOrderedList(this.data, series.y.categoryFields[1], series.y._groupOrderRules.concat(groupRules));
+                        secondaryElements.y = dimple._getOrderedList(sortedData, series.y.categoryFields[1], series.y._groupOrderRules.concat(groupRules));
                         secondaryElements.y.reverse();
                     }
                     returnData.forEach(function (ret) {

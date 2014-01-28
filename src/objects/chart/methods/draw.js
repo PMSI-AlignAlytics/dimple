@@ -46,7 +46,7 @@
                     // in a real context, but when developing it is nice to see axes before any series have
                     // been added.
                     if (!linked) {
-                        this.data.forEach(function (d) {
+                        this._getAllData().forEach(function (d) {
                             if (axis._min > d[axis.measure]) { axis._min = d[axis.measure]; }
                             if (axis._max < d[axis.measure]) { axis._max = d[axis.measure]; }
                         }, this);
@@ -55,7 +55,7 @@
                     // Parse the dates and assign the min and max
                     axis._min = null;
                     axis._max = null;
-                    this.data.forEach(function (d) {
+                    this._getAllData().forEach(function (d) {
                         var dt = axis._parseDate(d[axis.timeField]);
                         if (axis._min === null || dt < axis._min) {
                             axis._min = dt;
@@ -68,7 +68,7 @@
                     // A category axis is just set to show the number of categories
                     axis._min = 0;
                     distinctCats = [];
-                    this.data.forEach(function (d) {
+                    this._getAllData().forEach(function (d) {
                         if (distinctCats.indexOf(d[axis.categoryFields[0]]) === -1) {
                             distinctCats.push(d[axis.categoryFields[0]]);
                         }
