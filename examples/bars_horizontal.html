@@ -3,7 +3,7 @@
 <!----------------------------------------------------------------->
 <div id="chartContainer">
   <script src="/lib/d3.v3.min.js"></script>
-  <script src="/dist/dimple.v1.1.2.js"></script>
+  <script src="/dist/dimple.v1.1.4.js"></script>
   <script type="text/javascript">
     var svg = dimple.newSvg("#chartContainer", 590, 400);
     d3.tsv("/data/example_data.tsv", function (data) {
@@ -12,7 +12,10 @@
       myChart.addMeasureAxis("x", "Unit Sales");
       var y = myChart.addCategoryAxis("y", "Month");
       y.addOrderRule("Date");
-      myChart.addSeries(null, dimple.plot.bar);
+      var s1 = myChart.addSeries(null, dimple.plot.bar);
+      s1.data = data;
+      var s2 = myChart.addSeries("Test", dimple.plot.bubble);
+      s2.data = [{"Test":"Lots of words", "Month": 'test', "Unit Sales":-244434}];
       myChart.draw();
     });
   </script>
