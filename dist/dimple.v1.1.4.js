@@ -228,14 +228,17 @@ var dimple = {
                 origin,
                 getOrderedCategories = function (self, axPos, oppPos) {
                     var category = self.categoryFields[0],
+                        chartData = self.chart._getAllData(),
                         sortBy = category,
                         desc = false,
                         isDate = true,
+                        currentValue = null,
                         i,
                         definitions = [];
                     // Check whether this field is a date
-                    for (i = 0; i < self.chart.data.length; i += 1) {
-                        if (isNaN(self._parseDate(self.chart.data[i][category]))) {
+                    for (i = 0; i < chartData.length; i += 1) {
+                        currentValue = self._parseDate(chartData[i][category]);
+                        if (currentValue !== null && currentValue !== undefined && isNaN(currentValue)) {
                             isDate = false;
                             break;
                         }
@@ -250,7 +253,7 @@ var dimple = {
                         }, this);
                     }
                     definitions = self._orderRules.concat({ ordering : sortBy, desc : desc });
-                    return dimple._getOrderedList(self.chart.data, category, definitions);
+                    return dimple._getOrderedList(chartData, category, definitions);
                 };
 
             // If the axis is a percentage type axis the bounds must be between -1 and 1.  Sometimes
@@ -497,6 +500,30 @@ var dimple = {
 
         // Copyright: 2013 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/chart/methods/_getAllData.js
+        // Mash together all of the datasets
+        this._getAllData = function () {
+            // The return array will include all data for chart as well as an series
+            var returnData = [];
+            // If there is data at the chart level
+            if (this.data !== null && this.data !== undefined && this.data.length > 0) {
+                returnData = returnData.concat(this.data);
+            }
+            // If there are series defined
+            if (this.series !== null && this.series !== undefined && this.series.length > 0) {
+                this.series.forEach(function (s) {
+                    if (s.data !== null && s.data !== undefined && s.data.length > 0) {
+                        returnData = returnData.concat(s.data);
+                    }
+                });
+            }
+            // Return the final dataset
+            return returnData;
+        };
+
+
+        // Copyright: 2013 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_getSeriesData.js
         // Create a dataset containing positioning information for every series
         this._getSeriesData = function () {
@@ -544,22 +571,22 @@ var dimple = {
                         yCat = "",
                         ySortArray = [],
                         rules = [],
-                        sortedData =series.data || this.data,
+                        sortedData = series.data || this.data,
                         groupRules = [];
 
                     if (this.storyboard !== null && this.storyboard !== undefined && this.storyboard.categoryFields.length > 0) {
                         storyCat = this.storyboard.categoryFields[0];
-                        orderedStoryboardArray = dimple._getOrderedList(this.data, storyCat, this.storyboard._orderRules);
+                        orderedStoryboardArray = dimple._getOrderedList(sortedData, storyCat, this.storyboard._orderRules);
                     }
 
                     // Deal with mekkos
                     if (series.x._hasCategories() && series.x._hasMeasure()) {
                         xCat = series.x.categoryFields[0];
-                        xSortArray = dimple._getOrderedList(this.data, xCat, series.x._orderRules.concat([{ ordering : series.x.measure, desc : true }]));
+                        xSortArray = dimple._getOrderedList(sortedData, xCat, series.x._orderRules.concat([{ ordering : series.x.measure, desc : true }]));
                     }
                     if (series.y._hasCategories() && series.y._hasMeasure()) {
                         yCat = series.y.categoryFields[0];
-                        ySortArray = dimple._getOrderedList(this.data, yCat, series.y._orderRules.concat([{ ordering : series.y.measure, desc : true }]));
+                        ySortArray = dimple._getOrderedList(sortedData, yCat, series.y._orderRules.concat([{ ordering : series.y.measure, desc : true }]));
                     }
 
                     if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
@@ -576,7 +603,7 @@ var dimple = {
                         } else if (series.y._hasMeasure()) {
                             rules.push({ ordering : series.y.measure, desc : true });
                         }
-                        orderedSeriesArray = dimple._getOrderedList(this.data, seriesCat, rules);
+                        orderedSeriesArray = dimple._getOrderedList(sortedData, seriesCat, rules);
                     }
 
                     sortedData.sort(function (a, b) {
@@ -721,14 +748,14 @@ var dimple = {
                         if (series.y._hasMeasure()) {
                             groupRules.push({ ordering : series.y.measure, desc : true });
                         }
-                        secondaryElements.x = dimple._getOrderedList(this.data, series.x.categoryFields[1], series.x._groupOrderRules.concat(groupRules));
+                        secondaryElements.x = dimple._getOrderedList(sortedData, series.x.categoryFields[1], series.x._groupOrderRules.concat(groupRules));
                     }
                     if (series.y !== null && series.y !== undefined && series.y._hasCategories() && series.y.categoryFields.length > 1 && secondaryElements.y !== undefined) {
                         groupRules = [];
                         if (series.x._hasMeasure()) {
                             groupRules.push({ ordering : series.x.measure, desc : true });
                         }
-                        secondaryElements.y = dimple._getOrderedList(this.data, series.y.categoryFields[1], series.y._groupOrderRules.concat(groupRules));
+                        secondaryElements.y = dimple._getOrderedList(sortedData, series.y.categoryFields[1], series.y._groupOrderRules.concat(groupRules));
                         secondaryElements.y.reverse();
                     }
                     returnData.forEach(function (ret) {
@@ -1147,7 +1174,7 @@ var dimple = {
                     // in a real context, but when developing it is nice to see axes before any series have
                     // been added.
                     if (!linked) {
-                        this.data.forEach(function (d) {
+                        this._getAllData().forEach(function (d) {
                             if (axis._min > d[axis.measure]) { axis._min = d[axis.measure]; }
                             if (axis._max < d[axis.measure]) { axis._max = d[axis.measure]; }
                         }, this);
@@ -1156,7 +1183,7 @@ var dimple = {
                     // Parse the dates and assign the min and max
                     axis._min = null;
                     axis._max = null;
-                    this.data.forEach(function (d) {
+                    this._getAllData().forEach(function (d) {
                         var dt = axis._parseDate(d[axis.timeField]);
                         if (axis._min === null || dt < axis._min) {
                             axis._min = dt;
@@ -1169,7 +1196,7 @@ var dimple = {
                     // A category axis is just set to show the number of categories
                     axis._min = 0;
                     distinctCats = [];
-                    this.data.forEach(function (d) {
+                    this._getAllData().forEach(function (d) {
                         if (distinctCats.indexOf(d[axis.categoryFields[0]]) === -1) {
                             distinctCats.push(d[axis.categoryFields[0]]);
                         }
@@ -2122,7 +2149,7 @@ var dimple = {
                 // Clear the array
                 this._categories = [];
                 // Iterate every row in the data
-                this.chart.data.forEach(function (d) {
+                this.chart._getAllData().forEach(function (d) {
                     // Initialise the index of the categories array matching the current row
                     var index = -1,
                         field = "";

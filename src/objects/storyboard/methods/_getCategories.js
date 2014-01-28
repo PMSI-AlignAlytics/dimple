@@ -6,7 +6,7 @@
                 // Clear the array
                 this._categories = [];
                 // Iterate every row in the data
-                this.chart.data.forEach(function (d) {
+                this.chart._getAllData().forEach(function (d) {
                     // Initialise the index of the categories array matching the current row
                     var index = -1,
                         field = "";
