@@ -126,7 +126,10 @@
                 yRunning = 0,
                 // The maximum bounds of the text elements
                 w = 0,
-                h = 0;
+                h = 0,
+                // Values to shift the popup
+                translateX,
+                translateY;
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
                 chart._tooltipGroup.remove();
@@ -264,29 +267,31 @@
                 .style("opacity", 0.95);
 
             // Shift the popup around to avoid overlapping the svg edge
-            if (x + width + textMargin + popupMargin + w < parseFloat(chart.svg.attr("width"))) {
+            if (x + width + textMargin + popupMargin + w < parseFloat(chart.svg.node().getBBox().width)) {
                 // Draw centre right
-                t.attr("transform", "translate(" +
-                    (x + width + textMargin + popupMargin) + " , " +
-                    (y + (height / 2) - ((yRunning - (h - textMargin)) / 2)) +
-                    ")");
+                translateX = (x + width + textMargin + popupMargin);
+                translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
+                t.attr("transform", "translate(" + translateX + " , " + translateY + ")");
             } else if (x - (textMargin + popupMargin + w) > 0) {
                 // Draw centre left
-                t.attr("transform", "translate(" +
-                    (x - (textMargin + popupMargin + w)) + " , " +
-                    (y + (height / 2) - ((yRunning - (h - textMargin)) / 2)) +
-                    ")");
-            } else if (y + height + yRunning + popupMargin + textMargin < parseFloat(chart.svg.attr("height"))) {
+                translateX = (x - (textMargin + popupMargin + w));
+                translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
+                t.attr("transform", "translate(" + translateX + " , " + translateY + ")");
+            } else if (y + height + yRunning + popupMargin + textMargin < parseFloat(chart.svg.node().getBBox().height)) {
                 // Draw centre below
+                translateX = (x + (width / 2) - (2 * textMargin + w) / 2);
+                translateY = (y + height + 2 * textMargin);
                 t.attr("transform", "translate(" +
-                    (x + (width / 2) - (2 * textMargin + w) / 2) + " , " +
-                    (y + height + 2 * textMargin) +
+                    (translateX > 0 ? translateX : popupMargin) + " , " +
+                    translateY +
                     ")");
             } else {
                 // Draw centre above
+                translateX = (x + (width / 2) - (2 * textMargin + w) / 2);
+                translateY = (y - yRunning - (h - textMargin));
                 t.attr("transform", "translate(" +
-                    (x + (width / 2) - (2 * textMargin + w) / 2) + " , " +
-                    (y - yRunning - (h - textMargin)) +
+                    (translateX > 0 ? translateX : popupMargin) + " , " +
+                    translateY +
                     ")");
             }
         },

@@ -428,7 +428,7 @@
                 .style("opacity", 0.95);
 
             // Shift the ring margin left or right depending on whether it will overlap the edge
-            overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.attr("width"));
+            overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.node().getBBox().width);
 
             // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
             t.attr("transform", "translate(" +
