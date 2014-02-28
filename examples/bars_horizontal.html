@@ -12,10 +12,7 @@
       myChart.addMeasureAxis("x", "Unit Sales");
       var y = myChart.addCategoryAxis("y", "Month");
       y.addOrderRule("Date");
-      var s1 = myChart.addSeries(null, dimple.plot.bar);
-      s1.data = data;
-      var s2 = myChart.addSeries("Test", dimple.plot.bubble);
-      s2.data = [{"Test":"Lots of words", "Month": 'test', "Unit Sales":-244434}];
+      myChart.addSeries(null, dimple.plot.bar);
       myChart.draw();
     });
   </script>
