@@ -9,9 +9,13 @@
       d3.tsv("/data/example_data.tsv", function (data) {
 
         // Reduce the number of owners as this chart can get a bit busy
-        data = dimple.filterData(data, "Owner", ["Stark Ind", "MomCorp", "Rekall", "Wayne Ent"]);
+        data = dimple.filterData(data, "Owner", [
+          "Stark Ind",
+          "MomCorp",
+          "Rekall",
+          "Wayne Ent"]);
 
-        var i,
+        var series,
             // Set a background and foreground chart
             charts = [
                 new dimple.chart(svg, null),
@@ -21,13 +25,14 @@
             owners = dimple.getUniqueValues(data, "Owner");
 
         // Define 2 nearly identical charts.  It's essential
-        // for this that the max and minimum values are fixed and unmoving
-        // otherwise the background chart will get out of sync with the foreground
-        // the background chart's axes are hidden and it's colors are faded.  Both
-        // have their borders set to white, which looks better on this chart
+        // for this that the max and minimum values are fixed
+        // and unmoving otherwise the background chart will get
+        // out of sync with the foreground the background chart's
+        // axes are hidden and it's colors are faded.  Both have
+        // their borders set to white, which looks better on this chart
         charts.forEach(function (chart, i) {
           var x, y, z;
-          chart.setBounds(60, 30, 470, 300);
+          chart.setBounds(60, 30, 510, 330);
           x = chart.addMeasureAxis("x", "Unit Sales");
           x.overrideMax = 5000;
           x.hidden = (i === 0);
@@ -36,9 +41,14 @@
           y.hidden = (i === 0);
           z = chart.addMeasureAxis("z", "Distribution");
           z.overrideMax = 120;
-          // Ensure the same colors for every owner in both charts differing by opacity
+          // Ensure the same colors for every owner in both charts
+          // differing by opacity
           owners.forEach(function (owner, k) {
-            chart.assignColor(owner, charts[0].defaultColors[k].fill, "white", (i === 0 ? 0.3 : 1));
+            chart.assignColor(
+              owner,
+              charts[0].defaultColors[k].fill,
+              "white",
+              (i === 0 ? 0.3 : 1));
           }, this);
         }, this);
 
@@ -76,11 +86,13 @@
         });
 
         // Add the primary series to the main chart
-        charts[1].addSeries("Owner", dimple.plot.bubble).aggregate = dimple.aggregateMethod.avg;
+        series = charts[1].addSeries("Owner", dimple.plot.bubble)
+        series.aggregate = dimple.aggregateMethod.avg;
         // Draw the main chart
         charts[1].draw();
 
-        // Add some border weight to the main series so it separates a bit from the former period shadows
+        // Add some border weight to the main series so it separates a bit from
+        // the former period shadows
         d3.selectAll("circle").style("stroke-width", 2);
 
       });
