@@ -88,5 +88,11 @@
         "title":"Seasons Greetings",
         "shortTitle":"Seasons Greetings",
         "desc":"While analysing festive cheer we found these surprising results..."
+    },
+    {
+        "id":"advanced_change_bubbles",
+        "title":"Ghost Bubbles",
+        "shortTitle":"Ghost Bubbles",
+        "desc":"This demonstrates an approach for maintaining historic values in a storyboard chart.  A background chart is used to store old values when the storyboard on the main chart updates."
     }
 ]
