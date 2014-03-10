@@ -1,48 +1,23 @@
 <!----------------------------------------------------------------->
 <!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT TEMPLATE INSTEAD -->
 <!----------------------------------------------------------------->
+
 <div id="chartContainer">
   <script src="/lib/d3.v3.min.js"></script>
+  
   <script src="/dist/dimple.v1.1.5.js"></script>
+  
   <script type="text/javascript">
+
     var svg = dimple.newSvg("#chartContainer", 590, 400);
     d3.tsv("/data/example_data.tsv", function (data) {
-
-      // This is an internal function in dimple so this solution may not work in future versions.
-      // The first parameter receives the data you wish to treat in the standard dimple data format (fields as
-      // dimensions).
-      // The second parameter is an array of all the fields you wish to group your data by.  Any field referenced
-      // in your dimple code below should be passed here, apart from the field you wish to create a median for.
-      // The third parameter is an array containing the field you wish to create a median for.
-      var aggregatedData = dimple._rollUp(data, ["Channel", "Month", "Date", "Owner"], ["Unit Sales"]);
-      // This will generate a new array of data where Channel, Month, Date and Owner are the same as the original
-      // data but Unit Sales will contain an array of all values.
-      for (var i = 0; i < aggregatedData.length; i += 1) {
-        // Get the array of sales for the ith channel, month, date and owner combination
-        var vals = aggregatedData[i]["Unit Sales"];
-        // Sort them in ascending numerical order
-        vals.sort(function (a, b) { return parseFloat(a) - parseFloat(b) });
-        if (vals.length === 1) {
-          // If there is a single value use it for the new median column
-          aggregatedData[i]["Median Unit Sales"] = parseFloat(vals[0]);
-        } else if (vals.length % 2 === 0) {
-          // If there are an even number of values average the middle two (zero based array)
-          aggregatedData[i]["Median Unit Sales"] = (parseFloat(vals[vals.length / 2 - 1]) + parseFloat(vals[vals.length / 2])) / 2;
-        } else {
-          // Otherwise just return the middle value (zero based array)
-          aggregatedData[i]["Median Unit Sales"] = parseFloat(vals[vals.length / 2 - 0.5]);
-        }
-      }
-
-      // Now draw the chart as usual but use the new median column named above as your measure instead.
-      var myChart = new dimple.chart(svg, aggregatedData);
+      var myChart = new dimple.chart(svg, data);
       myChart.setBounds(75, 30, 480, 330)
-      myChart.addMeasureAxis("x", "Median Unit Sales");
-      var y = myChart.addCategoryAxis("y", ["Channel", "Month"]);
-      y.addGroupOrderRule("Date");
-      myChart.addSeries("Owner", dimple.plot.bar);
+      myChart.addMeasureAxis("x", "Unit Sales");
+      var y = myChart.addCategoryAxis("y", "Month");
+      y.addOrderRule("Date");
+      myChart.addSeries(null, dimple.plot.bar);
       myChart.draw();
-
     });
   </script>
 </div>
