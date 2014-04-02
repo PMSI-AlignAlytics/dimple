@@ -45,7 +45,7 @@
             this._max = (this.overrideMax !== null ? this.overrideMax : this._max);
 
             // If this is an x axis
-            if (this.position === "x") {
+            if (this.position === "x" && this._scale === null) {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
@@ -62,6 +62,12 @@
                         .nice();
                 } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "x", "y");
+                    // If there are any slaves process accordingly
+                    if (this._slaves !== null && this._slaves !== undefined) {
+                        this._slaves.forEach(function (slave) {
+                            distinctCats = distinctCats.concat(getOrderedCategories(slave, "x", "y"));
+                        }, this);
+                    }
                     this._scale = d3.scale.ordinal()
                         .rangePoints([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain(distinctCats.concat([""]));
@@ -87,7 +93,7 @@
                         break;
                     }
                 }
-            } else if (this.position === "y") {
+            } else if (this.position === "y" && this._scale === null) {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
@@ -104,6 +110,12 @@
                         .nice();
                 } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "y", "x");
+                    // If there are any slaves process accordingly
+                    if (this._slaves !== null && this._slaves !== undefined) {
+                        this._slaves.forEach(function (slave) {
+                            distinctCats = distinctCats.concat(getOrderedCategories(slave, "y", "x"));
+                        }, this);
+                    }
                     this._scale = d3.scale.ordinal()
                         .rangePoints([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain(distinctCats.concat([""]));
@@ -130,7 +142,7 @@
                         break;
                     }
                 }
-            } else if (this.position.length > 0 && this.position[0] === "z") {
+            } else if (this.position.length > 0 && this.position[0] === "z" && this._scale === null) {
                 if (this.useLog) {
                     this._scale = d3.scale.log()
                         .range([this.chart._heightPixels() / 300, this.chart._heightPixels() / 10])
@@ -145,7 +157,7 @@
                         .range([this.chart._heightPixels() / 300, this.chart._heightPixels() / 10])
                         .domain([this._min, this._max]);
                 }
-            } else if (this.position.length > 0 && this.position[0] === "c") {
+            } else if (this.position.length > 0 && this.position[0] === "c" && this._scale === null) {
                 this._scale = d3.scale.linear()
                     .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
                     .domain([this._min, this._max]);

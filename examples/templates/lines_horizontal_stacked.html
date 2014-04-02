@@ -7,10 +7,13 @@
       data = dimple.filterData(data, "Owner", ["Aperture", "Black Mesa"])
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(60, 30, 505, 305);
-      var x = myChart.addCategoryAxis("x", "Month");
-      x.addOrderRule("Date");
-      myChart.addMeasureAxis("y", "Unit Sales");
-      myChart.addSeries("Channel", dimple.plot.line);
+      var x1 = myChart.addCategoryAxis("x", "Month");
+      x1.addOrderRule("Date");
+      var x2 = myChart.addCategoryAxis(x1, "Price Tier");
+      var y1 = myChart.addMeasureAxis("y", "Unit Sales");
+      var y2 = myChart.addMeasureAxis("y", "Operating Profit");
+      myChart.addSeries("Channel", dimple.plot.line, [x1, y1]);
+      myChart.addSeries("Channel", dimple.plot.bar, [x2, y2]);
       myChart.addLegend(60, 10, 500, 20, "right");
       myChart.draw();
     });

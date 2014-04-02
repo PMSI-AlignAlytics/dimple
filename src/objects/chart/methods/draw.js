@@ -103,7 +103,13 @@
                     }, this);
                     axis._max = distinctCats.length;
                 }
-
+                // Set the bounds on all slaves
+                if (axis._slaves !== null && axis._slaves !== undefined && axis._slaves.length > 0) {
+                    axis._slaves.forEach(function (slave) {
+                        slave._min = axis._min;
+                        slave._max = axis._max;
+                    }, this);
+                }
                 // Update the axis now we have all information set
                 axis._update();
 
