@@ -4,7 +4,7 @@
 
 // Create the stub object
 var dimple = {
-    version: "1.1.6",
+    version: "1.2.0",
     plot: {},
     aggregateMethod: {}
 };
