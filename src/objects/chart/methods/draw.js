@@ -56,23 +56,50 @@
                     // Parse the dates and assign the min and max
                     axis._min = null;
                     axis._max = null;
+                    // Create an array of dimensions for this axis
+                    this.series.forEach(function (series) {
+                        // if this axis is linked
+                        if (series._deepMatch(axis)
+                                && series[axis.position].timeField !== null
+                                && series[axis.position].timeField !== undefined
+                                && linkedDimensions.indexOf(series[axis.position].timeField) === -1) {
+                            linkedDimensions.push(series[axis.position].timeField);
+                        }
+                    }, this);
+                    // Iterate the data
                     this._getAllData().forEach(function (d) {
-                        var dt = axis._parseDate(d[axis.timeField]);
-                        if (axis._min === null || dt < axis._min) {
-                            axis._min = dt;
-                        }
-                        if (axis._max === null || dt > axis._max) {
-                            axis._max = dt;
-                        }
+                        // Find any linked series
+                        linkedDimensions.forEach(function (dimension) {
+                            // Check it's timeField
+                            var dt = axis._parseDate(d[dimension]);
+                            if (axis._min === null || dt < axis._min) {
+                                axis._min = dt;
+                            }
+                            if (axis._max === null || dt > axis._max) {
+                                axis._max = dt;
+                            }
+                        }, this);
                     }, this);
                 } else if (axis._hasCategories()) {
                     // A category axis is just set to show the number of categories
                     axis._min = 0;
                     distinctCats = [];
-                    this._getAllData().forEach(function (d) {
-                        if (distinctCats.indexOf(d[axis.categoryFields[0]]) === -1) {
-                            distinctCats.push(d[axis.categoryFields[0]]);
+                    // Create an array of dimensions for this axis
+                    this.series.forEach(function (series) {
+                        // if this axis is linked
+                        if (series._deepMatch(axis)
+                                && series[axis.position].categoryFields[0] !== null
+                                && series[axis.position].categoryFields[0] !== undefined
+                                && linkedDimensions.indexOf(series[axis.position].categoryFields[0]) === -1) {
+                            linkedDimensions.push(series[axis.position].categoryFields[0]);
                         }
+                    }, this);
+                    this._getAllData().forEach(function (d) {
+                        linkedDimensions.forEach(function (dimension) {
+                            if (distinctCats.indexOf(d[dimension]) === -1) {
+                                distinctCats.push(d[dimension]);
+                            }
+                        }, this);
                     }, this);
                     axis._max = distinctCats.length;
                 }
