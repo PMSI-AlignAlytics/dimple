@@ -353,7 +353,7 @@
             t = chart._tooltipGroup.append("g");
             // Create a box for the popup in the text group
             box = t.append("rect")
-                .attr("class", "tooltip");
+                .attr("class", "chartTooltip");
 
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
@@ -424,7 +424,7 @@
             // Create a text object for every row in the popup
             t.selectAll(".textHoverShapes").data(rows).enter()
                 .append("text")
-                    .attr("class", "tooltip")
+                    .attr("class", "chartTooltip")
                     .text(function (d) { return d; })
                     .style("font-family", "sans-serif")
                     .style("font-size", "10px");
