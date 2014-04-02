@@ -331,15 +331,16 @@
                     rotate = "rotate(270, " + titleX + ", " + titleY + ")";
                 }
 
-                // Add a title for the axis
-                if (!axis.hidden && (axis.position === "x" || axis.position === "y")) {
+                // Add a title for the axis - NB check for null here, by default the title is undefined, in which case
+                // use the dimension name
+                if (!axis.hidden && (axis.position === "x" || axis.position === "y") && axis.title !== null) {
                     axis.titleShape = this._group.append("text").attr("class", "axis title");
                     axis.titleShape
                         .attr("x", titleX)
                         .attr("y", titleY)
                         .attr("text-anchor", "middle")
                         .attr("transform", rotate)
-                        .text((axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
+                        .text(axis.title !== undefined ? axis.title : (axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
                         .each(function () {
                             if (!chart.noFormats) {
                                 d3.select(this)

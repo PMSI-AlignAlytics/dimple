@@ -61,6 +61,8 @@ var dimple = {
         this.useLog = false;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logBase
         this.logBase = 10;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-title
+        this.title = undefined;
 
         // If this is a slave axis to a master composite axis, this stores a reference to the master
         this._master = null;
@@ -1507,15 +1509,16 @@ var dimple = {
                     rotate = "rotate(270, " + titleX + ", " + titleY + ")";
                 }
 
-                // Add a title for the axis
-                if (!axis.hidden && (axis.position === "x" || axis.position === "y")) {
+                // Add a title for the axis - NB check for null here, by default the title is undefined, in which case
+                // use the dimension name
+                if (!axis.hidden && (axis.position === "x" || axis.position === "y") && axis.title !== null) {
                     axis.titleShape = this._group.append("text").attr("class", "axis title");
                     axis.titleShape
                         .attr("x", titleX)
                         .attr("y", titleY)
                         .attr("text-anchor", "middle")
                         .attr("transform", rotate)
-                        .text((axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
+                        .text(axis.title !== undefined ? axis.title : (axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
                         .each(function () {
                             if (!chart.noFormats) {
                                 d3.select(this)
@@ -2125,8 +2128,8 @@ var dimple = {
             // Get the axis position based on the axis index
             this.chart.axes.forEach(function (axis) {
                 if (axis.position === "x" && !this.x.hidden) {
-                    if (axis === this.x) {
-                        // Set the y co-ordinate for the x axis 
+                    if (this._deepMatch(axis)) {
+                        // Set the y co-ordinate for the x axis
                         if (xIndex === 0) {
                             coord.y = firstOrig.y;
                         } else if (xIndex === 1) {
@@ -2135,7 +2138,7 @@ var dimple = {
                     }
                     xIndex += 1;
                 } else if (axis.position === "y" && !this.y.hidden) {
-                    if (axis === this.y) {
+                    if (this._deepMatch(axis)) {
                         // Set the x co-ordinate for the y axis 
                         if (yIndex === 0) {
                             coord.x = firstOrig.x;
@@ -2703,44 +2706,62 @@ var dimple = {
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
                 series.categoryFields.forEach(function (c, i) {
-                    // If the category name and value match don't display the category name
-                    rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
+                    if (c !== null && c !== undefined && e.aggField[i] !== null && e.aggField[i] !== undefined) {
+                        // If the category name and value match don't display the category name
+                        rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
+                    }
                 }, this);
             }
 
             if (series.x._hasTimeField()) {
-                rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
+                if (e.xField[0] !== null && e.xField[0] !== undefined) {
+                    rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
+                }
             } else if (series.x._hasCategories()) {
                 // Add the x axis categories
                 series.x.categoryFields.forEach(function (c, i) {
-                    // If the category name and value match don't display the category name
-                    rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
+                    if (c !== null && c !== undefined && e.xField[i] !== null && e.xField[i] !== undefined) {
+                        // If the category name and value match don't display the category name
+                        rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
+                    }
                 }, this);
             } else {
                 // Add the axis measure value
-                rows.push(series.x.measure + ": " + series.x._getFormat()(e.width));
+                if (series.x.measure !== null && series.x.measure !== undefined && e.width !== null && e.width !== undefined) {
+                    rows.push(series.x.measure + ": " + series.x._getFormat()(e.width));
+                }
             }
 
             if (series.y._hasTimeField()) {
-                rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
+                if (e.yField[0] !== null && e.yField[0] !== undefined) {
+                    rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
+                }
             } else if (series.y._hasCategories()) {
                 // Add the y axis categories
                 series.y.categoryFields.forEach(function (c, i) {
-                    rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
+                    if (c !== null && c !== undefined && e.yField[i] !== null && e.yField[i] !== undefined) {
+                        rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
+                    }
                 }, this);
             } else {
                 // Add the axis measure value
-                rows.push(series.y.measure + ": " + series.y._getFormat()(e.height));
+                if (series.y.measure !== null && series.y.measure !== undefined && e.height !== null && e.height !== undefined) {
+                    rows.push(series.y.measure + ": " + series.y._getFormat()(e.height));
+                }
             }
 
             if (series.z !== null && series.z !== undefined) {
                 // Add the axis measure value
-                rows.push(series.z.measure + ": " + series.z._getFormat()(e.zValue));
+                if (series.z.measure !== null && series.z.measure !== undefined && e.zValue !== null && e.zValue !== undefined) {
+                    rows.push(series.z.measure + ": " + series.z._getFormat()(e.zValue));
+                }
             }
 
             if (series.c !== null && series.c !== undefined) {
                 // Add the axis measure value
-                rows.push(series.c.measure + ": " + series.c._getFormat()(e.cValue));
+                if (series.c.measure !== null && series.c.measure !== undefined && e.cValue !== null && e.cValue !== undefined) {
+                    rows.push(series.c.measure + ": " + series.c._getFormat()(e.cValue));
+                }
             }
 
             // Get distinct text rows to deal with cases where 2 axes have the same dimensionality
@@ -2987,39 +3008,62 @@ var dimple = {
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
                 series.categoryFields.forEach(function (c, i) {
-                    // If the category name and value match don't display the category name
-                    rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
+                    if (c !== null && c !== undefined && e.aggField[i] !== null && e.aggField[i] !== undefined) {
+                        // If the category name and value match don't display the category name
+                        rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
+                    }
                 }, this);
             }
 
             if (series.x._hasTimeField()) {
-                rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
+                if (e.xField[0] !== null && e.xField[0] !== undefined) {
+                    rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
+                }
             } else if (series.x._hasCategories()) {
                 // Add the x axis categories
                 series.x.categoryFields.forEach(function (c, i) {
-                    // If the category name and value match don't display the category name
-                    rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
+                    if (c !== null && c !== undefined && e.xField[i] !== null && e.xField[i] !== undefined) {
+                        // If the category name and value match don't display the category name
+                        rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
+                    }
                 }, this);
             } else {
                 // Add the axis measure value
-                rows.push(series.x.measure + ": " + series.x._getFormat()(e.width));
+                if (series.x.measure !== null && series.x.measure !== undefined && e.width !== null && e.width !== undefined) {
+                    rows.push(series.x.measure + ": " + series.x._getFormat()(e.width));
+                }
             }
 
             if (series.y._hasTimeField()) {
-                rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
+                if (e.yField[0] !== null && e.yField[0] !== undefined) {
+                    rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
+                }
             } else if (series.y._hasCategories()) {
                 // Add the y axis categories
                 series.y.categoryFields.forEach(function (c, i) {
-                    rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
+                    if (c !== null && c !== undefined && e.yField[i] !== null && e.yField[i] !== undefined) {
+                        rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
+                    }
                 }, this);
             } else {
                 // Add the axis measure value
-                rows.push(series.y.measure + ": " + series.y._getFormat()(e.height));
+                if (series.y.measure !== null && series.y.measure !== undefined && e.height !== null && e.height !== undefined) {
+                    rows.push(series.y.measure + ": " + series.y._getFormat()(e.height));
+                }
+            }
+
+            if (series.z !== null && series.z !== undefined) {
+                // Add the axis measure value
+                if (series.z.measure !== null && series.z.measure !== undefined && e.zValue !== null && e.zValue !== undefined) {
+                    rows.push(series.z.measure + ": " + series.z._getFormat()(e.zValue));
+                }
             }
 
             if (series.c !== null && series.c !== undefined) {
                 // Add the axis measure value
-                rows.push(series.c.measure + ": " + series.c._getFormat()(series.c.showPercent ? e.cPct : e.cValue));
+                if (series.c.measure !== null && series.c.measure !== undefined && e.cValue !== null && e.cValue !== undefined) {
+                    rows.push(series.c.measure + ": " + series.c._getFormat()(e.cValue));
+                }
             }
 
             // Get distinct text rows to deal with cases where 2 axes have the same dimensionality
@@ -3303,44 +3347,62 @@ var dimple = {
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
                 series.categoryFields.forEach(function (c, i) {
-                    // If the category name and value match don't display the category name
-                    rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
+                    if (c !== null && c !== undefined && e.aggField[i] !== null && e.aggField[i] !== undefined) {
+                        // If the category name and value match don't display the category name
+                        rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
+                    }
                 }, this);
             }
 
             if (series.x._hasTimeField()) {
-                rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
+                if (e.xField[0] !== null && e.xField[0] !== undefined) {
+                    rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
+                }
             } else if (series.x._hasCategories()) {
                 // Add the x axis categories
                 series.x.categoryFields.forEach(function (c, i) {
-                    // If the category name and value match don't display the category name
-                    rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
+                    if (c !== null && c !== undefined && e.xField[i] !== null && e.xField[i] !== undefined) {
+                        // If the category name and value match don't display the category name
+                        rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
+                    }
                 }, this);
             } else {
                 // Add the axis measure value
-                rows.push(series.x.measure + ": " + series.x._getFormat()(e.cx));
+                if (series.x.measure !== null && series.x.measure !== undefined && e.width !== null && e.width !== undefined) {
+                    rows.push(series.x.measure + ": " + series.x._getFormat()(e.width));
+                }
             }
 
             if (series.y._hasTimeField()) {
-                rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
+                if (e.yField[0] !== null && e.yField[0] !== undefined) {
+                    rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
+                }
             } else if (series.y._hasCategories()) {
                 // Add the y axis categories
                 series.y.categoryFields.forEach(function (c, i) {
-                    rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
+                    if (c !== null && c !== undefined && e.yField[i] !== null && e.yField[i] !== undefined) {
+                        rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
+                    }
                 }, this);
             } else {
                 // Add the axis measure value
-                rows.push(series.y.measure + ": " + series.y._getFormat()(e.cy));
+                if (series.y.measure !== null && series.y.measure !== undefined && e.height !== null && e.height !== undefined) {
+                    rows.push(series.y.measure + ": " + series.y._getFormat()(e.height));
+                }
             }
 
             if (series.z !== null && series.z !== undefined) {
                 // Add the axis measure value
-                rows.push(series.z.measure + ": " + series.z._getFormat()(e.zValue));
+                if (series.z.measure !== null && series.z.measure !== undefined && e.zValue !== null && e.zValue !== undefined) {
+                    rows.push(series.z.measure + ": " + series.z._getFormat()(e.zValue));
+                }
             }
 
             if (series.c !== null && series.c !== undefined) {
                 // Add the axis measure value
-                rows.push(series.c.measure + ": " + series.c._getFormat()(e.cValue));
+                if (series.c.measure !== null && series.c.measure !== undefined && e.cValue !== null && e.cValue !== undefined) {
+                    rows.push(series.c.measure + ": " + series.c._getFormat()(e.cValue));
+                }
             }
 
             // Get distinct text rows to deal with cases where 2 axes have the same dimensionality
@@ -3686,50 +3748,62 @@ var dimple = {
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
                 series.categoryFields.forEach(function (c, i) {
-                    // If the category name and value match don't display the category name
-                    rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
+                    if (c !== null && c !== undefined && e.aggField[i] !== null && e.aggField[i] !== undefined) {
+                        // If the category name and value match don't display the category name
+                        rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
+                    }
                 }, this);
             }
 
             if (series.x._hasTimeField()) {
-                rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
+                if (e.xField[0] !== null && e.xField[0] !== undefined) {
+                    rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
+                }
             } else if (series.x._hasCategories()) {
                 // Add the x axis categories
                 series.x.categoryFields.forEach(function (c, i) {
-                    // If the category name and value match don't display the category name
-                    rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
+                    if (c !== null && c !== undefined && e.xField[i] !== null && e.xField[i] !== undefined) {
+                        // If the category name and value match don't display the category name
+                        rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
+                    }
                 }, this);
-            } else if (series.x.useLog) {
-                // Add the y axis log
-                rows.push(series.x.measure + ": " + e.cx);
             } else {
                 // Add the axis measure value
-                rows.push(series.x.measure + ": " + series.x._getFormat()(e.cx));
+                if (series.x.measure !== null && series.x.measure !== undefined && e.width !== null && e.width !== undefined) {
+                    rows.push(series.x.measure + ": " + series.x._getFormat()(e.width));
+                }
             }
 
             if (series.y._hasTimeField()) {
-                rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
+                if (e.yField[0] !== null && e.yField[0] !== undefined) {
+                    rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
+                }
             } else if (series.y._hasCategories()) {
                 // Add the y axis categories
                 series.y.categoryFields.forEach(function (c, i) {
-                    rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
+                    if (c !== null && c !== undefined && e.yField[i] !== null && e.yField[i] !== undefined) {
+                        rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
+                    }
                 }, this);
-            } else if (series.y.useLog) {
-                // Add the y axis log
-                rows.push(series.y.measure + ": " + e.cy);
             } else {
                 // Add the axis measure value
-                rows.push(series.y.measure + ": " + series.y._getFormat()(e.cy));
+                if (series.y.measure !== null && series.y.measure !== undefined && e.height !== null && e.height !== undefined) {
+                    rows.push(series.y.measure + ": " + series.y._getFormat()(e.height));
+                }
             }
 
             if (series.z !== null && series.z !== undefined) {
                 // Add the axis measure value
-                rows.push(series.z.measure + ": " + series.z._getFormat()(e.zValue));
+                if (series.z.measure !== null && series.z.measure !== undefined && e.zValue !== null && e.zValue !== undefined) {
+                    rows.push(series.z.measure + ": " + series.z._getFormat()(e.zValue));
+                }
             }
 
             if (series.c !== null && series.c !== undefined) {
                 // Add the axis measure value
-                rows.push(series.c.measure + ": " + series.c._getFormat()(e.cValue));
+                if (series.c.measure !== null && series.c.measure !== undefined && e.cValue !== null && e.cValue !== undefined) {
+                    rows.push(series.c.measure + ": " + series.c._getFormat()(e.cValue));
+                }
             }
 
             // Get distinct text rows to deal with cases where 2 axes have the same dimensionality

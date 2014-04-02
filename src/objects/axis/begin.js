@@ -46,6 +46,8 @@
         this.useLog = false;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-logBase
         this.logBase = 10;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-title
+        this.title = undefined;
 
         // If this is a slave axis to a master composite axis, this stores a reference to the master
         this._master = null;
