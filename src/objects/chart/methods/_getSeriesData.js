@@ -110,17 +110,26 @@
                             aggField = [],
                             key,
                             k,
+                            i,
                             newRow,
                             updateData;
+
                         if (series.categoryFields === null || series.categoryFields === undefined || series.categoryFields.length === 0) {
                             aggField = ["All"];
-                        } else if (series.categoryFields.length === 1 && d[series.categoryFields[0]] === undefined) {
-                            aggField = [series.categoryFields[0]];
                         } else {
-                            series.categoryFields.forEach(function (cat) {
-                                aggField.push(d[cat]);
-                            }, this);
+                            // Iterate the category fields
+                            for (i = 0; i < series.categoryFields.length; i += 1) {
+                                // Either add the value of the field or the name itself.  This allows users to add custom values, for example
+                                // Setting a particular color for a set of values can be done by using a non-existent final value and then coloring
+                                // by it
+                                if (d[series.categoryFields[i]] === undefined) {
+                                    aggField.push(series.categoryFields[i]);
+                                } else {
+                                    aggField.push(d[series.categoryFields[i]]);
+                                }
+                            }
                         }
+
                         // Add a key
                         key = aggField.join("/") + "_" + xField.join("/") + "_" + yField.join("/") + "_" + zField.join("/");
                         // See if this field has already been added. 

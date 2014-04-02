@@ -37,8 +37,8 @@
             // Get the axis position based on the axis index
             this.chart.axes.forEach(function (axis) {
                 if (axis.position === "x" && !this.x.hidden) {
-                    if (axis === this.x) {
-                        // Set the y co-ordinate for the x axis 
+                    if (this._deepMatch(axis)) {
+                        // Set the y co-ordinate for the x axis
                         if (xIndex === 0) {
                             coord.y = firstOrig.y;
                         } else if (xIndex === 1) {
@@ -47,7 +47,7 @@
                     }
                     xIndex += 1;
                 } else if (axis.position === "y" && !this.y.hidden) {
-                    if (axis === this.y) {
+                    if (this._deepMatch(axis)) {
                         // Set the x co-ordinate for the y axis 
                         if (yIndex === 0) {
                             coord.x = firstOrig.x;

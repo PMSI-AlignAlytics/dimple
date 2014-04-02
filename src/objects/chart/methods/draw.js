@@ -14,7 +14,8 @@
                 chartX = this._xPixels(),
                 chartY = this._yPixels(),
                 chartWidth = this._widthPixels(),
-                chartHeight = this._heightPixels();
+                chartHeight = this._heightPixels(),
+                linkedDimensions = [];
 
             // Many of the draw methods use positioning data in each series.  Therefore we should
             // decorate the series with it now
@@ -34,7 +35,7 @@
                     // Find any linked series
                     this.series.forEach(function (series) {
                         // if this axis is linked
-                        if (series[axis.position] === axis) {
+                        if (series._deepMatch(axis)) {
                             // Get the bounds
                             var bounds = series._axisBounds(axis.position);
                             if (axis._min > bounds.min) { axis._min = bounds.min; }
@@ -75,8 +76,13 @@
                     }, this);
                     axis._max = distinctCats.length;
                 }
-
-
+                // Set the bounds on all slaves
+                if (axis._slaves !== null && axis._slaves !== undefined && axis._slaves.length > 0) {
+                    axis._slaves.forEach(function (slave) {
+                        slave._min = axis._min;
+                        slave._max = axis._max;
+                    }, this);
+                }
                 // Update the axis now we have all information set
                 axis._update();
 
@@ -298,15 +304,16 @@
                     rotate = "rotate(270, " + titleX + ", " + titleY + ")";
                 }
 
-                // Add a title for the axis
-                if (!axis.hidden && (axis.position === "x" || axis.position === "y")) {
+                // Add a title for the axis - NB check for null here, by default the title is undefined, in which case
+                // use the dimension name
+                if (!axis.hidden && (axis.position === "x" || axis.position === "y") && axis.title !== null) {
                     axis.titleShape = this._group.append("text").attr("class", "axis title");
                     axis.titleShape
                         .attr("x", titleX)
                         .attr("y", titleY)
                         .attr("text-anchor", "middle")
                         .attr("transform", rotate)
-                        .text((axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
+                        .text(axis.title !== undefined ? axis.title : (axis.categoryFields === null || axis.categoryFields === undefined || axis.categoryFields.length === 0 ? axis.measure : axis.categoryFields.join("/")))
                         .each(function () {
                             if (!chart.noFormats) {
                                 d3.select(this)
