@@ -1,4 +1,4 @@
-Copyright 2013 PMSI-AlignAlytics
+Copyright 2014 PMSI-AlignAlytics
 www.pmsi-consulting.com
 
 Permission is hereby granted, free of charge, to any person obtaining

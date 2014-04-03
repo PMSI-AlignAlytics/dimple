@@ -1,4 +1,4 @@
-    // Copyright: 2013 PMSI-AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_rollUp.js
     dimple._rollUp = function (data, fields, includeFields) {
