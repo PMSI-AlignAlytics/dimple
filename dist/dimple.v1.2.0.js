@@ -2905,7 +2905,7 @@ var dimple = {
                 h = (this.getBBox().width > h ? this.getBBox().height : h);
             });
 
-            // Position the text relatve to the bubble, the absolute positioning
+            // Position the text relative to the bubble, the absolute positioning
             // will be done by translating the group
             t.selectAll("text")
                 .attr("x", 0)
@@ -2969,7 +2969,18 @@ var dimple = {
                 chartData = series._positionData,
                 // If the series is uninitialised create placeholders, otherwise use the existing shapes
                 theseShapes = null,
-                className = "series" + chart.series.indexOf(series);
+                className = "series" + chart.series.indexOf(series),
+                addTransition = function (input, duration) {
+                    var returnShape = null;
+                    if (duration === 0) {
+                        returnShape = input;
+                    } else {
+                        returnShape = input.transition().duration(duration);
+                    }
+                    return returnShape;
+                },
+                updated,
+                removed;
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
                 chart._tooltipGroup.remove();
@@ -3011,8 +3022,7 @@ var dimple = {
                 });
 
             // Update
-            theseShapes
-                .transition().duration(duration)
+            updated = addTransition(theseShapes, duration)
                 .attr("x", function (d) { return dimple._helpers.x(d, chart, series); })
                 .attr("y", function (d) { return dimple._helpers.y(d, chart, series); })
                 .attr("width", function (d) { return dimple._helpers.width(d, chart, series); })
@@ -3025,16 +3035,30 @@ var dimple = {
                 });
 
             // Remove
-            theseShapes
-                .exit()
-                .transition().duration(duration)
+            removed = addTransition(theseShapes.exit(), duration)
                 .attr("x", function (d) { return dimple._helpers.x(d, chart, series); })
                 .attr("y", function (d) { return dimple._helpers.y(d, chart, series); })
                 .attr("width", function (d) { return dimple._helpers.width(d, chart, series); })
-                .attr("height", function (d) { return dimple._helpers.height(d, chart, series); })
-                .each("end", function () {
+                .attr("height", function (d) { return dimple._helpers.height(d, chart, series); });
+
+            // Run after transition methods
+            if (duration === 0) {
+                updated.each(function (d, i) {
+                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
+                        series.afterDraw(this, d, i);
+                    }
+                });
+                removed.remove();
+            } else {
+                updated.each("end", function (d, i) {
+                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
+                        series.afterDraw(this, d, i);
+                    }
+                });
+                removed.each("end", function () {
                     d3.select(this).remove();
                 });
+            }
 
             // Save the shapes to the series array
             series.shapes = theseShapes;
