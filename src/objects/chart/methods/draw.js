@@ -23,6 +23,11 @@
                 this._getSeriesData();
             }
 
+            // Clear all scales, this is required to fix Issue #67
+            this.axes.forEach(function (axis) {
+                axis._scale = null;
+            }, this);
+
             // Iterate the axes and calculate bounds, this is done within the chart because an
             // axis' bounds are determined by other axes and the way that series tie them together
             this.axes.forEach(function (axis) {
