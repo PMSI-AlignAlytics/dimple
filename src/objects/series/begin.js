@@ -30,6 +30,8 @@
         this.lineWeight = 2;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-lineMarkers
         this.lineMarkers = false;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-afterDraw
+        this.afterDraw = null;
 
         // Any event handlers joined to this series
         this._eventHandlers = [];

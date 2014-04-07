@@ -69,7 +69,7 @@
                         // Concat is used here to break the reference to the parent array, if we don't do this, in a storyboarded chart,
                         // the series rules to grow and grow until the system grinds to a halt trying to deal with them all.
                         rules = [].concat(series._orderRules);
-                        seriesCat = series.categoryFields[0];
+                        seriesCat = series.categoryFields;
                         if (series.c !== null && series.c !== undefined && series.c._hasMeasure()) {
                             rules.push({ ordering : series.c.measure, desc : true });
                         } else if (series.z !== null && series.z !== undefined && series.z._hasMeasure()) {
@@ -83,7 +83,12 @@
                     }
 
                     sortedData.sort(function (a, b) {
-                        var returnValue = 0;
+                        var returnValue = 0,
+                            cats,
+                            p,
+                            q,
+                            aMatch,
+                            bMatch;
                         if (storyCat !== "") {
                             returnValue = orderedStoryboardArray.indexOf(a[storyCat]) - orderedStoryboardArray.indexOf(b[storyCat]);
                         }
@@ -93,8 +98,27 @@
                         if (yCat !== "" && returnValue === 0) {
                             returnValue = ySortArray.indexOf(a[yCat]) - ySortArray.indexOf(b[yCat]);
                         }
-                        if (seriesCat !== "" && returnValue === 0) {
-                            returnValue = orderedSeriesArray.indexOf(a[seriesCat]) - orderedSeriesArray.indexOf(b[seriesCat]);
+                        if (seriesCat !== null && seriesCat !== undefined && seriesCat.length > 0) {
+                            cats = [].concat(seriesCat);
+                            returnValue = 0;
+                            for (p = 0; p < orderedSeriesArray.length; p += 1) {
+                                aMatch = true;
+                                bMatch = true;
+                                for (q = 0; q < cats.length; q += 1) {
+                                    aMatch = aMatch && (a[cats[q]] === orderedSeriesArray[p][q]);
+                                    bMatch = bMatch && (b[cats[q]] === orderedSeriesArray[p][q]);
+                                }
+                                if (aMatch && bMatch) {
+                                    returnValue = 0;
+                                    break;
+                                } else if (aMatch) {
+                                    returnValue = -1;
+                                    break;
+                                } else if (bMatch) {
+                                    returnValue = 1;
+                                    break;
+                                }
+                            }
                         }
                         return returnValue;
                     });
@@ -197,11 +221,7 @@
                             if (axis !== null && axis !== undefined) {
                                 if (passStoryCheck) {
                                     retRow = returnData[foundIndex];
-                                    if (axis._hasMeasure()) {
-                                        // Treat undefined values as zero
-                                        if (d[axis.measure] === undefined) {
-                                            d[axis.measure] = 0;
-                                        }
+                                    if (axis._hasMeasure() && d[axis.measure] !== null && d[axis.measure] !== undefined) {
                                         // Keep a distinct list of values to calculate a distinct count in the case of a non-numeric value being found
                                         if (retRow[axis.position + "ValueList"].indexOf(d[axis.measure]) === -1) {
                                             retRow[axis.position + "ValueList"].push(d[axis.measure]);

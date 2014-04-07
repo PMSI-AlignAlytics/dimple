@@ -2,17 +2,18 @@
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/chart/methods/_getOrderedList.js
     dimple._getOrderedList = function (data, mainField, levelDefinitions) {
-        var rollupData = [],
+        var rollupData,
             sortStack = [],
             finalArray = [],
-            fields = [mainField],
+            mainArray = [].concat(mainField),
+            fields = [].concat(mainField),
             defs = [];
         // Force the level definitions into an array
         if (levelDefinitions !== null && levelDefinitions !== undefined) {
             defs = defs.concat(levelDefinitions);
         }
         // Add the base case
-        defs = defs.concat({ ordering: mainField, desc: false });
+        defs = defs.concat({ ordering: mainArray, desc: false });
         // Exclude fields if this does not contain a function
         defs.forEach(function (def) {
             var field;
@@ -26,7 +27,7 @@
                 fields.push(def.ordering);
             }
         }, this);
-        rollupData = dimple._rollUp(data, mainField, fields);
+        rollupData = dimple._rollUp(data, mainArray, fields);
         // If we go below the leaf stop recursing
         if (defs.length >= 1) {
             // Build a stack of compare methods
@@ -81,10 +82,19 @@
                     }, this);
                     // Sort according to the axis position
                     sortStack.push(function (a, b) {
-                        var aStr = "".concat(a[mainField]),
-                            bStr = "".concat(b[mainField]),
+                        var aStr = "",
+                            bStr = "",
                             aIx,
-                            bIx;
+                            bIx,
+                            i;
+                        for (i = 0; i < mainArray.length; i += 1) {
+                            if (i > 0) {
+                                aStr += "|";
+                                bStr += "|";
+                            }
+                            aStr += a[mainArray[i]];
+                            bStr += b[mainArray[i]];
+                        }
                         // If the value is not found it should go to the end (if descending it
                         // should go to the start so that it ends up at the back when reversed)
                         aIx = orderArray.indexOf(aStr);
@@ -119,7 +129,16 @@
             // Return a simple array if only one field is being returned.
             // for multiple fields remove extra fields but leave objects
             rollupData.forEach(function (d) {
-                finalArray.push(d[mainField]);
+                var i,
+                    newRow = [];
+                if (mainArray.length === 1) {
+                    finalArray.push(d[mainArray[0]]);
+                } else {
+                    for (i = 0; i < mainArray.length; i += 1) {
+                        newRow.push(d[mainArray[i]]);
+                    }
+                    finalArray.push(newRow);
+                }
             }, this);
         }
         // Return the ordered list
