@@ -3667,6 +3667,7 @@ var dimple = {
 
             // Get self pointer for inner functions
             var self = this,
+                sourceData = series.data || chart.data,
                 data = series._positionData,
                 fillIns = [],
                 uniqueValues = [],
@@ -3675,6 +3676,7 @@ var dimple = {
                 firstAgg = 1,
                 graded = false,
                 seriesClass = "series" + chart.series.indexOf(series),
+                orderedSeriesArray = dimple._getOrderedList(sourceData,  series.categoryFields, [].concat(series._orderRules)),
                 line,
                 markers,
                 markerBacks;
@@ -3724,6 +3726,7 @@ var dimple = {
                         .append("svg:path")
                             .attr("opacity", function(d) { return chart.getColor(d).opacity; });
             }
+
             series.shapes
                 .data(uniqueValues)
                 .transition().duration(duration)
@@ -3741,11 +3744,36 @@ var dimple = {
                         }
                     }, this);
                     seriesData.sort(function (a, b) {
-                        var sortValue = 0;
+                        var sortValue = 0,
+                            p,
+                            q,
+                            aMatch,
+                            bMatch;
                         if (series.x._hasCategories()) {
                             sortValue = (dimple._helpers.cx(a, chart, series) < dimple._helpers.cx(b, chart, series) ? -1 : 1);
                         } else if (series.y._hasCategories()) {
                             sortValue = (dimple._helpers.cy(a, chart, series) < dimple._helpers.cy(b, chart, series) ? -1 : 1);
+                        } else if (orderedSeriesArray !== null && orderedSeriesArray !== undefined) {
+                            for (p = 0; p < orderedSeriesArray.length; p += 1) {
+                                aMatch = true;
+                                bMatch = true;
+                                for (q = 0; q < a.aggField.length; q += 1) {
+                                    aMatch = aMatch && (a.aggField[q] === orderedSeriesArray[p][q]);
+                                }
+                                for (q = 0; q < b.aggField.length; q += 1) {
+                                    bMatch = bMatch && (b.aggField[q] === orderedSeriesArray[p][q]);
+                                }
+                                if (aMatch && bMatch) {
+                                    sortValue = 0;
+                                    break;
+                                } else if (aMatch) {
+                                    sortValue = -1;
+                                    break;
+                                } else if (bMatch) {
+                                    sortValue = 1;
+                                    break;
+                                }
+                            }
                         }
                         return sortValue;
                     });
