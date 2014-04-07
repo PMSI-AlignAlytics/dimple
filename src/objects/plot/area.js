@@ -13,6 +13,7 @@
                 uniqueValues = [],
                 firstAgg = 1,
                 graded = false,
+                seriesClass = "series" + chart.series.indexOf(series),
                 line,
                 catPoints = {},
                 markers,
@@ -55,7 +56,7 @@
                     .y(function (d) { return dimple._helpers.cy(d, chart, series); });
 
             if (series.shapes === null || series.shapes === undefined) {
-                series.shapes = chart._group.selectAll(".area")
+                series.shapes = chart._group.selectAll(".area." + seriesClass)
                     .data(uniqueValues)
                     .enter()
                         .append("svg:path")
@@ -66,7 +67,7 @@
                 .data(uniqueValues)
                 .transition()
                 .duration(duration)
-                .attr("class", function (d) { return "series area " + d.split(" ").join("_"); })
+                .attr("class", function (d) { return seriesClass + " series area " + d.split(" ").join("_"); })
                 .attr("d", function (d) {
                     var seriesData,
                         baseline = [],
@@ -150,7 +151,7 @@
 
             if (series.lineMarkers) {
                 if (series._markerBacks === null || series._markerBacks === undefined) {
-                    markerBacks = chart._group.selectAll(".markerBacks").data(data);
+                    markerBacks = chart._group.selectAll(".markerBacks." + seriesClass).data(data);
                 } else {
                     markerBacks = series._markerBacks.data(data, function (d) { return d.key; });
                 }
@@ -159,7 +160,7 @@
                     .enter()
                     .append("circle")
                     .attr("id", function (d) { return d.key; })
-                    .attr("class", "markerBacks")
+                    .attr("class", "markerBacks "  + seriesClass)
                     .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
                     .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
                     .attr("r", 0)
@@ -185,7 +186,7 @@
 
             // Deal with markers in the same way as main series to fix #28
             if (series._markers === null || series._markers === undefined) {
-                markers = chart._group.selectAll(".markers").data(data);
+                markers = chart._group.selectAll(".markers." + seriesClass).data(data);
             } else {
                 markers = series._markers.data(data, function (d) { return d.key; });
             }
@@ -197,7 +198,7 @@
                 .enter()
                 .append("circle")
                 .attr("id", function (d) { return d.key; })
-                .attr("class", "markers")
+                .attr("class", "markers " + seriesClass)
                 .on("mouseover", function (e) {
                     self.enterEventHandler(e, this, chart, series);
                 })
@@ -435,7 +436,7 @@
                 h = (this.getBBox().width > h ? this.getBBox().height : h);
             });
 
-            // Position the text relatve to the bubble, the absolute positioning
+            // Position the text relative to the bubble, the absolute positioning
             // will be done by translating the group
             t.selectAll("text")
                 .attr("x", 0)
