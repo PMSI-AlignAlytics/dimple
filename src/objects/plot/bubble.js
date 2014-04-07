@@ -18,7 +18,18 @@
                 chartData = series._positionData,
                 // If the series is uninitialised create placeholders, otherwise use the existing shapes
                 theseShapes = null,
-                className = "series" + chart.series.indexOf(series);
+                className = "series" + chart.series.indexOf(series),
+                addTransition = function (input, duration) {
+                    var returnShape = null;
+                    if (duration === 0) {
+                        returnShape = input;
+                    } else {
+                        returnShape = input.transition().duration(duration);
+                    }
+                    return returnShape;
+                },
+                updated,
+                removed;
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
                 chart._tooltipGroup.remove();
@@ -64,8 +75,7 @@
                 });
 
             // Update
-            theseShapes
-                .transition().duration(duration)
+            updated = addTransition(theseShapes, duration)
                 .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
                 .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
                 .attr("r", function (d) { return dimple._helpers.r(d, chart, series); })
@@ -77,19 +87,33 @@
                 });
 
             // Remove
-            theseShapes
-                .exit()
-                .transition().duration(duration)
+            removed = addTransition(theseShapes.exit(), duration)
                 .attr("r", 0)
                 .attr("cx", function (d) {
                     return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin);
                 })
                 .attr("cy", function (d) {
                     return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin);
-                })
-                .each("end", function () {
+                });
+
+            // Run after transition methods
+            if (duration === 0) {
+                updated.each(function (d, i) {
+                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
+                        series.afterDraw(this, d, i);
+                    }
+                });
+                removed.remove();
+            } else {
+                updated.each("end", function (d, i) {
+                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
+                        series.afterDraw(this, d, i);
+                    }
+                });
+                removed.each("end", function () {
                     d3.select(this).remove();
                 });
+            }
 
             // Save the shapes to the series array
             series.shapes = theseShapes;
