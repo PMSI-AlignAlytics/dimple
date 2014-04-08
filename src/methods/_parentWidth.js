@@ -19,7 +19,7 @@
                 returnValue = 0;
             } else {
                 // Get the size from the parent recursively
-                returnValue = dimple._parseXPosition(d3.select(parent).attr("width"), parent.parentNode);
+                returnValue = dimple._parentWidth(parent.parentNode);
             }
         }
         return returnValue;

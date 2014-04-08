@@ -4547,7 +4547,7 @@ var dimple = {
                 returnValue = 0;
             } else {
                 // Get the size from the parent recursively
-                returnValue = dimple._parseYPosition(d3.select(parent).attr("height"), parent.parentNode);
+                returnValue = dimple._parentHeight(parent.parentNode);
             }
         }
         return returnValue;
@@ -4574,7 +4574,7 @@ var dimple = {
                 returnValue = 0;
             } else {
                 // Get the size from the parent recursively
-                returnValue = dimple._parseXPosition(d3.select(parent).attr("width"), parent.parentNode);
+                returnValue = dimple._parentWidth(parent.parentNode);
             }
         }
         return returnValue;
@@ -4585,20 +4585,23 @@ var dimple = {
     // Source: /src/methods/_parseXPosition.js
     dimple._parseXPosition = function (value, parent) {
         var returnValue = 0,
+            values;
+        if (value !== null && value !== undefined) {
             values = value.toString().split(",");
-        values.forEach(function (v) {
-            if (v !== undefined && v !== null) {
-                if (!isNaN(v)) {
-                    returnValue += parseFloat(v);
-                } else if (v.slice(-1) === "%") {
-                    returnValue += dimple._parentWidth(parent) * (parseFloat(v.slice(0, v.length - 1)) / 100);
-                } else if (v.slice(-2) === "px") {
-                    returnValue += parseFloat(v.slice(0, v.length - 2));
-                } else {
-                    returnValue = value;
+            values.forEach(function (v) {
+                if (v !== undefined && v !== null) {
+                    if (!isNaN(v)) {
+                        returnValue += parseFloat(v);
+                    } else if (v.slice(-1) === "%") {
+                        returnValue += dimple._parentWidth(parent) * (parseFloat(v.slice(0, v.length - 1)) / 100);
+                    } else if (v.slice(-2) === "px") {
+                        returnValue += parseFloat(v.slice(0, v.length - 2));
+                    } else {
+                        returnValue = value;
+                    }
                 }
-            }
-        }, this);
+            }, this);
+        }
         return returnValue;
     };
 
@@ -4607,20 +4610,23 @@ var dimple = {
     // Source: /src/methods/_parseYPosition.js
     dimple._parseYPosition = function (value, parent) {
         var returnValue = 0,
+            values;
+        if (value !== null && value !== undefined) {
             values = value.toString().split(",");
-        values.forEach(function (v) {
-            if (v !== undefined && v !== null) {
-                if (!isNaN(v)) {
-                    returnValue += parseFloat(v);
-                } else if (v.slice(-1) === "%") {
-                    returnValue += dimple._parentHeight(parent) * (parseFloat(v.slice(0, v.length - 1)) / 100);
-                } else if (v.slice(-2) === "px") {
-                    returnValue += parseFloat(v.slice(0, v.length - 2));
-                } else {
-                    returnValue = value;
+            values.forEach(function (v) {
+                if (v !== undefined && v !== null) {
+                    if (!isNaN(v)) {
+                        returnValue += parseFloat(v);
+                    } else if (v.slice(-1) === "%") {
+                        returnValue += dimple._parentHeight(parent) * (parseFloat(v.slice(0, v.length - 1)) / 100);
+                    } else if (v.slice(-2) === "px") {
+                        returnValue += parseFloat(v.slice(0, v.length - 2));
+                    } else {
+                        returnValue = value;
+                    }
                 }
-            }
-        }, this);
+            }, this);
+        }
         return returnValue;
     };
 
