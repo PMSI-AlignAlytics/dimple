@@ -3666,6 +3666,7 @@ var dimple = {
         draw: function (chart, series, duration) {
             // Get the position data
             var data = series._positionData,
+                self = this,
                 lineData = [],
                 theseShapes = null,
                 className = "series" + chart.series.indexOf(series),
@@ -3766,13 +3767,13 @@ var dimple = {
                         if (chart._group.selectAll("." + markerBackClasses.join("."))[0].length === 0) {
                             markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.data);
                         } else {
-                            markerBacks = series._markerBacks.data(lineDataRow.data, function (d) { return d.key; });
+                            markerBacks = series._markerBacks.data(lineDataRow.data, function (d) { return d.keyString; });
                         }
                         // Add
                         markerBacks
                             .enter()
                             .append("circle")
-                            .attr("id", function (d) { return d.key; })
+                            .attr("id", function (d) { return d.keyString; })
                             .attr("class", markerBackClasses.join(" "))
                             .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
                             .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
@@ -3801,6 +3802,74 @@ var dimple = {
 
                         series._markerBacks = markerBacks;
                     }
+                },
+                // Add the actual marker. We need to do this even if we aren't displaying them because they
+                // catch hover events
+                drawMarkers = function (lineDataRow) {
+                    var markers,
+                        markerClasses = ["markers", className, lineDataRow.keyString],
+                        rem;
+                    // Deal with markers in the same way as main series to fix #28
+                    if (chart._group.selectAll("." + markerClasses.join("."))[0].length === 0) {
+                        markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.data);
+                    } else {
+                        markers = series._markers.data(lineDataRow.data, function (d) { return d.keyString; });
+                    }
+                    // Add
+                    markers
+                        .enter()
+                        .append("circle")
+                        .attr("id", function (d) { return d.keyString; })
+                        .attr("class", markerClasses.join(" "))
+                        .on("mouseover", function (e) {
+                            self.enterEventHandler(e, this, chart, series);
+                        })
+                        .on("mouseleave", function (e) {
+                            self.leaveEventHandler(e, this, chart, series);
+                        })
+                        .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
+                        .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
+                        .attr("r", 0)
+                        .attr("opacity", function (d) { return (series.lineMarkers ? chart.getColor(d).opacity : 0); })
+                        .call(function () {
+                            if (!chart.noFormats) {
+                                this.attr("fill", "white")
+                                    .style("stroke-width", series.lineWeight)
+                                    .attr("stroke", function (d) {
+                                        return (graded ? dimple._helpers.fill(d, chart, series) : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
+                                    });
+                            }
+                        });
+
+                    // Update
+                    addTransition(markers, duration)
+                        .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
+                        .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
+                        .attr("r", 2 + series.lineWeight)
+                        .call(function () {
+                            if (!chart.noFormats) {
+                                this.attr("fill", "white")
+                                    .style("stroke-width", series.lineWeight)
+                                    .attr("stroke", function (d) {
+                                        return (graded ? dimple._helpers.fill(d, chart, series) : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
+                                    });
+                            }
+                        });
+
+                    // Remove
+                    rem = addTransition(markers.exit(), duration)
+                        .attr("r", 0);
+
+                    // Run after transition methods
+                    if (duration === 0) {
+                        rem.remove();
+                    } else {
+                        rem.each("end", function () {
+                            d3.select(this).remove();
+                        });
+                    }
+
+                    series._markers = markers;
                 },
                 updated,
                 removed;
@@ -3886,12 +3955,14 @@ var dimple = {
                             .attr("stroke-width", series.lineWeight);
                     }
                 })
-                .each(drawMarkerBacks);
+                .each(drawMarkerBacks)
+                .each(drawMarkers);
 
             // Update
             updated = addTransition(theseShapes, duration)
                 .attr("d", function (d) { return d.line; })
-                .each(drawMarkerBacks);
+                .each(drawMarkerBacks)
+                .each(drawMarkers);
 
             // Remove
             removed = addTransition(theseShapes.exit(), duration)
