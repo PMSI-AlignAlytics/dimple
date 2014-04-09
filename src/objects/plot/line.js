@@ -13,8 +13,6 @@
                 // If there is a category axis we should draw a line for each aggField.  Otherwise
                 // the first aggField defines the points and the others define the line
                 firstAgg = (series.x._hasCategories() || series.y._hasCategories() ? 0 : 1),
-                // Get the array of ordered values
-                orderedSeriesArray = dimple._getOrderedList(series.data || chart.data,  series.categoryFields, [].concat(series._orderRules)),
                 // Build the point calculator
                 lineCoords = d3.svg.line()
                     .x(function (d) { return dimple._helpers.cx(d, chart, series); })
@@ -29,37 +27,66 @@
                 key,
                 keyString,
                 rowIndex,
-                sortFunction = function (a, b) {
-                    var sortValue = 0,
+                getSeriesOrder = function (d, s) {
+                    var rules = [].concat(series._orderRules),
+                        cats = s.categoryFields,
+                        returnValue = [];
+                    if (cats !== null && cats !== undefined && cats.length > 0) {
+                        // Concat is used here to break the reference to the parent array, if we don't do this, in a storyboarded chart,
+                        // the series rules to grow and grow until the system grinds to a halt trying to deal with them all.
+                        if (s.c !== null && s.c !== undefined && s.c._hasMeasure()) {
+                            rules.push({ ordering : s.c.measure, desc : true });
+                        }
+                        if (s.x._hasMeasure()) {
+                            rules.push({ ordering : s.x.measure, desc : true });
+                        }
+                        if (s.y._hasMeasure()) {
+                            rules.push({ ordering : s.y.measure, desc : true });
+                        }
+                        returnValue = dimple._getOrderedList(d, cats, rules);
+                    }
+                    return returnValue;
+                },
+                // Get the array of ordered values
+                orderedSeriesArray = getSeriesOrder(series.data || chart.data, series),
+                arrayIndexCompare = function (array, a, b) {
+                    var returnValue,
                         p,
                         q,
                         aMatch,
-                        bMatch;
+                        bMatch,
+                        rowArray;
+                    for (p = 0; p < array.length; p += 1) {
+                        aMatch = true;
+                        bMatch = true;
+                        rowArray = [].concat(array[p]);
+                        for (q = 0; q < a.length; q += 1) {
+                            aMatch = aMatch && (a[q] === rowArray[q]);
+                        }
+                        for (q = 0; q < b.length; q += 1) {
+                            bMatch = bMatch && (b[q] === rowArray[q]);
+                        }
+                        if (aMatch && bMatch) {
+                            returnValue = 0;
+                            break;
+                        } else if (aMatch) {
+                            returnValue = -1;
+                            break;
+                        } else if (bMatch) {
+                            returnValue = 1;
+                            break;
+                        }
+                    }
+                    return returnValue;
+                },
+                sortFunction = function (a, b) {
+                    var sortValue = 0;
                     if (series.x._hasCategories()) {
                         sortValue = (dimple._helpers.cx(a, chart, series) < dimple._helpers.cx(b, chart, series) ? -1 : 1);
                     } else if (series.y._hasCategories()) {
                         sortValue = (dimple._helpers.cy(a, chart, series) < dimple._helpers.cy(b, chart, series) ? -1 : 1);
                     } else if (orderedSeriesArray !== null && orderedSeriesArray !== undefined) {
-                        for (p = 0; p < orderedSeriesArray.length; p += 1) {
-                            aMatch = true;
-                            bMatch = true;
-                            for (q = 0; q < a.aggField.length; q += 1) {
-                                aMatch = aMatch && (a.aggField[q] === orderedSeriesArray[p][q]);
-                            }
-                            for (q = 0; q < b.aggField.length; q += 1) {
-                                bMatch = bMatch && (b.aggField[q] === orderedSeriesArray[p][q]);
-                            }
-                            if (aMatch && bMatch) {
-                                sortValue = 0;
-                                break;
-                            } else if (aMatch) {
-                                sortValue = -1;
-                                break;
-                            } else if (bMatch) {
-                                sortValue = 1;
-                                break;
-                            }
-                        }
+                        sortValue = arrayIndexCompare(orderedSeriesArray, a.aggField, b.aggField);
                     }
                     return sortValue;
                 },
@@ -71,6 +98,50 @@
                         returnShape = input.transition().duration(duration);
                     }
                     return returnShape;
+                },
+                drawMarkerBacks = function (lineDataRow) {
+                    var markerBacks,
+                        markerBackClasses = ["markerBacks", className, lineDataRow.keyString],
+                        rem;
+                    if (series.lineMarkers) {
+                        if (chart._group.selectAll("." + markerBackClasses.join("."))[0].length === 0) {
+                            markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.data);
+                        } else {
+                            markerBacks = series._markerBacks.data(lineDataRow.data, function (d) { return d.key; });
+                        }
+                        // Add
+                        markerBacks
+                            .enter()
+                            .append("circle")
+                            .attr("id", function (d) { return d.key; })
+                            .attr("class", markerBackClasses.join(" "))
+                            .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
+                            .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
+                            .attr("r", 0)
+                            .attr("fill", "white")
+                            .attr("stroke", "none");
+
+                        // Update
+                        addTransition(markerBacks, duration)
+                            .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
+                            .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
+                            .attr("r", 2 + series.lineWeight);
+
+                        // Remove
+                        rem = addTransition(markerBacks.exit(), duration)
+                            .attr("r", 0);
+
+                        // Run after transition methods
+                        if (duration === 0) {
+                            rem.remove();
+                        } else {
+                            rem.each("end", function () {
+                                d3.select(this).remove();
+                            });
+                        }
+
+                        series._markerBacks = markerBacks;
+                    }
                 },
                 updated,
                 removed;
@@ -88,7 +159,7 @@
                     key.push(data[i].aggField[k]);
                 }
                 // Find the corresponding row in the lineData
-                keyString = key.join("|");
+                keyString = key.join(" ").split(" ").join("_");
                 for (k = 0; k < lineData.length; k += 1) {
                     if (lineData[k].keyString === keyString) {
                         rowIndex = k;
@@ -102,6 +173,14 @@
                 }
                 // Add this row to the relevant data
                 lineData[rowIndex].data.push(data[i]);
+            }
+
+            // Sort the line data itself based on the order series array - this matters for stacked lines and default color
+            // consistency with colors usually awarded in terms of prominence
+            if (orderedSeriesArray !== null && orderedSeriesArray !== undefined) {
+                lineData.sort(function (a, b) {
+                    return arrayIndexCompare(orderedSeriesArray, a.key, b.key);
+                });
             }
 
             // Create a set of line data grouped by the aggregation field
@@ -134,23 +213,26 @@
                 .append("path")
                 .attr("id", function (d) { return d.key; })
                 .attr("class", function (d) {
-                    return className + " line " + d.key.join(" ").split(" ").join("_");
+                    return className + " line " + d.keyString;
                 })
                 .attr("d", function (d) {
                     return d.entry;
                 })
                 .call(function () {
+                    // Apply formats optionally
                     if (!chart.noFormats) {
                         this.attr("opacity", function (d) { return (graded ? 1 : chart.getColor(d.key[d.key.length - 1]).opacity); })
                             .attr("fill", "none")
                             .attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.key.keyString + ")" : chart.getColor(d.key[d.key.length - 1]).stroke); })
                             .attr("stroke-width", series.lineWeight);
                     }
-                });
+                })
+                .each(drawMarkerBacks);
 
             // Update
             updated = addTransition(theseShapes, duration)
-                .attr("d", function (d) { return d.line; });
+                .attr("d", function (d) { return d.line; })
+                .each(drawMarkerBacks);
 
             // Remove
             removed = addTransition(theseShapes.exit(), duration)
