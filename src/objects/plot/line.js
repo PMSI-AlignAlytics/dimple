@@ -5,6 +5,183 @@
         stacked: false,
         supportedAxes: ["x", "y", "c"],
         draw: function (chart, series, duration) {
+            // Get the position data
+            var data = series._positionData,
+                lineData = [],
+                theseShapes = null,
+                className = "series" + chart.series.indexOf(series),
+                // If there is a category axis we should draw a line for each aggField.  Otherwise
+                // the first aggField defines the points and the others define the line
+                firstAgg = (series.x._hasCategories() || series.y._hasCategories() ? 0 : 1),
+                // Get the array of ordered values
+                orderedSeriesArray = dimple._getOrderedList(series.data || chart.data,  series.categoryFields, [].concat(series._orderRules)),
+                // Build the point calculator
+                lineCoords = d3.svg.line()
+                    .x(function (d) { return dimple._helpers.cx(d, chart, series); })
+                    .y(function (d) { return dimple._helpers.cy(d, chart, series); }),
+                // Build the point calculator
+                entryCoords = d3.svg.line()
+                    .x(function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
+                    .y(function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); }),
+                graded = false,
+                i,
+                k,
+                key,
+                keyString,
+                rowIndex,
+                sortFunction = function (a, b) {
+                    var sortValue = 0,
+                        p,
+                        q,
+                        aMatch,
+                        bMatch;
+                    if (series.x._hasCategories()) {
+                        sortValue = (dimple._helpers.cx(a, chart, series) < dimple._helpers.cx(b, chart, series) ? -1 : 1);
+                    } else if (series.y._hasCategories()) {
+                        sortValue = (dimple._helpers.cy(a, chart, series) < dimple._helpers.cy(b, chart, series) ? -1 : 1);
+                    } else if (orderedSeriesArray !== null && orderedSeriesArray !== undefined) {
+                        for (p = 0; p < orderedSeriesArray.length; p += 1) {
+                            aMatch = true;
+                            bMatch = true;
+                            for (q = 0; q < a.aggField.length; q += 1) {
+                                aMatch = aMatch && (a.aggField[q] === orderedSeriesArray[p][q]);
+                            }
+                            for (q = 0; q < b.aggField.length; q += 1) {
+                                bMatch = bMatch && (b.aggField[q] === orderedSeriesArray[p][q]);
+                            }
+                            if (aMatch && bMatch) {
+                                sortValue = 0;
+                                break;
+                            } else if (aMatch) {
+                                sortValue = -1;
+                                break;
+                            } else if (bMatch) {
+                                sortValue = 1;
+                                break;
+                            }
+                        }
+                    }
+                    return sortValue;
+                },
+                addTransition = function (input, duration) {
+                    var returnShape = null;
+                    if (duration === 0) {
+                        returnShape = input;
+                    } else {
+                        returnShape = input.transition().duration(duration);
+                    }
+                    return returnShape;
+                },
+                updated,
+                removed;
+
+            if (series.c !== null && series.c !== undefined && ((series.x._hasCategories() && series.y._hasMeasure()) || (series.y._hasCategories() && series.x._hasMeasure()))) {
+                graded = true;
+            }
+
+            // Create a set of line data grouped by the aggregation field
+            for (i = 0; i < data.length; i += 1) {
+                key = [];
+                rowIndex = -1;
+                // Skip the first category unless there is a category axis on x or y
+                for (k = firstAgg; k < data[i].aggField.length; k += 1) {
+                    key.push(data[i].aggField[k]);
+                }
+                // Find the corresponding row in the lineData
+                keyString = key.join("|");
+                for (k = 0; k < lineData.length; k += 1) {
+                    if (lineData[k].keyString === keyString) {
+                        rowIndex = k;
+                        break;
+                    }
+                }
+                // Add a row to the line data if none was found
+                if (rowIndex === -1) {
+                    rowIndex = lineData.length;
+                    lineData.push({ key: key, keyString: keyString, data: [], line: {}, entry: {} });
+                }
+                // Add this row to the relevant data
+                lineData[rowIndex].data.push(data[i]);
+            }
+
+            // Create a set of line data grouped by the aggregation field
+            for (i = 0; i < lineData.length; i += 1) {
+                // Sort the points so that lines are connected in the correct order
+                lineData[i].data.sort(sortFunction);
+                // If this should have colour gradients, add them
+                if (graded) {
+                    dimple._addGradient(lineData[i].key, "fill-line-gradient-" + key.keyString, (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
+                }
+                // Get the points that this line will appear
+                lineData[i].entry = entryCoords(lineData[i].data);
+                // Get the actual points of the line
+                lineData[i].line = lineCoords(lineData[i].data);
+            }
+
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
+
+            if (series.shapes === null || series.shapes === undefined) {
+                theseShapes = chart._group.selectAll("." + className).data(lineData);
+            } else {
+                theseShapes = series.shapes.data(lineData, function (d) { return d.key; });
+            }
+
+            // Add
+            theseShapes
+                .enter()
+                .append("path")
+                .attr("id", function (d) { return d.key; })
+                .attr("class", function (d) {
+                    return className + " line " + d.key.join(" ").split(" ").join("_");
+                })
+                .attr("d", function (d) {
+                    return d.entry;
+                })
+                .call(function () {
+                    if (!chart.noFormats) {
+                        this.attr("opacity", function (d) { return (graded ? 1 : chart.getColor(d.key[d.key.length - 1]).opacity); })
+                            .attr("fill", "none")
+                            .attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.key.keyString + ")" : chart.getColor(d.key[d.key.length - 1]).stroke); })
+                            .attr("stroke-width", series.lineWeight);
+                    }
+                });
+
+            // Update
+            updated = addTransition(theseShapes, duration)
+                .attr("d", function (d) { return d.line; });
+
+            // Remove
+            removed = addTransition(theseShapes.exit(), duration)
+                .attr("d", function (d) {
+                    return d.entry;
+                });
+
+            // Run after transition methods
+            if (duration === 0) {
+                updated.each(function (d, i) {
+                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
+                        series.afterDraw(this, d, i);
+                    }
+                });
+                removed.remove();
+            } else {
+                updated.each("end", function (d, i) {
+                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
+                        series.afterDraw(this, d, i);
+                    }
+                });
+                removed.each("end", function () {
+                    d3.select(this).remove();
+                });
+            }
+
+            // Save the shapes to the series array
+            series.shapes = theseShapes;
+
+        },
+        drawOld: function (chart, series, duration) {
 
             // Get self pointer for inner functions
             var self = this,
