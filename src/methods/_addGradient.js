@@ -3,14 +3,15 @@
     // Source: /src/methods/_addGradient.js
     dimple._addGradient = function (seriesValue, id, categoryAxis, data, chart, duration, colorProperty) {
 
-        var grad = chart._group.select("#" + id),
+        var sArray = [].concat(seriesValue),
+            grad = chart._group.select("#" + id),
             cats = [],
             field = categoryAxis.position + "Field",
             transition = true,
             colors = [];
 
         data.forEach(function (d) {
-            if (cats.indexOf(d[field]) === -1) {
+            if (cats.indexOf(d[field]) === -1 && d.aggField.join("_") === sArray.join("_")) {
                 cats.push(d[field]);
             }
         }, this);
@@ -34,7 +35,7 @@
                 k = 0;
 
             for (k = 0; k < data.length; k = k + 1) {
-                if (data[k].aggField.join("_") === seriesValue.join("_") && data[k][field].join("_") === cat.join("_")) {
+                if (data[k].aggField.join("_") === sArray.join("_") && data[k][field].join("_") === cat.join("_")) {
                     row = data[k];
                     break;
                 }

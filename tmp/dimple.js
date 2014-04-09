@@ -3669,7 +3669,7 @@ var dimple = {
                 self = this,
                 lineData = [],
                 theseShapes = null,
-                className = "series" + chart.series.indexOf(series),
+                className = "dmp-series-" + chart.series.indexOf(series),
                 // If there is a category axis we should draw a line for each aggField.  Otherwise
                 // the first aggField defines the points and the others define the line
                 firstAgg = (series.x._hasCategories() || series.y._hasCategories() ? 0 : 1),
@@ -3678,7 +3678,7 @@ var dimple = {
                     .x(function (d) { return dimple._helpers.cx(d, chart, series); })
                     .y(function (d) { return dimple._helpers.cy(d, chart, series); }),
                 // Build the point calculator
-                entryCoords = d3.svg.line()
+                entryExitCoords = d3.svg.line()
                     .x(function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
                     .y(function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); }),
                 graded = false,
@@ -3761,19 +3761,19 @@ var dimple = {
                 },
                 drawMarkerBacks = function (lineDataRow) {
                     var markerBacks,
-                        markerBackClasses = ["markerBacks", className, lineDataRow.keyString],
+                        markerBackClasses = ["dmp-marker-backs", className, lineDataRow.keyString],
                         rem;
                     if (series.lineMarkers) {
-                        if (chart._group.selectAll("." + markerBackClasses.join("."))[0].length === 0) {
+                        if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
                             markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.data);
                         } else {
-                            markerBacks = series._markerBacks.data(lineDataRow.data, function (d) { return d.keyString; });
+                            markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.data, function (d) { return d.key; });
                         }
                         // Add
                         markerBacks
                             .enter()
                             .append("circle")
-                            .attr("id", function (d) { return d.keyString; })
+                            .attr("id", function (d) { return d.key; })
                             .attr("class", markerBackClasses.join(" "))
                             .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
                             .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
@@ -3800,26 +3800,29 @@ var dimple = {
                             });
                         }
 
-                        series._markerBacks = markerBacks;
+                        if (series._markerBacks === undefined || series._markerBacks === null) {
+                            series._markerBacks = {};
+                        }
+                        series._markerBacks[lineDataRow.keyString] = markerBacks;
                     }
                 },
                 // Add the actual marker. We need to do this even if we aren't displaying them because they
                 // catch hover events
                 drawMarkers = function (lineDataRow) {
                     var markers,
-                        markerClasses = ["markers", className, lineDataRow.keyString],
+                        markerClasses = ["dmp-markers", className, lineDataRow.keyString],
                         rem;
                     // Deal with markers in the same way as main series to fix #28
-                    if (chart._group.selectAll("." + markerClasses.join("."))[0].length === 0) {
+                    if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
                         markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.data);
                     } else {
-                        markers = series._markers.data(lineDataRow.data, function (d) { return d.keyString; });
+                        markers = series._markers[lineDataRow.keyString].data(lineDataRow.data, function (d) { return d.key; });
                     }
                     // Add
                     markers
                         .enter()
                         .append("circle")
-                        .attr("id", function (d) { return d.keyString; })
+                        .attr("id", function (d) { return d.key; })
                         .attr("class", markerClasses.join(" "))
                         .on("mouseover", function (e) {
                             self.enterEventHandler(e, this, chart, series);
@@ -3830,7 +3833,7 @@ var dimple = {
                         .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
                         .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
                         .attr("r", 0)
-                        .attr("opacity", function (d) { return (series.lineMarkers ? chart.getColor(d).opacity : 0); })
+                        .attr("opacity", function (d) { return (series.lineMarkers || lineDataRow.data.length < 2 ? chart.getColor(d).opacity : 0); })
                         .call(function () {
                             if (!chart.noFormats) {
                                 this.attr("fill", "white")
@@ -3869,7 +3872,10 @@ var dimple = {
                         });
                     }
 
-                    series._markers = markers;
+                    if (series._markers === undefined || series._markers === null) {
+                        series._markers = {};
+                    }
+                    series._markers[lineDataRow.keyString] = markers;
                 },
                 updated,
                 removed;
@@ -3887,7 +3893,7 @@ var dimple = {
                     key.push(data[i].aggField[k]);
                 }
                 // Find the corresponding row in the lineData
-                keyString = key.join(" ").split(" ").join("_");
+                keyString = dimple._createClass(key);
                 for (k = 0; k < lineData.length; k += 1) {
                     if (lineData[k].keyString === keyString) {
                         rowIndex = k;
@@ -3897,7 +3903,7 @@ var dimple = {
                 // Add a row to the line data if none was found
                 if (rowIndex === -1) {
                     rowIndex = lineData.length;
-                    lineData.push({ key: key, keyString: keyString, data: [], line: {}, entry: {} });
+                    lineData.push({ key: key, keyString: keyString, data: [], line: {}, entryExit: {} });
                 }
                 // Add this row to the relevant data
                 lineData[rowIndex].data.push(data[i]);
@@ -3917,10 +3923,10 @@ var dimple = {
                 lineData[i].data.sort(sortFunction);
                 // If this should have colour gradients, add them
                 if (graded) {
-                    dimple._addGradient(lineData[i].key, "fill-line-gradient-" + key.keyString, (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
+                    dimple._addGradient(lineData[i].key, "fill-line-gradient-" + lineData[i].keyString, (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
                 }
                 // Get the points that this line will appear
-                lineData[i].entry = entryCoords(lineData[i].data);
+                lineData[i].entryExit = entryExitCoords(lineData[i].data);
                 // Get the actual points of the line
                 lineData[i].line = lineCoords(lineData[i].data);
             }
@@ -3941,17 +3947,17 @@ var dimple = {
                 .append("path")
                 .attr("id", function (d) { return d.key; })
                 .attr("class", function (d) {
-                    return className + " line " + d.keyString;
+                    return className + " dmp-line " + d.keyString;
                 })
                 .attr("d", function (d) {
-                    return d.entry;
+                    return d.entryExit;
                 })
                 .call(function () {
                     // Apply formats optionally
                     if (!chart.noFormats) {
                         this.attr("opacity", function (d) { return (graded ? 1 : chart.getColor(d.key[d.key.length - 1]).opacity); })
                             .attr("fill", "none")
-                            .attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.key.keyString + ")" : chart.getColor(d.key[d.key.length - 1]).stroke); })
+                            .attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.keyString + ")" : chart.getColor(d.key[d.key.length - 1]).stroke); })
                             .attr("stroke-width", series.lineWeight);
                     }
                 })
@@ -3966,9 +3972,9 @@ var dimple = {
 
             // Remove
             removed = addTransition(theseShapes.exit(), duration)
-                .attr("d", function (d) {
-                    return d.entry;
-                });
+                .attr("d", function (d) { return d.entryExit; })
+                .each(drawMarkerBacks)
+                .each(drawMarkers);
 
             // Run after transition methods
             if (duration === 0) {
@@ -3992,253 +3998,6 @@ var dimple = {
             // Save the shapes to the series array
             series.shapes = theseShapes;
 
-        },
-        drawOld: function (chart, series, duration) {
-
-            // Get self pointer for inner functions
-            var self = this,
-                sourceData = series.data || chart.data,
-                data = series._positionData,
-                fillIns = [],
-                uniqueValues = [],
-                // If there is a category axis we should draw a line for each aggField.  Otherwise
-                // the first aggField defines the points and the others define the line
-                firstAgg = 1,
-                graded = false,
-                seriesClass = "series" + chart.series.indexOf(series),
-                orderedSeriesArray = dimple._getOrderedList(sourceData,  series.categoryFields, [].concat(series._orderRules)),
-                line,
-                markers,
-                markerBacks;
-
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
-                chart._tooltipGroup.remove();
-            }
-
-            if (series.x._hasCategories() || series.y._hasCategories()) {
-                firstAgg = 0;
-            }
-
-            data.forEach(function (d) {
-                var filter = [],
-                    match = false,
-                    k;
-
-                for (k = firstAgg; k < d.aggField.length; k += 1) {
-                    filter.push(d.aggField[k]);
-                }
-
-                uniqueValues.forEach(function (d) {
-                    match = match || (d.join("/") === filter.join("/"));
-                }, this);
-
-                if (!match) {
-                    uniqueValues.push(filter);
-                }
-
-            }, this);
-
-            if (series.c !== null && series.c !== undefined && ((series.x._hasCategories() && series.y._hasMeasure()) || (series.y._hasCategories() && series.x._hasMeasure()))) {
-                graded = true;
-                uniqueValues.forEach(function (seriesValue) {
-                    dimple._addGradient(seriesValue, "fill-line-gradient-" + seriesValue.join("_").replace(" ", ""), (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
-                }, this);
-            }
-
-            line = d3.svg.line()
-                .x(function (d) { return dimple._helpers.cx(d, chart, series); })
-                .y(function (d) { return dimple._helpers.cy(d, chart, series); });
-
-            if (series.shapes === null || series.shapes === undefined) {
-                series.shapes = chart._group.selectAll(".line." + seriesClass)
-                    .data(uniqueValues)
-                    .enter()
-                        .append("svg:path")
-                            .attr("opacity", function(d) { return chart.getColor(d).opacity; });
-            }
-
-            series.shapes
-                .data(uniqueValues)
-                .transition().duration(duration)
-                .attr("class", function (d) { return seriesClass + " series line " + d.join("_").split(" ").join("_"); })
-                .attr("d", function (d) {
-                    var seriesData = [];
-                    data.forEach(function (r) {
-                        var add = true,
-                            k;
-                        for (k = firstAgg; k < r.aggField.length; k += 1) {
-                            add = add && (d[k - firstAgg] === r.aggField[k]);
-                        }
-                        if (add) {
-                            seriesData.push(r);
-                        }
-                    }, this);
-                    seriesData.sort(function (a, b) {
-                        var sortValue = 0,
-                            p,
-                            q,
-                            aMatch,
-                            bMatch;
-                        if (series.x._hasCategories()) {
-                            sortValue = (dimple._helpers.cx(a, chart, series) < dimple._helpers.cx(b, chart, series) ? -1 : 1);
-                        } else if (series.y._hasCategories()) {
-                            sortValue = (dimple._helpers.cy(a, chart, series) < dimple._helpers.cy(b, chart, series) ? -1 : 1);
-                        } else if (orderedSeriesArray !== null && orderedSeriesArray !== undefined) {
-                            for (p = 0; p < orderedSeriesArray.length; p += 1) {
-                                aMatch = true;
-                                bMatch = true;
-                                for (q = 0; q < a.aggField.length; q += 1) {
-                                    aMatch = aMatch && (a.aggField[q] === orderedSeriesArray[p][q]);
-                                }
-                                for (q = 0; q < b.aggField.length; q += 1) {
-                                    bMatch = bMatch && (b.aggField[q] === orderedSeriesArray[p][q]);
-                                }
-                                if (aMatch && bMatch) {
-                                    sortValue = 0;
-                                    break;
-                                } else if (aMatch) {
-                                    sortValue = -1;
-                                    break;
-                                } else if (bMatch) {
-                                    sortValue = 1;
-                                    break;
-                                }
-                            }
-                        }
-                        return sortValue;
-                    });
-                    if (seriesData.length === 1) {
-                        fillIns.push({
-                            cx: dimple._helpers.cx(seriesData[0], chart, series),
-                            cy: dimple._helpers.cy(seriesData[0], chart, series),
-                            opacity: chart.getColor(d[d.length - 1]).opacity,
-                            color: chart.getColor(d[d.length - 1]).stroke
-                        });
-                        d3.select(this).remove();
-                    }
-                    return line(seriesData);
-                })
-                .call(function () {
-                    if (!chart.noFormats) {
-                        this.attr("fill", "none")
-                            .attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.join("_").replace(" ", "") + ")" : chart.getColor(d[d.length - 1]).stroke);    })
-                            .attr("stroke-width", series.lineWeight);
-                    }
-                });
-
-            if (series.lineMarkers) {
-                if (series._markerBacks === null || series._markerBacks === undefined) {
-                    markerBacks = chart._group.selectAll(".markerBacks." + seriesClass).data(data);
-                } else {
-                    markerBacks = series._markerBacks.data(data, function (d) { return d.key; });
-                }
-                // Add
-                markerBacks
-                    .enter()
-                    .append("circle")
-                    .attr("id", function (d) { return d.key; })
-                    .attr("class", "markerBacks " + seriesClass)
-                    .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
-                    .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                    .attr("r", 0)
-                    .attr("fill", "white")
-                    .attr("stroke", "none");
-
-                // Update
-                markerBacks
-                    .transition().duration(duration)
-                    .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
-                    .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                    .attr("r", 2 + series.lineWeight);
-                // Remove
-                markerBacks
-                    .exit()
-                    .transition().duration(duration)
-                    .attr("r", 0)
-                    .each("end", function () {
-                        d3.select(this).remove();
-                    });
-                series._markerBacks = markerBacks;
-            }
-
-            // Deal with markers in the same way as main series to fix #28
-            if (series._markers === null || series._markers === undefined) {
-                markers = chart._group.selectAll(".markers." + seriesClass).data(data);
-            } else {
-                markers = series._markers.data(data, function (d) { return d.key; });
-            }
-
-
-            // Add the actual marker. We need to do this even if we aren't displaying them because they
-            // catch hover events
-            markers
-                .enter()
-                .append("circle")
-                .attr("id", function (d) { return d.key; })
-                .attr("class", "markers " + seriesClass)
-                .on("mouseover", function (e) {
-                    self.enterEventHandler(e, this, chart, series);
-                })
-                .on("mouseleave", function (e) {
-                    self.leaveEventHandler(e, this, chart, series);
-                })
-                .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
-                .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                .attr("r", 0)
-                .attr("opacity", function (d) { return (series.lineMarkers ? chart.getColor(d).opacity : 0); })
-                .call(function () {
-                    if (!chart.noFormats) {
-                        this.attr("fill", "white")
-                            .style("stroke-width", series.lineWeight)
-                            .attr("stroke", function (d) {
-                                return (graded ? dimple._helpers.fill(d, chart, series) : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
-                            });
-                    }
-                });
-
-            markers
-                .transition().duration(duration)
-                .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
-                .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                .attr("r", 2 + series.lineWeight)
-                .call(function () {
-                    if (!chart.noFormats) {
-                        this.attr("fill", "white")
-                            .style("stroke-width", series.lineWeight)
-                            .attr("stroke", function (d) {
-                                return (graded ? dimple._helpers.fill(d, chart, series) : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
-                            });
-                    }
-                });
-
-            markers
-                .exit()
-                .transition().duration(duration)
-                .attr("r", 0)
-                .each("end", function () {
-                    d3.select(this).remove();
-                });
-
-            // Save the shapes to the series array
-            series._markers = markers;
-
-            // Deal with single point lines if there are no markers
-            if (!series.lineMarkers) {
-                chart._group.selectAll(".fill")
-                    .data(fillIns)
-                    .enter()
-                    .append("circle")
-                    .attr("cx", function (d) { return d.cx; })
-                    .attr("cy", function (d) { return d.cy; })
-                    .attr("r", series.lineWeight)
-                    .attr("opacity", function (d) { return d.opacity; })
-                    .call(function () {
-                        if (!chart.noFormats) {
-                            this.attr("fill", function (d) { return d.color; })
-                                .attr("stroke", "none");
-                        }
-                    });
-            }
         },
 
         // Handle the mouse enter event
@@ -4352,7 +4111,7 @@ var dimple = {
             t = chart._tooltipGroup.append("g");
             // Create a box for the popup in the text group
             box = t.append("rect")
-                .attr("class", "chartTooltip");
+                .attr("class", "dmp-tooltip");
 
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
@@ -4423,7 +4182,7 @@ var dimple = {
             // Create a text object for every row in the popup
             t.selectAll(".textHoverShapes").data(rows).enter()
                 .append("text")
-                    .attr("class", "chartTooltip")
+                    .attr("class", "dmp-tooltip")
                     .text(function (d) { return d; })
                     .style("font-family", "sans-serif")
                     .style("font-size", "10px");
@@ -4483,14 +4242,15 @@ var dimple = {
     // Source: /src/methods/_addGradient.js
     dimple._addGradient = function (seriesValue, id, categoryAxis, data, chart, duration, colorProperty) {
 
-        var grad = chart._group.select("#" + id),
+        var sArray = [].concat(seriesValue),
+            grad = chart._group.select("#" + id),
             cats = [],
             field = categoryAxis.position + "Field",
             transition = true,
             colors = [];
 
         data.forEach(function (d) {
-            if (cats.indexOf(d[field]) === -1) {
+            if (cats.indexOf(d[field]) === -1 && d.aggField.join("_") === sArray.join("_")) {
                 cats.push(d[field]);
             }
         }, this);
@@ -4514,7 +4274,7 @@ var dimple = {
                 k = 0;
 
             for (k = 0; k < data.length; k = k + 1) {
-                if (data[k].aggField.join("_") === seriesValue.join("_") && data[k][field].join("_") === cat.join("_")) {
+                if (data[k].aggField.join("_") === sArray.join("_") && data[k][field].join("_") === cat.join("_")) {
                     row = data[k];
                     break;
                 }
@@ -4540,6 +4300,30 @@ var dimple = {
     };
 
 
+
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_addGradient.js
+    dimple._createClass = function (stringArray) {
+        var i,
+            returnArray = [],
+            replacer = function(s) {
+                var c = s.charCodeAt(0),
+                    returnString = "";
+                if (c === 32) {
+                    returnString = '-';
+                } else if (c >= 65 && c <= 90) {
+                    returnString = s.toLowerCase();
+                }
+                return returnString;
+            };
+        for (i = 0; i < stringArray.length; i += 1) {
+            /*jslint regexp: true */
+            returnArray.push("dmp-" + stringArray[i].replace(/[^a-z0-9]/g, replacer));
+            /*jslint regexp: false */
+        }
+        return returnArray.join(" ");
+    };
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/chart/methods/_getOrderedList.js
