@@ -629,7 +629,12 @@ var dimple = {
                         // Concat is used here to break the reference to the parent array, if we don't do this, in a storyboarded chart,
                         // the series rules to grow and grow until the system grinds to a halt trying to deal with them all.
                         rules = [].concat(series._orderRules);
-                        seriesCat = series.categoryFields;
+                        seriesCat = [];
+                        series.categoryFields.forEach(function (cat) {
+                            if (sortedData[0][cat] !== undefined) {
+                                seriesCat.push(cat);
+                            }
+                        }, this);
                         if (series.c !== null && series.c !== undefined && series.c._hasMeasure()) {
                             rules.push({ ordering : series.c.measure, desc : true });
                         } else if (series.z !== null && series.z !== undefined && series.z._hasMeasure()) {
