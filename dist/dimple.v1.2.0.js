@@ -3766,7 +3766,7 @@ var dimple = {
                 },
                 drawMarkerBacks = function (lineDataRow) {
                     var markerBacks,
-                        markerBackClasses = ["dmp-marker-backs", className, lineDataRow.keyString],
+                        markerBackClasses = ["dmp-marker-backs", className, "dmp-" + lineDataRow.keyString],
                         rem;
                     if (series.lineMarkers) {
                         if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
@@ -3815,7 +3815,7 @@ var dimple = {
                 // catch hover events
                 drawMarkers = function (lineDataRow) {
                     var markers,
-                        markerClasses = ["dmp-markers", className, lineDataRow.keyString],
+                        markerClasses = ["dmp-markers", className, "dmp-" + lineDataRow.keyString],
                         rem;
                     // Deal with markers in the same way as main series to fix #28
                     if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
@@ -3838,13 +3838,13 @@ var dimple = {
                         .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
                         .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
                         .attr("r", 0)
-                        .attr("opacity", function (d) { return (series.lineMarkers || lineDataRow.data.length < 2 ? chart.getColor(d).opacity : 0); })
+                        .attr("opacity", (series.lineMarkers || lineDataRow.data.length < 2 ? lineDataRow.color.opacity : 0))
                         .call(function () {
                             if (!chart.noFormats) {
                                 this.attr("fill", "white")
                                     .style("stroke-width", series.lineWeight)
                                     .attr("stroke", function (d) {
-                                        return (graded ? dimple._helpers.fill(d, chart, series) : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
+                                        return (graded ? dimple._helpers.fill(d, chart, series) : lineDataRow.color.stroke);
                                     });
                             }
                         });
@@ -3859,7 +3859,7 @@ var dimple = {
                                 this.attr("fill", "white")
                                     .style("stroke-width", series.lineWeight)
                                     .attr("stroke", function (d) {
-                                        return (graded ? dimple._helpers.fill(d, chart, series) : chart.getColor(d.aggField[d.aggField.length - 1]).stroke);
+                                        return (graded ? dimple._helpers.fill(d, chart, series) : lineDataRow.color.stroke);
                                     });
                             }
                         });
@@ -3908,7 +3908,14 @@ var dimple = {
                 // Add a row to the line data if none was found
                 if (rowIndex === -1) {
                     rowIndex = lineData.length;
-                    lineData.push({ key: key, keyString: keyString, data: [], line: {}, entryExit: {} });
+                    lineData.push({
+                        key: key,
+                        keyString: keyString,
+                        color: "white",
+                        data: [],
+                        line: {},
+                        entryExit: {}
+                    });
                 }
                 // Add this row to the relevant data
                 lineData[rowIndex].data.push(data[i]);
@@ -3934,6 +3941,9 @@ var dimple = {
                 lineData[i].entryExit = entryExitCoords(lineData[i].data);
                 // Get the actual points of the line
                 lineData[i].line = lineCoords(lineData[i].data);
+                // Add the color in this loop, it can't be done during initialisation of the row becase
+                // the lines should be ordered first (to ensure standard distribution of colors
+                lineData[i].color = chart.getColor(lineData[i].key.length > 0 ? lineData[i].key[lineData[i].key.length - 1] : "All");
             }
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
@@ -3960,9 +3970,9 @@ var dimple = {
                 .call(function () {
                     // Apply formats optionally
                     if (!chart.noFormats) {
-                        this.attr("opacity", function (d) { return (graded ? 1 : chart.getColor(d.key[d.key.length - 1]).opacity); })
+                        this.attr("opacity", function (d) { return (graded ? 1 : d.color.opacity); })
                             .attr("fill", "none")
-                            .attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.keyString + ")" : chart.getColor(d.key[d.key.length - 1]).stroke); })
+                            .attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.keyString + ")" : d.color.stroke); })
                             .attr("stroke-width", series.lineWeight);
                     }
                 })
