@@ -72,7 +72,7 @@
                         }
                     }, this);
                     // Iterate the data
-                    this._getAllData().forEach(function (d) {
+                    axis._getAxisData().forEach(function (d) {
                         // Find any linked series
                         linkedDimensions.forEach(function (dimension) {
                             // Check it's timeField
@@ -99,7 +99,7 @@
                             linkedDimensions.push(series[axis.position].categoryFields[0]);
                         }
                     }, this);
-                    this._getAllData().forEach(function (d) {
+                    axis._getAxisData().forEach(function (d) {
                         linkedDimensions.forEach(function (dimension) {
                             if (distinctCats.indexOf(d[dimension]) === -1) {
                                 distinctCats.push(d[dimension]);

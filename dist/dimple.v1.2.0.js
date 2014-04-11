@@ -91,6 +91,35 @@ var dimple = {
 
         // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/axis/methods/_getAxisData.js
+        // Get all the datasets which may affect this axis
+        this._getAxisData = function () {
+            var i,
+                series,
+                returnData = [],
+                addChartData = false;
+            if (this.chart && this.chart.series) {
+                for (i = 0; i < this.chart.series.length; i += 1) {
+                    series = this.chart.series[i];
+                    // If the series is related to this axis
+                    if (series[this.position] === this) {
+                        // If the series has its own data set add it to the return array
+                        if (series.data && series.data.length > 0) {
+                            returnData = returnData.concat(series.data);
+                        } else {
+                            addChartData = true;
+                        }
+                    }
+                }
+                if (addChartData && this.chart.data) {
+                    returnData = returnData.concat(this.chart.data);
+                }
+            }
+            return returnData;
+        };
+
+        // Copyright: 2014 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_getFormat.js
         this._getFormat = function () {
             var returnFormat,
@@ -246,7 +275,7 @@ var dimple = {
                 origin,
                 getOrderedCategories = function (self, axPos, oppPos) {
                     var category = self.categoryFields[0],
-                        chartData = self.chart._getAllData(),
+                        axisData = self._getAxisData(),
                         sortBy = category,
                         desc = false,
                         isDate = true,
@@ -254,8 +283,8 @@ var dimple = {
                         i,
                         definitions = [];
                     // Check whether this field is a date
-                    for (i = 0; i < chartData.length; i += 1) {
-                        currentValue = self._parseDate(chartData[i][category]);
+                    for (i = 0; i < axisData.length; i += 1) {
+                        currentValue = self._parseDate(axisData[i][category]);
                         if (currentValue !== null && currentValue !== undefined && isNaN(currentValue)) {
                             isDate = false;
                             break;
@@ -271,7 +300,7 @@ var dimple = {
                         }, this);
                     }
                     definitions = self._orderRules.concat({ ordering : sortBy, desc : desc });
-                    return dimple._getOrderedList(chartData, category, definitions);
+                    return dimple._getOrderedList(axisData, category, definitions);
                 };
 
             // If the axis is a percentage type axis the bounds must be between -1 and 1.  Sometimes
@@ -539,7 +568,7 @@ var dimple = {
         // Source: /src/objects/chart/methods/_getAllData.js
         // Mash together all of the datasets
         this._getAllData = function () {
-            // The return array will include all data for chart as well as an series
+            // The return array will include all data for chart as well as any series
             var returnData = [];
             // If there is data at the chart level
             if (this.data !== null && this.data !== undefined && this.data.length > 0) {
@@ -1310,7 +1339,7 @@ var dimple = {
                         }
                     }, this);
                     // Iterate the data
-                    this._getAllData().forEach(function (d) {
+                    axis._getAxisData().forEach(function (d) {
                         // Find any linked series
                         linkedDimensions.forEach(function (dimension) {
                             // Check it's timeField
@@ -1337,7 +1366,7 @@ var dimple = {
                             linkedDimensions.push(series[axis.position].categoryFields[0]);
                         }
                     }, this);
-                    this._getAllData().forEach(function (d) {
+                    axis._getAxisData().forEach(function (d) {
                         linkedDimensions.forEach(function (dimension) {
                             if (distinctCats.indexOf(d[dimension]) === -1) {
                                 distinctCats.push(d[dimension]);

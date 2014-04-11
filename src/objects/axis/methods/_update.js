@@ -10,7 +10,7 @@
                 origin,
                 getOrderedCategories = function (self, axPos, oppPos) {
                     var category = self.categoryFields[0],
-                        chartData = self.chart._getAllData(),
+                        axisData = self._getAxisData(),
                         sortBy = category,
                         desc = false,
                         isDate = true,
@@ -18,8 +18,8 @@
                         i,
                         definitions = [];
                     // Check whether this field is a date
-                    for (i = 0; i < chartData.length; i += 1) {
-                        currentValue = self._parseDate(chartData[i][category]);
+                    for (i = 0; i < axisData.length; i += 1) {
+                        currentValue = self._parseDate(axisData[i][category]);
                         if (currentValue !== null && currentValue !== undefined && isNaN(currentValue)) {
                             isDate = false;
                             break;
@@ -35,7 +35,7 @@
                         }, this);
                     }
                     definitions = self._orderRules.concat({ ordering : sortBy, desc : desc });
-                    return dimple._getOrderedList(chartData, category, definitions);
+                    return dimple._getOrderedList(axisData, category, definitions);
                 };
 
             // If the axis is a percentage type axis the bounds must be between -1 and 1.  Sometimes

@@ -3,7 +3,7 @@
         // Source: /src/objects/chart/methods/_getAllData.js
         // Mash together all of the datasets
         this._getAllData = function () {
-            // The return array will include all data for chart as well as an series
+            // The return array will include all data for chart as well as any series
             var returnData = [];
             // If there is data at the chart level
             if (this.data !== null && this.data !== undefined && this.data.length > 0) {
