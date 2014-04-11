@@ -1,0 +1,66 @@
+<!----------------------------------------------------------------->
+<!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT TEMPLATE INSTEAD -->
+<!----------------------------------------------------------------->
+<div id="chartContainer">
+  <script src="/lib/d3.v3.min.js"></script>
+  <script src="/dist/dimple.v1.2.0.js"></script>
+  <script type="text/javascript">
+      var dim = {"width":590,"height":450}; //chart container width
+      var data = [{"date":"01-02-2010","cost":"11.415679194952766"},{"date":"01-03-2010","cost":"10.81875691467018"},{"date":"01-04-2010","cost":"12.710197879070897"}];
+
+      function barplot(id,dim,data)
+      {
+          keys = Object.keys(data[0]);
+          var xcord = keys[0];
+          var ycord = keys[1];
+          var svg = dimple.newSvg(id, dim.width, dim.height);
+
+          var myChart = new dimple.chart(svg,data);
+          myChart.setBounds(60, 30, 505, 305);
+
+          var x = myChart.addCategoryAxis("x", xcord);
+          x.addOrderRule(xcord);
+          x.showGridlines = true;
+
+          var y = myChart.addMeasureAxis("y", ycord);
+          y.showGridlines = true;
+          y.tickFormat = ',.1f';
+
+          var xDummy = myChart.addTimeAxis("x", "date", "%y", "%y");
+          xDummy.overrideMin = d3.time.format("%y").parse("00");
+          xDummy.overrideMax = d3.time.format("%y").parse("01");
+          xDummy.hidden = true;
+
+          var s = myChart.addSeries(null, dimple.plot.bar);
+          var s1 = myChart.addSeries(null, dimple.plot.line);
+          s1.lineWeight = 3;
+          s1.lineMarkers = true;
+
+
+    var s3 = myChart.addSeries("Price Break", dimple.plot.line, [xDummy, y]);
+    s3.data = [
+        { "Price Break" : "high", "cost" : 12.71, "date" : "00" }, { "Price Break" : "high", "cost" : 12.71, "date" : "01" },
+        { "Price Break" : "avg", "cost" : 11.65, "date" : "00" }, { "Price Break" : "avg", "cost" : 11.65, "date" : "01" },
+        { "Price Break" : "low", "cost" : 10.82, "date" : "00" }, { "Price Break" : "low", "cost" : 10.82, "date" : "01" }
+    ];
+
+          myChart.draw(1500);
+
+//    function addHorizontalLine(value, color) {
+//        svg
+//            .append("line")
+//            .attr("x1", myChart._xPixels())
+//            .attr("y1", s.y._scale(value))
+//            .attr("x2", myChart._xPixels() + myChart._widthPixels())
+//            .attr("y2", s.y._scale(avg))
+//            .style("stroke", color);
+//    }
+
+//    addHorizontalLine(avg
+
+      }
+
+      barplot("body",dim,data);
+
+  </script>
+</div>

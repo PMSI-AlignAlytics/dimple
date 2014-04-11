@@ -3365,10 +3365,10 @@ var dimple = {
                         d.zField.join(" ").split(" ").join("_");
                 })
                 .attr("cx", function (d) {
-                    return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin);
+                    return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin);
                 })
                 .attr("cy", function (d) {
-                    return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin);
+                    return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin);
                 })
                 .attr("r", 0)
                 .attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
@@ -3679,13 +3679,17 @@ var dimple = {
                 // the first aggField defines the points and the others define the line
                 firstAgg = (series.x._hasCategories() || series.y._hasCategories() ? 0 : 1),
                 // Build the point calculator
-                lineCoords = d3.svg.line()
-                    .x(function (d) { return dimple._helpers.cx(d, chart, series); })
-                    .y(function (d) { return dimple._helpers.cy(d, chart, series); }),
+                updateCoords = d3.svg.line()
+                    .x(function (d) { return (dimple._helpers.cx(d, chart, series)).toFixed(2); })
+                    .y(function (d) { return (dimple._helpers.cy(d, chart, series)).toFixed(2); }),
                 // Build the point calculator
-                entryExitCoords = d3.svg.line()
-                    .x(function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
-                    .y(function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); }),
+                entryCoords = d3.svg.line()
+                    .x(function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin).toFixed(2); })
+                    .y(function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin).toFixed(2); }),
+                // Build the point calculator
+                exitCoords = d3.svg.line()
+                    .x(function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin).toFixed(2); })
+                    .y(function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin).toFixed(2); }),
                 graded = false,
                 i,
                 k,
@@ -3780,8 +3784,8 @@ var dimple = {
                             .append("circle")
                             .attr("id", function (d) { return d.key; })
                             .attr("class", markerBackClasses.join(" "))
-                            .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
-                            .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
+                            .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin); })
+                            .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin); })
                             .attr("r", 0)
                             .attr("fill", "white")
                             .attr("stroke", "none");
@@ -3794,6 +3798,8 @@ var dimple = {
 
                         // Remove
                         rem = addTransition(markerBacks.exit(), duration)
+                            .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
+                            .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
                             .attr("r", 0);
 
                         // Run after transition methods
@@ -3835,8 +3841,8 @@ var dimple = {
                         .on("mouseleave", function (e) {
                             self.leaveEventHandler(e, this, chart, series);
                         })
-                        .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
-                        .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
+                        .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin); })
+                        .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin); })
                         .attr("r", 0)
                         .attr("opacity", (series.lineMarkers || lineDataRow.data.length < 2 ? lineDataRow.color.opacity : 0))
                         .call(function () {
@@ -3866,6 +3872,8 @@ var dimple = {
 
                     // Remove
                     rem = addTransition(markers.exit(), duration)
+                        .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
+                        .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
                         .attr("r", 0);
 
                     // Run after transition methods
@@ -3938,9 +3946,11 @@ var dimple = {
                     dimple._addGradient(lineData[i].key, "fill-line-gradient-" + lineData[i].keyString, (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
                 }
                 // Get the points that this line will appear
-                lineData[i].entryExit = entryExitCoords(lineData[i].data);
+                lineData[i].entry = entryCoords(lineData[i].data);
                 // Get the actual points of the line
-                lineData[i].line = lineCoords(lineData[i].data);
+                lineData[i].update = updateCoords(lineData[i].data);
+                // Get the actual points of the line
+                lineData[i].exit = exitCoords(lineData[i].data);
                 // Add the color in this loop, it can't be done during initialisation of the row becase
                 // the lines should be ordered first (to ensure standard distribution of colors
                 lineData[i].color = chart.getColor(lineData[i].key.length > 0 ? lineData[i].key[lineData[i].key.length - 1] : "All");
@@ -3965,7 +3975,7 @@ var dimple = {
                     return className + " dmp-line " + d.keyString;
                 })
                 .attr("d", function (d) {
-                    return d.entryExit;
+                    return d.entry;
                 })
                 .call(function () {
                     // Apply formats optionally
@@ -3981,13 +3991,13 @@ var dimple = {
 
             // Update
             updated = addTransition(theseShapes, duration)
-                .attr("d", function (d) { return d.line; })
+                .attr("d", function (d) { return d.update; })
                 .each(drawMarkerBacks)
                 .each(drawMarkers);
 
             // Remove
             removed = addTransition(theseShapes.exit(), duration)
-                .attr("d", function (d) { return d.entryExit; })
+                .attr("d", function (d) { return d.exit; })
                 .each(drawMarkerBacks)
                 .each(drawMarkers);
 

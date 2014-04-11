@@ -54,10 +54,10 @@
                         d.zField.join(" ").split(" ").join("_");
                 })
                 .attr("cx", function (d) {
-                    return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin);
+                    return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin);
                 })
                 .attr("cy", function (d) {
-                    return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin);
+                    return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin);
                 })
                 .attr("r", 0)
                 .attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
