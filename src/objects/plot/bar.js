@@ -18,7 +18,7 @@
                 chartData = series._positionData,
                 // If the series is uninitialised create placeholders, otherwise use the existing shapes
                 theseShapes = null,
-                className = "series" + chart.series.indexOf(series),
+                classes = ["dimple-series-" + chart.series.indexOf(series), "dimple-bar"],
                 addTransition = function (input, duration) {
                     var returnShape = null;
                     if (duration === 0) {
@@ -36,7 +36,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = chart._group.selectAll("." + className).data(chartData);
+                theseShapes = chart._group.selectAll("." + classes.join(".")).data(chartData);
             } else {
                 theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
@@ -47,10 +47,11 @@
                 .append("rect")
                 .attr("id", function (d) { return d.key; })
                 .attr("class", function (d) {
-                    return className + " bar " +
-                        d.aggField.join(" ").split(" ").join("_") + " " +
-                        d.xField.join(" ").split(" ").join("_") + " " +
-                        d.yField.join(" ").split(" ").join("_");
+                    var c = [];
+                    c = c.concat(d.aggField);
+                    c = c.concat(d.xField);
+                    c = c.concat(d.yField);
+                    return classes.join(" ") + " " + dimple._createClass(c);
                 })
                 .attr("x", function (d) { return dimple._helpers.x(d, chart, series); })
                 .attr("y", function (d) { return dimple._helpers.y(d, chart, series) + dimple._helpers.height(d, chart, series); })
@@ -122,7 +123,7 @@
                 popupMargin = 10,
                 // The popup animation duration in ms
                 animDuration = 750,
-                // Collect some facts about the highlighted bubble
+                // Collect some facts about the highlighted bar
                 selectedShape = d3.select(shape),
                 x = parseFloat(selectedShape.attr("x")),
                 y = parseFloat(selectedShape.attr("y")),
@@ -208,7 +209,7 @@
             t = chart._tooltipGroup.append("g");
             // Create a box for the popup in the text group
             box = t.append("rect")
-                .attr("class", "chartTooltip");
+                .attr("class", "dimple-tooltip");
 
             // Add the series categories
             if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
@@ -277,9 +278,9 @@
             });
 
             // Create a text object for every row in the popup
-            t.selectAll(".textHoverShapes").data(rows).enter()
+            t.selectAll(".dimple-dont-select-any").data(rows).enter()
                 .append("text")
-                    .attr("class", "chartTooltip")
+                    .attr("class", "dimple-tooltip")
                     .text(function (d) { return d; })
                     .style("font-family", "sans-serif")
                     .style("font-size", "10px");
@@ -290,7 +291,7 @@
                 h = (this.getBBox().width > h ? this.getBBox().height : h);
             });
 
-            // Position the text relatve to the bubble, the absolute positioning
+            // Position the text relative to the bar, the absolute positioning
             // will be done by translating the group
             t.selectAll("text")
                 .attr("x", 0)

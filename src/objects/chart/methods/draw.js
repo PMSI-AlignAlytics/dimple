@@ -143,7 +143,7 @@
                 if (axis.gridlineShapes === null) {
                     if (axis.showGridlines || (axis.showGridlines === null && !axis._hasCategories() && ((!xGridSet && axis.position === "x") || (!yGridSet && axis.position === "y")))) {
                         // Add a group for the gridlines to allow css formatting
-                        axis.gridlineShapes = this._group.append("g").attr("class", "gridlines");
+                        axis.gridlineShapes = this._group.append("g").attr("class", "dimple-gridline");
                         if (axis.position === "x") {
                             xGridSet = true;
                         } else {
@@ -159,7 +159,7 @@
                 }
                 if (axis.shapes === null) {
                     // Add a group for the axes to allow css formatting
-                    axis.shapes = this._group.append("g").attr("class", "axis");
+                    axis.shapes = this._group.append("g").attr("class", "dimple-axis");
                     firstDraw = true;
                 }
                 // If this is the first x and there is a y axis cross them at zero
@@ -339,7 +339,7 @@
                 // Add a title for the axis - NB check for null here, by default the title is undefined, in which case
                 // use the dimension name
                 if (!axis.hidden && (axis.position === "x" || axis.position === "y") && axis.title !== null) {
-                    axis.titleShape = this._group.append("text").attr("class", "axis title");
+                    axis.titleShape = this._group.append("text").attr("class", "dimple-axis dimple-title");
                     axis.titleShape
                         .attr("x", titleX)
                         .attr("y", titleY)

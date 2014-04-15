@@ -26,6 +26,7 @@
                 .attr("opacity", 0);
             this.storyLabel
                 .transition().delay(duration * 0.2)
+                .attr("class", "dimple-storyboard-label")
                 .text(this.categoryFields.join("\\") + ": " + this.getFrameValue())
                 .transition().duration(duration * 0.8)
                 .attr("opacity", 1);
