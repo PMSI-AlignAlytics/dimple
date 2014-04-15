@@ -63,9 +63,11 @@ var dimple = {
         this.logBase = 10;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-title
         this.title = undefined;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-clamp
+        this.clamp = true;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-ticks
+        this.ticks = null;
 
-        // If this is a slave axis to a master composite axis, this stores a reference to the master
-        this._master = null;
         // If this is a composite axis, store links to all slaves
         this._slaves = [];
         // The scale determined by the update method
@@ -273,6 +275,7 @@ var dimple = {
                 step,
                 remainder,
                 origin,
+                tickCount = this.ticks || 10,
                 getOrderedCategories = function (self, axPos, oppPos) {
                     var category = self.categoryFields[0],
                         axisData = self._getAxisData(),
@@ -317,7 +320,8 @@ var dimple = {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
-                        .domain([this._min, this._max]);
+                        .domain([this._min, this._max])
+                        .clamp(this.clamp);
                 } else if (this.useLog) {
                     this._scale = d3.scale.log()
                         .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
@@ -325,7 +329,7 @@ var dimple = {
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
-                        .clamp(true)
+                        .clamp(this.clamp)
                         .base(this.logBase)
                         .nice();
                 } else if (this.measure === null || this.measure === undefined) {
@@ -342,7 +346,9 @@ var dimple = {
                 } else {
                     this._scale = d3.scale.linear()
                         .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
-                        .domain([this._min, this._max]).nice();
+                        .domain([this._min, this._max])
+                        .clamp(this.clamp)
+                        .nice();
                 }
                 // If it's visible, orient it at the top or bottom if it's first or second respectively
                 if (!this.hidden) {
@@ -351,11 +357,17 @@ var dimple = {
                         this._draw = d3.svg.axis()
                             .orient("bottom")
                             .scale(this._scale);
+                        if (this.ticks) {
+                            this._draw.ticks(tickCount);
+                        }
                         break;
                     case 1:
                         this._draw = d3.svg.axis()
                             .orient("top")
                             .scale(this._scale);
+                        if (this.ticks) {
+                            this._draw.ticks(tickCount);
+                        }
                         break;
                     default:
                         break;
@@ -365,7 +377,8 @@ var dimple = {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
-                        .domain([this._min, this._max]);
+                        .domain([this._min, this._max])
+                        .clamp(this.clamp);
                 } else if (this.useLog) {
                     this._scale = d3.scale.log()
                         .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
@@ -373,7 +386,7 @@ var dimple = {
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
-                        .clamp(true)
+                        .clamp(this.clamp)
                         .base(this.logBase)
                         .nice();
                 } else if (this.measure === null || this.measure === undefined) {
@@ -391,6 +404,7 @@ var dimple = {
                     this._scale = d3.scale.linear()
                         .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([this._min, this._max])
+                        .clamp(this.clamp)
                         .nice();
                 }
                 // if it's visible, orient it at the left or right if it's first or second respectively
@@ -400,11 +414,17 @@ var dimple = {
                         this._draw = d3.svg.axis()
                             .orient("left")
                             .scale(this._scale);
+                        if (this.ticks) {
+                            this._draw.ticks(tickCount);
+                        }
                         break;
                     case 1:
                         this._draw = d3.svg.axis()
                             .orient("right")
                             .scale(this._scale);
+                        if (this.ticks) {
+                            this._draw.ticks(tickCount);
+                        }
                         break;
                     default:
                         break;
@@ -418,17 +438,19 @@ var dimple = {
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
-                        .clamp(true)
+                        .clamp(this.clamp)
                         .base(this.logBase);
                 } else {
                     this._scale = d3.scale.linear()
                         .range([this.chart._heightPixels() / 300, this.chart._heightPixels() / 10])
-                        .domain([this._min, this._max]);
+                        .domain([this._min, this._max])
+                        .clamp(this.clamp);
                 }
             } else if (this.position.length > 0 && this.position[0] === "c" && this._scale === null) {
                 this._scale = d3.scale.linear()
                     .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
-                    .domain([this._min, this._max]);
+                    .domain([this._min, this._max])
+                    .clamp(this.clamp);
             }
             // Apply this scale to all slaves as well
             if (this._slaves !== null && this._slaves !== undefined && this._slaves.length > 0) {
@@ -437,10 +459,10 @@ var dimple = {
                 }, this);
             }
             // Check that the axis ends on a labelled tick
-            if ((refactor === null || refactor === undefined || refactor === false) && !this._hasTimeField() && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0 && (this.position === "x" || this.position === "y")) {
+            if ((refactor === null || refactor === undefined || refactor === false) && !this._hasTimeField() && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(tickCount).length > 0 && (this.position === "x" || this.position === "y")) {
 
-                // Get the ticks determined based on a split of 10
-                ticks = this._scale.ticks(10);
+                // Get the ticks determined based on the specified split
+                ticks = this._scale.ticks(tickCount);
                 // Get the step between ticks
                 step = ticks[1] - ticks[0];
                 // Get the remainder
@@ -461,6 +483,10 @@ var dimple = {
             // one is required.
             if (distinctCats !== null && distinctCats !== undefined && distinctCats.length > 0) {
                 origin = this._scale.copy()(distinctCats[0]);
+            } else if (this._min > 0) {
+                origin = this._scale.copy()(this._min);
+            } else if (this._max < 0) {
+                origin = this._scale.copy()(this._max);
             } else {
                 origin = this._scale.copy()(0);
             }
@@ -598,7 +624,7 @@ var dimple = {
                 this.series.forEach(function (series) {
                     // The data for this series
                     var returnData = [],
-                        // Handle multiple category values by iterating the fields in the row and concatonate the values
+                        // Handle multiple category values by iterating the fields in the row and concatenate the values
                         // This is repeated for each axis using a small anon function
                         getField = function (axis, row) {
                             var returnField = [];
@@ -1092,9 +1118,6 @@ var dimple = {
                 } else if ((axis.categoryFields === null || axis.categoryFields === undefined ? 0 : axis.categoryFields.length) !== (master.categoryFields === null || master.categoryFields === undefined ? 0 : master.categoryFields.length)) {
                     throw "You have specified a composite axis where axes have differing numbers of category fields - this is not supported, all axes must be of the same type.";
                 }
-                // Set the master, meaning that rather than rendering itself, this axis will contribute to the
-                // scaling of the master
-                axis._master = master;
                 // Do not add the axis to the chart's axes array, instead add it the master
                 master._slaves.push(axis);
             }
@@ -2044,6 +2067,8 @@ var dimple = {
         this.lineMarkers = false;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-afterDraw
         this.afterDraw = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-interpolation
+        this.interpolation = "linear";
 
         // Any event handlers joined to this series
         this._eventHandlers = [];
@@ -3704,203 +3729,126 @@ var dimple = {
                 lineData = [],
                 theseShapes = null,
                 className = "dmp-series-" + chart.series.indexOf(series),
-                // If there is a category axis we should draw a line for each aggField.  Otherwise
-                // the first aggField defines the points and the others define the line
                 firstAgg = (series.x._hasCategories() || series.y._hasCategories() ? 0 : 1),
-                // Build the point calculator
-                updateCoords = d3.svg.line()
-                    .x(function (d) { return (dimple._helpers.cx(d, chart, series)).toFixed(2); })
-                    .y(function (d) { return (dimple._helpers.cy(d, chart, series)).toFixed(2); }),
-                // Build the point calculator
-                entryCoords = d3.svg.line()
-                    .x(function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin).toFixed(2); })
-                    .y(function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin).toFixed(2); }),
-                // Build the point calculator
-                exitCoords = d3.svg.line()
-                    .x(function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin).toFixed(2); })
-                    .y(function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin).toFixed(2); }),
+                interpolation,
+                updateCoords,
+                entryCoords,
+                exitCoords,
                 graded = false,
                 i,
                 k,
                 key,
                 keyString,
                 rowIndex,
-                getSeriesOrder = function (d, s) {
-                    var rules = [].concat(series._orderRules),
-                        cats = s.categoryFields,
-                        returnValue = [];
-                    if (cats !== null && cats !== undefined && cats.length > 0) {
-                        // Concat is used here to break the reference to the parent array, if we don't do this, in a storyboarded chart,
-                        // the series rules to grow and grow until the system grinds to a halt trying to deal with them all.
-                        if (s.c !== null && s.c !== undefined && s.c._hasMeasure()) {
-                            rules.push({ ordering : s.c.measure, desc : true });
-                        }
-                        if (s.x._hasMeasure()) {
-                            rules.push({ ordering : s.x.measure, desc : true });
-                        }
-                        if (s.y._hasMeasure()) {
-                            rules.push({ ordering : s.y.measure, desc : true });
-                        }
-                        returnValue = dimple._getOrderedList(d, cats, rules);
+                updated,
+                removed,
+                orderedSeriesArray,
+                dataClone;
+
+            function getSeriesOrder(d, s) {
+                var rules = [].concat(series._orderRules),
+                    cats = s.categoryFields,
+                    returnValue = [];
+                if (cats !== null && cats !== undefined && cats.length > 0) {
+                    // Concat is used here to break the reference to the parent array, if we don't do this, in a storyboarded chart,
+                    // the series rules to grow and grow until the system grinds to a halt trying to deal with them all.
+                    if (s.c !== null && s.c !== undefined && s.c._hasMeasure()) {
+                        rules.push({ ordering : s.c.measure, desc : true });
                     }
-                    return returnValue;
-                },
-                // Get the array of ordered values
-                orderedSeriesArray = getSeriesOrder(series.data || chart.data, series),
-                arrayIndexCompare = function (array, a, b) {
-                    var returnValue,
-                        p,
-                        q,
-                        aMatch,
-                        bMatch,
-                        rowArray;
-                    for (p = 0; p < array.length; p += 1) {
-                        aMatch = true;
-                        bMatch = true;
-                        rowArray = [].concat(array[p]);
-                        for (q = 0; q < a.length; q += 1) {
-                            aMatch = aMatch && (a[q] === rowArray[q]);
-                        }
-                        for (q = 0; q < b.length; q += 1) {
-                            bMatch = bMatch && (b[q] === rowArray[q]);
-                        }
-                        if (aMatch && bMatch) {
-                            returnValue = 0;
-                            break;
-                        } else if (aMatch) {
-                            returnValue = -1;
-                            break;
-                        } else if (bMatch) {
-                            returnValue = 1;
-                            break;
-                        }
+                    if (s.x._hasMeasure()) {
+                        rules.push({ ordering : s.x.measure, desc : true });
                     }
-                    return returnValue;
-                },
-                sortFunction = function (a, b) {
-                    var sortValue = 0;
-                    if (series.x._hasCategories()) {
-                        sortValue = (dimple._helpers.cx(a, chart, series) < dimple._helpers.cx(b, chart, series) ? -1 : 1);
-                    } else if (series.y._hasCategories()) {
-                        sortValue = (dimple._helpers.cy(a, chart, series) < dimple._helpers.cy(b, chart, series) ? -1 : 1);
-                    } else if (orderedSeriesArray !== null && orderedSeriesArray !== undefined) {
-                        sortValue = arrayIndexCompare(orderedSeriesArray, a.aggField, b.aggField);
+                    if (s.y._hasMeasure()) {
+                        rules.push({ ordering : s.y.measure, desc : true });
                     }
-                    return sortValue;
-                },
-                addTransition = function (input, duration) {
-                    var returnShape = null;
-                    if (duration === 0) {
-                        returnShape = input;
+                    returnValue = dimple._getOrderedList(d, cats, rules);
+                }
+                return returnValue;
+            }
+
+            function arrayIndexCompare(array, a, b) {
+                var returnValue,
+                    p,
+                    q,
+                    aMatch,
+                    bMatch,
+                    rowArray;
+                for (p = 0; p < array.length; p += 1) {
+                    aMatch = true;
+                    bMatch = true;
+                    rowArray = [].concat(array[p]);
+                    for (q = 0; q < a.length; q += 1) {
+                        aMatch = aMatch && (a[q] === rowArray[q]);
+                    }
+                    for (q = 0; q < b.length; q += 1) {
+                        bMatch = bMatch && (b[q] === rowArray[q]);
+                    }
+                    if (aMatch && bMatch) {
+                        returnValue = 0;
+                        break;
+                    } else if (aMatch) {
+                        returnValue = -1;
+                        break;
+                    } else if (bMatch) {
+                        returnValue = 1;
+                        break;
+                    }
+                }
+                return returnValue;
+            }
+
+            function sortFunction(a, b) {
+                var sortValue = 0;
+                if (series.x._hasCategories()) {
+                    sortValue = (dimple._helpers.cx(a, chart, series) < dimple._helpers.cx(b, chart, series) ? -1 : 1);
+                } else if (series.y._hasCategories()) {
+                    sortValue = (dimple._helpers.cy(a, chart, series) < dimple._helpers.cy(b, chart, series) ? -1 : 1);
+                } else if (orderedSeriesArray !== null && orderedSeriesArray !== undefined) {
+                    sortValue = arrayIndexCompare(orderedSeriesArray, a.aggField, b.aggField);
+                }
+                return sortValue;
+            }
+
+            function addTransition(input, duration) {
+                var returnShape = null;
+                if (duration === 0) {
+                    returnShape = input;
+                } else {
+                    returnShape = input.transition().duration(duration);
+                }
+                return returnShape;
+            }
+
+            function drawMarkerBacks(lineDataRow) {
+                var markerBacks,
+                    markerBackClasses = ["dmp-marker-backs", className, "dmp-" + lineDataRow.keyString],
+                    rem;
+                if (series.lineMarkers) {
+                    if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
+                        markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.data);
                     } else {
-                        returnShape = input.transition().duration(duration);
-                    }
-                    return returnShape;
-                },
-                drawMarkerBacks = function (lineDataRow) {
-                    var markerBacks,
-                        markerBackClasses = ["dmp-marker-backs", className, "dmp-" + lineDataRow.keyString],
-                        rem;
-                    if (series.lineMarkers) {
-                        if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
-                            markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.data);
-                        } else {
-                            markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.data, function (d) { return d.key; });
-                        }
-                        // Add
-                        markerBacks
-                            .enter()
-                            .append("circle")
-                            .attr("id", function (d) { return d.key; })
-                            .attr("class", markerBackClasses.join(" "))
-                            .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin); })
-                            .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin); })
-                            .attr("r", 0)
-                            .attr("fill", "white")
-                            .attr("stroke", "none");
-
-                        // Update
-                        addTransition(markerBacks, duration)
-                            .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
-                            .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                            .attr("r", 2 + series.lineWeight);
-
-                        // Remove
-                        rem = addTransition(markerBacks.exit(), duration)
-                            .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
-                            .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
-                            .attr("r", 0);
-
-                        // Run after transition methods
-                        if (duration === 0) {
-                            rem.remove();
-                        } else {
-                            rem.each("end", function () {
-                                d3.select(this).remove();
-                            });
-                        }
-
-                        if (series._markerBacks === undefined || series._markerBacks === null) {
-                            series._markerBacks = {};
-                        }
-                        series._markerBacks[lineDataRow.keyString] = markerBacks;
-                    }
-                },
-                // Add the actual marker. We need to do this even if we aren't displaying them because they
-                // catch hover events
-                drawMarkers = function (lineDataRow) {
-                    var markers,
-                        markerClasses = ["dmp-markers", className, "dmp-" + lineDataRow.keyString],
-                        rem;
-                    // Deal with markers in the same way as main series to fix #28
-                    if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
-                        markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.data);
-                    } else {
-                        markers = series._markers[lineDataRow.keyString].data(lineDataRow.data, function (d) { return d.key; });
+                        markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.data, function (d) { return d.key; });
                     }
                     // Add
-                    markers
+                    markerBacks
                         .enter()
                         .append("circle")
                         .attr("id", function (d) { return d.key; })
-                        .attr("class", markerClasses.join(" "))
-                        .on("mouseover", function (e) {
-                            self.enterEventHandler(e, this, chart, series);
-                        })
-                        .on("mouseleave", function (e) {
-                            self.leaveEventHandler(e, this, chart, series);
-                        })
+                        .attr("class", markerBackClasses.join(" "))
                         .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin); })
                         .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin); })
                         .attr("r", 0)
-                        .attr("opacity", (series.lineMarkers || lineDataRow.data.length < 2 ? lineDataRow.color.opacity : 0))
-                        .call(function () {
-                            if (!chart.noFormats) {
-                                this.attr("fill", "white")
-                                    .style("stroke-width", series.lineWeight)
-                                    .attr("stroke", function (d) {
-                                        return (graded ? dimple._helpers.fill(d, chart, series) : lineDataRow.color.stroke);
-                                    });
-                            }
-                        });
+                        .attr("fill", "white")
+                        .attr("stroke", "none");
 
                     // Update
-                    addTransition(markers, duration)
+                    addTransition(markerBacks, duration)
                         .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
                         .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                        .attr("r", 2 + series.lineWeight)
-                        .call(function () {
-                            if (!chart.noFormats) {
-                                this.attr("fill", "white")
-                                    .style("stroke-width", series.lineWeight)
-                                    .attr("stroke", function (d) {
-                                        return (graded ? dimple._helpers.fill(d, chart, series) : lineDataRow.color.stroke);
-                                    });
-                            }
-                        });
+                        .attr("r", 2 + series.lineWeight);
 
                     // Remove
-                    rem = addTransition(markers.exit(), duration)
+                    rem = addTransition(markerBacks.exit(), duration)
                         .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
                         .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
                         .attr("r", 0);
@@ -3914,13 +3862,142 @@ var dimple = {
                         });
                     }
 
-                    if (series._markers === undefined || series._markers === null) {
-                        series._markers = {};
+                    if (series._markerBacks === undefined || series._markerBacks === null) {
+                        series._markerBacks = {};
                     }
-                    series._markers[lineDataRow.keyString] = markers;
-                },
-                updated,
-                removed;
+                    series._markerBacks[lineDataRow.keyString] = markerBacks;
+                }
+            }
+
+            // Add the actual marker. We need to do this even if we aren't displaying them because they
+            // catch hover events
+            function drawMarkers(lineDataRow) {
+                var markers,
+                    markerClasses = ["dmp-markers", className, "dmp-" + lineDataRow.keyString],
+                    rem;
+                // Deal with markers in the same way as main series to fix #28
+                if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
+                    markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.data);
+                } else {
+                    markers = series._markers[lineDataRow.keyString].data(lineDataRow.data, function (d) {
+                        return d.key;
+                    });
+                }
+                // Add
+                markers
+                    .enter()
+                    .append("circle")
+                    .attr("id", function (d) {
+                        return d.key;
+                    })
+                    .attr("class", markerClasses.join(" "))
+                    .on("mouseover", function (e) {
+                        self.enterEventHandler(e, this, chart, series);
+                    })
+                    .on("mouseleave", function (e) {
+                        self.leaveEventHandler(e, this, chart, series);
+                    })
+                    .attr("cx", function (d) {
+                        return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin);
+                    })
+                    .attr("cy", function (d) {
+                        return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin);
+                    })
+                    .attr("r", 0)
+                    .attr("opacity", (series.lineMarkers || lineDataRow.data.length < 2 ? lineDataRow.color.opacity : 0))
+                    .call(function () {
+                        if (!chart.noFormats) {
+                            this.attr("fill", "white")
+                                .style("stroke-width", series.lineWeight)
+                                .attr("stroke", function (d) {
+                                    return (graded ? dimple._helpers.fill(d, chart, series) : lineDataRow.color.stroke);
+                                });
+                        }
+                    });
+
+                // Update
+                addTransition(markers, duration)
+                    .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
+                    .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
+                    .attr("r", 2 + series.lineWeight)
+                    .call(function () {
+                        if (!chart.noFormats) {
+                            this.attr("fill", "white")
+                                .style("stroke-width", series.lineWeight)
+                                .attr("stroke", function (d) {
+                                    return (graded ? dimple._helpers.fill(d, chart, series) : lineDataRow.color.stroke);
+                                });
+                        }
+                    });
+
+                // Remove
+                rem = addTransition(markers.exit(), duration)
+                    .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
+                    .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
+                    .attr("r", 0);
+
+                // Run after transition methods
+                if (duration === 0) {
+                    rem.remove();
+                } else {
+                    rem.each("end", function () {
+                        d3.select(this).remove();
+                    });
+                }
+
+                if (series._markers === undefined || series._markers === null) {
+                    series._markers = {};
+                }
+                series._markers[lineDataRow.keyString] = markers;
+            }
+
+            function calcX(dat, cht, srs) {
+                var val;
+                if (series.interpolation === "step" && series.x._hasCategories()) {
+                    srs.barGap = 0;
+                    srs.clusterBarGap = 0;
+                    val = dimple._helpers.x(dat, cht, srs);
+                } else {
+                    val = dimple._helpers.cx(dat, cht, srs);
+                }
+                return val;
+            }
+
+            function calcY(dat, cht, srs) {
+                var val;
+                if (series.interpolation === "step" && series.y._hasCategories()) {
+                    srs.barGap = 0;
+                    srs.clusterBarGap = 0;
+                    val = dimple._helpers.y(dat, cht, srs) + dimple._helpers.height(dat, cht, srs);
+                } else {
+                    val = dimple._helpers.cy(dat, cht, srs);
+                }
+                return val;
+            }
+
+            // Handle the special interpolation handling for step
+            interpolation =  (series.interpolation === "step" ? "step-after" : series.interpolation);
+
+            // Build the point calculator for updates
+            updateCoords = d3.svg.line()
+                .x(function (d) { return (calcX(d, chart, series)).toFixed(2); })
+                .y(function (d) { return (calcY(d, chart, series)).toFixed(2); })
+                .interpolate(interpolation);
+
+            // Build the point calculator for entries
+            entryCoords = d3.svg.line()
+                .x(function (d) { return (series.x._hasCategories() ? calcX(d, chart, series) : series.x._previousOrigin).toFixed(2); })
+                .y(function (d) { return (series.y._hasCategories() ? calcY(d, chart, series) : series.y._previousOrigin).toFixed(2); })
+                .interpolate(interpolation);
+
+            // Build the point calculator for exits
+            exitCoords = d3.svg.line()
+                .x(function (d) { return (series.x._hasCategories() ? calcX(d, chart, series) : series.x._origin).toFixed(2); })
+                .y(function (d) { return (series.y._hasCategories() ? calcY(d, chart, series) : series.y._origin).toFixed(2); })
+                .interpolate(interpolation);
+
+            // Get the array of ordered values
+            orderedSeriesArray = getSeriesOrder(series.data || chart.data, series);
 
             if (series.c !== null && series.c !== undefined && ((series.x._hasCategories() && series.y._hasMeasure()) || (series.y._hasCategories() && series.x._hasMeasure()))) {
                 graded = true;
@@ -3974,12 +4051,31 @@ var dimple = {
                 if (graded) {
                     dimple._addGradient(lineData[i].key, "fill-line-gradient-" + lineData[i].keyString, (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
                 }
+                // Clone the data before adding elements
+                dataClone = [].concat(lineData[i].data);
+                // If this is a custom dimple step line duplicate the last datum so that the final step is completed
+                if (series.interpolation === "step") {
+                    if (series.x._hasCategories()) {
+                        // Clone the last row and duplicate it.
+                        dataClone = dataClone.concat(JSON.parse(JSON.stringify(dataClone[dataClone.length - 1])));
+                        dataClone[dataClone.length - 1].cx = "";
+                        dataClone[dataClone.length - 1].x = "";
+                    }
+                    if (series.y._hasCategories()) {
+                        // Clone the last row and duplicate it.
+                        dataClone = [JSON.parse(JSON.stringify(dataClone[0]))].concat(dataClone);
+                        dataClone[0].cy = "";
+                        dataClone[0].y = "";
+                    }
+                }
+
                 // Get the points that this line will appear
-                lineData[i].entry = entryCoords(lineData[i].data);
+                lineData[i].entry = entryCoords(dataClone);
                 // Get the actual points of the line
-                lineData[i].update = updateCoords(lineData[i].data);
+                lineData[i].update = updateCoords(dataClone);
                 // Get the actual points of the line
-                lineData[i].exit = exitCoords(lineData[i].data);
+                lineData[i].exit = exitCoords(dataClone);
+
                 // Add the color in this loop, it can't be done during initialisation of the row becase
                 // the lines should be ordered first (to ensure standard distribution of colors
                 lineData[i].color = chart.getColor(lineData[i].key.length > 0 ? lineData[i].key[lineData[i].key.length - 1] : "All");

@@ -48,9 +48,11 @@
         this.logBase = 10;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-title
         this.title = undefined;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-clamp
+        this.clamp = true;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-ticks
+        this.ticks = null;
 
-        // If this is a slave axis to a master composite axis, this stores a reference to the master
-        this._master = null;
         // If this is a composite axis, store links to all slaves
         this._slaves = [];
         // The scale determined by the update method

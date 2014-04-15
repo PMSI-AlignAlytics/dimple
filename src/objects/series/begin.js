@@ -32,6 +32,8 @@
         this.lineMarkers = false;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-afterDraw
         this.afterDraw = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-interpolation
+        this.interpolation = "linear";
 
         // Any event handlers joined to this series
         this._eventHandlers = [];

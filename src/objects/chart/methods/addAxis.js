@@ -43,9 +43,6 @@
                 } else if ((axis.categoryFields === null || axis.categoryFields === undefined ? 0 : axis.categoryFields.length) !== (master.categoryFields === null || master.categoryFields === undefined ? 0 : master.categoryFields.length)) {
                     throw "You have specified a composite axis where axes have differing numbers of category fields - this is not supported, all axes must be of the same type.";
                 }
-                // Set the master, meaning that rather than rendering itself, this axis will contribute to the
-                // scaling of the master
-                axis._master = master;
                 // Do not add the axis to the chart's axes array, instead add it the master
                 master._slaves.push(axis);
             }

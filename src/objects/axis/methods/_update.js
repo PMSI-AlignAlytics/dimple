@@ -8,6 +8,7 @@
                 step,
                 remainder,
                 origin,
+                tickCount = this.ticks || 10,
                 getOrderedCategories = function (self, axPos, oppPos) {
                     var category = self.categoryFields[0],
                         axisData = self._getAxisData(),
@@ -52,7 +53,8 @@
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
-                        .domain([this._min, this._max]);
+                        .domain([this._min, this._max])
+                        .clamp(this.clamp);
                 } else if (this.useLog) {
                     this._scale = d3.scale.log()
                         .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
@@ -60,7 +62,7 @@
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
-                        .clamp(true)
+                        .clamp(this.clamp)
                         .base(this.logBase)
                         .nice();
                 } else if (this.measure === null || this.measure === undefined) {
@@ -77,7 +79,9 @@
                 } else {
                     this._scale = d3.scale.linear()
                         .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
-                        .domain([this._min, this._max]).nice();
+                        .domain([this._min, this._max])
+                        .clamp(this.clamp)
+                        .nice();
                 }
                 // If it's visible, orient it at the top or bottom if it's first or second respectively
                 if (!this.hidden) {
@@ -86,11 +90,17 @@
                         this._draw = d3.svg.axis()
                             .orient("bottom")
                             .scale(this._scale);
+                        if (this.ticks) {
+                            this._draw.ticks(tickCount);
+                        }
                         break;
                     case 1:
                         this._draw = d3.svg.axis()
                             .orient("top")
                             .scale(this._scale);
+                        if (this.ticks) {
+                            this._draw.ticks(tickCount);
+                        }
                         break;
                     default:
                         break;
@@ -100,7 +110,8 @@
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
-                        .domain([this._min, this._max]);
+                        .domain([this._min, this._max])
+                        .clamp(this.clamp);
                 } else if (this.useLog) {
                     this._scale = d3.scale.log()
                         .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
@@ -108,7 +119,7 @@
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
-                        .clamp(true)
+                        .clamp(this.clamp)
                         .base(this.logBase)
                         .nice();
                 } else if (this.measure === null || this.measure === undefined) {
@@ -126,6 +137,7 @@
                     this._scale = d3.scale.linear()
                         .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([this._min, this._max])
+                        .clamp(this.clamp)
                         .nice();
                 }
                 // if it's visible, orient it at the left or right if it's first or second respectively
@@ -135,11 +147,17 @@
                         this._draw = d3.svg.axis()
                             .orient("left")
                             .scale(this._scale);
+                        if (this.ticks) {
+                            this._draw.ticks(tickCount);
+                        }
                         break;
                     case 1:
                         this._draw = d3.svg.axis()
                             .orient("right")
                             .scale(this._scale);
+                        if (this.ticks) {
+                            this._draw.ticks(tickCount);
+                        }
                         break;
                     default:
                         break;
@@ -153,17 +171,19 @@
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
                             (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
                         ])
-                        .clamp(true)
+                        .clamp(this.clamp)
                         .base(this.logBase);
                 } else {
                     this._scale = d3.scale.linear()
                         .range([this.chart._heightPixels() / 300, this.chart._heightPixels() / 10])
-                        .domain([this._min, this._max]);
+                        .domain([this._min, this._max])
+                        .clamp(this.clamp);
                 }
             } else if (this.position.length > 0 && this.position[0] === "c" && this._scale === null) {
                 this._scale = d3.scale.linear()
                     .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
-                    .domain([this._min, this._max]);
+                    .domain([this._min, this._max])
+                    .clamp(this.clamp);
             }
             // Apply this scale to all slaves as well
             if (this._slaves !== null && this._slaves !== undefined && this._slaves.length > 0) {
@@ -172,10 +192,10 @@
                 }, this);
             }
             // Check that the axis ends on a labelled tick
-            if ((refactor === null || refactor === undefined || refactor === false) && !this._hasTimeField() && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(10).length > 0 && (this.position === "x" || this.position === "y")) {
+            if ((refactor === null || refactor === undefined || refactor === false) && !this._hasTimeField() && this._scale !== null && this._scale.ticks !== null && this._scale.ticks !== undefined && this._scale.ticks(tickCount).length > 0 && (this.position === "x" || this.position === "y")) {
 
-                // Get the ticks determined based on a split of 10
-                ticks = this._scale.ticks(10);
+                // Get the ticks determined based on the specified split
+                ticks = this._scale.ticks(tickCount);
                 // Get the step between ticks
                 step = ticks[1] - ticks[0];
                 // Get the remainder
@@ -196,6 +216,10 @@
             // one is required.
             if (distinctCats !== null && distinctCats !== undefined && distinctCats.length > 0) {
                 origin = this._scale.copy()(distinctCats[0]);
+            } else if (this._min > 0) {
+                origin = this._scale.copy()(this._min);
+            } else if (this._max < 0) {
+                origin = this._scale.copy()(this._max);
             } else {
                 origin = this._scale.copy()(0);
             }

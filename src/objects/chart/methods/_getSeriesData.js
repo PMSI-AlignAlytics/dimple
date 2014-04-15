@@ -9,7 +9,7 @@
                 this.series.forEach(function (series) {
                     // The data for this series
                     var returnData = [],
-                        // Handle multiple category values by iterating the fields in the row and concatonate the values
+                        // Handle multiple category values by iterating the fields in the row and concatenate the values
                         // This is repeated for each axis using a small anon function
                         getField = function (axis, row) {
                             var returnField = [];
