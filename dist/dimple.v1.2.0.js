@@ -688,7 +688,7 @@ var dimple = {
                         key,
                         storyCat = "",
                         orderedStoryboardArray = [],
-                        seriesCat = "",
+                        seriesCat = [],
                         orderedSeriesArray = [],
                         xCat = "",
                         xSortArray = [],
@@ -738,6 +738,7 @@ var dimple = {
                     sortedData.sort(function (a, b) {
                         var returnValue = 0,
                             cats,
+                            comp,
                             p,
                             q,
                             aMatch,
@@ -751,15 +752,16 @@ var dimple = {
                         if (yCat !== "" && returnValue === 0) {
                             returnValue = ySortArray.indexOf(a[yCat]) - ySortArray.indexOf(b[yCat]);
                         }
-                        if (seriesCat !== null && seriesCat !== undefined && seriesCat.length > 0) {
+                        if (seriesCat && seriesCat.length > 0 && returnValue === 0) {
                             cats = [].concat(seriesCat);
                             returnValue = 0;
                             for (p = 0; p < orderedSeriesArray.length; p += 1) {
+                                comp = [].concat(orderedSeriesArray[p]);
                                 aMatch = true;
                                 bMatch = true;
                                 for (q = 0; q < cats.length; q += 1) {
-                                    aMatch = aMatch && (a[cats[q]] === orderedSeriesArray[p][q]);
-                                    bMatch = bMatch && (b[cats[q]] === orderedSeriesArray[p][q]);
+                                    aMatch = aMatch && (a[cats[q]] === comp[q]);
+                                    bMatch = bMatch && (b[cats[q]] === comp[q]);
                                 }
                                 if (aMatch && bMatch) {
                                     returnValue = 0;
@@ -2602,6 +2604,202 @@ var dimple = {
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/plot/area.js
     dimple.plot.area = {
+
+        // By default the values are stacked
+        stacked: true,
+
+        // The axis positions affecting the area series
+        supportedAxes: ["x", "y", "c"],
+
+        // Draw the axis
+        draw: function (chart, series, duration) {
+            // Get the position data
+            var data = series._positionData,
+                areaData = [],
+                theseShapes = null,
+                className = "dimple-series-" + chart.series.indexOf(series),
+                firstAgg = (series.x._hasCategories() || series.y._hasCategories() ? 0 : 1),
+                interpolation,
+                graded = false,
+                i,
+                k,
+                key,
+                keyString,
+                rowIndex,
+                updated,
+                removed,
+                orderedSeriesArray,
+                dataClone,
+                onEnter = function (e, shape, chart, series) {
+                    d3.select(shape).style("opacity", 1);
+                    dimple._showPointTooltip(e, shape, chart, series);
+                },
+                onLeave = function (e, shape, chart, series) {
+                    d3.select(shape).style("opacity", (series.lineMarkers ? dimple._helpers.opacity(e, chart, series) : 0));
+                    dimple._removeTooltip(e, shape, chart, series);
+                },
+                drawMarkers = function (d) {
+                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter, onLeave);
+                },
+                coord = function (position, datum) {
+                    var val;
+                    if (series.interpolation === "step" && series[position]._hasCategories()) {
+                        series.barGap = 0;
+                        series.clusterBarGap = 0;
+                        val = dimple._helpers[position](datum, chart, series) + (position === "y" ? dimple._helpers.height(datum, chart, series) : 0);
+                    } else {
+                        val = dimple._helpers["c" + position](datum, chart, series);
+                    }
+                    return val;
+                },
+                getArea = function (inter, originProperty) {
+                    return d3.svg.line()
+                        .x(function (d) { return (series.x._hasCategories() || !originProperty ? coord("x", d) : series.x[originProperty]); })
+                        .y(function (d) { return (series.y._hasCategories() || !originProperty ? coord("y", d) : series.y[originProperty]); })
+                        .interpolate(inter);
+                };
+
+            // Handle the special interpolation handling for step
+            interpolation =  (series.interpolation === "step" ? "step-after" : series.interpolation);
+
+            // Get the array of ordered values
+            orderedSeriesArray = dimple._getSeriesOrder(series.data || chart.data, series);
+
+            if (series.c && ((series.x._hasCategories() && series.y._hasMeasure()) || (series.y._hasCategories() && series.x._hasMeasure()))) {
+                graded = true;
+            }
+
+            // Create a set of area data grouped by the aggregation field
+            for (i = 0; i < data.length; i += 1) {
+                key = [];
+                rowIndex = -1;
+                // Skip the first category unless there is a category axis on x or y
+                for (k = firstAgg; k < data[i].aggField.length; k += 1) {
+                    key.push(data[i].aggField[k]);
+                }
+                // Find the corresponding row in the areaData
+                keyString = dimple._createClass(key);
+                for (k = 0; k < areaData.length; k += 1) {
+                    if (areaData[k].keyString === keyString) {
+                        rowIndex = k;
+                        break;
+                    }
+                }
+                // Add a row to the area data if none was found
+                if (rowIndex === -1) {
+                    rowIndex = areaData.length;
+                    areaData.push({
+                        key: key,
+                        keyString: keyString,
+                        color: "white",
+                        data: [],
+                        area: {},
+                        entryExit: {}
+                    });
+                }
+                // Add this row to the relevant data
+                areaData[rowIndex].data.push(data[i]);
+            }
+
+            // Sort the area data itself based on the order series array - this matters for stacked areas and default color
+            // consistency with colors usually awarded in terms of prominence
+            if (orderedSeriesArray) {
+                areaData.sort(function (a, b) {
+                    return dimple._arrayIndexCompare(orderedSeriesArray, a.key, b.key);
+                });
+            }
+
+            // Create a set of area data grouped by the aggregation field
+            for (i = 0; i < areaData.length; i += 1) {
+                // Sort the points so that areas are connected in the correct order
+                areaData[i].data.sort(dimple._getSeriesSortPredicate(chart, series, orderedSeriesArray));
+                // If this should have colour gradients, add them
+                if (graded) {
+                    dimple._addGradient(areaData[i].key, "fill-area-gradient-" + areaData[i].keyString, (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
+                }
+                // Clone the data before adding elements
+                dataClone = [].concat(areaData[i].data);
+                // If this is a custom dimple step area duplicate the last datum so that the final step is completed
+                if (series.interpolation === "step") {
+                    if (series.x._hasCategories()) {
+                        // Clone the last row and duplicate it.
+                        dataClone = dataClone.concat(JSON.parse(JSON.stringify(dataClone[dataClone.length - 1])));
+                        dataClone[dataClone.length - 1].cx = "";
+                        dataClone[dataClone.length - 1].x = "";
+                    }
+                    if (series.y._hasCategories()) {
+                        // Clone the last row and duplicate it.
+                        dataClone = [JSON.parse(JSON.stringify(dataClone[0]))].concat(dataClone);
+                        dataClone[0].cy = "";
+                        dataClone[0].y = "";
+                    }
+                }
+
+                // Get the points that this area will appear
+                areaData[i].entry = getArea(interpolation, "_previousOrigin")(dataClone);
+                areaData[i].update = getArea(interpolation)(dataClone);
+                areaData[i].exit = getArea(interpolation, "_origin")(dataClone);
+
+                // Add the color in this loop, it can't be done during initialisation of the row because
+                // the areas should be ordered first (to ensure standard distribution of colors
+                areaData[i].color = chart.getColor(areaData[i].key.length > 0 ? areaData[i].key[areaData[i].key.length - 1] : "All");
+            }
+
+            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+                chart._tooltipGroup.remove();
+            }
+
+            if (series.shapes === null || series.shapes === undefined) {
+                theseShapes = chart._group.selectAll("." + className).data(areaData);
+            } else {
+                theseShapes = series.shapes.data(areaData, function (d) { return d.key; });
+            }
+
+            // Add
+            theseShapes
+                .enter()
+                .append("path")
+                .attr("id", function (d) { return d.key; })
+                .attr("class", function (d) {
+                    return className + " dimple-line " + d.keyString;
+                })
+                .attr("d", function (d) {
+                    return d.entry;
+                })
+                .call(function () {
+                    // Apply formats optionally
+                    if (!chart.noFormats) {
+                        this.attr("opacity", function (d) { return (graded ? 1 : d.color.opacity); })
+                            .attr("fill", "none")
+                            .attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.keyString + ")" : d.color.stroke); })
+                            .attr("stroke-width", series.lineWeight);
+                    }
+                })
+                .each(drawMarkers);
+
+            // Update
+            updated = dimple._handleTransition(theseShapes, duration)
+                .attr("d", function (d) { return d.update; })
+                .each(drawMarkers);
+
+            // Remove
+            removed = dimple._handleTransition(theseShapes.exit(), duration)
+                .attr("d", function (d) { return d.exit; })
+                .each(drawMarkers);
+
+            dimple._postDrawHandling(series, updated, removed, duration);
+
+            // Save the shapes to the series array
+            series.shapes = theseShapes;
+
+        }
+    };
+
+
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/objects/plot/area.js
+    dimple.plot.area_old = {
         stacked: true,
 
         supportedAxes: ["x", "y", "c"],
@@ -3288,7 +3486,7 @@ var dimple = {
     // Source: /src/objects/plot/line.js
     dimple.plot.line = {
 
-        // By default the bubble values are not stacked
+        // By default the values are not stacked
         stacked: false,
 
         // The axis positions affecting the line series
@@ -3344,7 +3542,7 @@ var dimple = {
 
             // Handle the special interpolation handling for step
             interpolation =  (series.interpolation === "step" ? "step-after" : series.interpolation);
-//
+
             // Get the array of ordered values
             orderedSeriesArray = dimple._getSeriesOrder(series.data || chart.data, series);
 
@@ -3423,7 +3621,7 @@ var dimple = {
                 lineData[i].update = getLine(interpolation)(dataClone);
                 lineData[i].exit = getLine(interpolation, "_origin")(dataClone);
 
-                // Add the color in this loop, it can't be done during initialisation of the row becase
+                // Add the color in this loop, it can't be done during initialisation of the row because
                 // the lines should be ordered first (to ensure standard distribution of colors
                 lineData[i].color = chart.getColor(lineData[i].key.length > 0 ? lineData[i].key[lineData[i].key.length - 1] : "All");
             }

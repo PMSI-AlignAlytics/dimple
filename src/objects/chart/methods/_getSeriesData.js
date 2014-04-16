@@ -40,7 +40,7 @@
                         key,
                         storyCat = "",
                         orderedStoryboardArray = [],
-                        seriesCat = "",
+                        seriesCat = [],
                         orderedSeriesArray = [],
                         xCat = "",
                         xSortArray = [],
@@ -90,6 +90,7 @@
                     sortedData.sort(function (a, b) {
                         var returnValue = 0,
                             cats,
+                            comp,
                             p,
                             q,
                             aMatch,
@@ -103,15 +104,16 @@
                         if (yCat !== "" && returnValue === 0) {
                             returnValue = ySortArray.indexOf(a[yCat]) - ySortArray.indexOf(b[yCat]);
                         }
-                        if (seriesCat !== null && seriesCat !== undefined && seriesCat.length > 0) {
+                        if (seriesCat && seriesCat.length > 0 && returnValue === 0) {
                             cats = [].concat(seriesCat);
                             returnValue = 0;
                             for (p = 0; p < orderedSeriesArray.length; p += 1) {
+                                comp = [].concat(orderedSeriesArray[p]);
                                 aMatch = true;
                                 bMatch = true;
                                 for (q = 0; q < cats.length; q += 1) {
-                                    aMatch = aMatch && (a[cats[q]] === orderedSeriesArray[p][q]);
-                                    bMatch = bMatch && (b[cats[q]] === orderedSeriesArray[p][q]);
+                                    aMatch = aMatch && (a[cats[q]] === comp[q]);
+                                    bMatch = bMatch && (b[cats[q]] === comp[q]);
                                 }
                                 if (aMatch && bMatch) {
                                     returnValue = 0;
