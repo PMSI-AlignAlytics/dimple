@@ -37,7 +37,8 @@
             t,
             box,
             tipText = series.getTooltipText(e),
-            overlap;
+            translateX,
+            translateY;
 
         if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
             chart._tooltipGroup.remove();
@@ -147,16 +148,6 @@
             .style("stroke-width", 2)
             .style("opacity", 0.95);
 
-//        // Shift the ring margin left or right depending on whether it will overlap the edge
-//        overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.node().getBBox().width);
-
-//        // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
-//        t.attr("transform", "translate(" +
-//            (overlap ? cx - (r + textMargin + popupMargin + w) : cx + r + textMargin + popupMargin) + " , " +
-//            (cy - ((y - (h - textMargin)) / 2)) +
-//            ")");
-
-        var translateX, translateY;
         // Shift the popup around to avoid overlapping the svg edge
         if (cx + r + textMargin + popupMargin + w < parseFloat(chart.svg.node().getBBox().width)) {
             // Draw centre right

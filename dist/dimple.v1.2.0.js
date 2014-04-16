@@ -213,7 +213,7 @@ var dimple = {
                     rows.push(this.timeField + ": " + this._getFormat()(d[this.position + "Field"][0]));
                 }
             } else if (this._hasCategories()) {
-                // Add the x axis categories
+                // Add the categories
                 this.categoryFields.forEach(function (c, i) {
                     if (c !== null && c !== undefined && d[this.position + "Field"][i]) {
                         // If the category name and value match don't display the category name
@@ -221,7 +221,20 @@ var dimple = {
                     }
                 }, this);
             } else if (this._hasMeasure()) {
-                rows.push(this.measure + ": " + this._getFormat()(d[this.position] || d[this.position + "Value"]));
+                switch (this.position) {
+                case "x":
+                    rows.push(this.measure + ": " + this._getFormat()(d.width));
+                    break;
+                case "y":
+                    rows.push(this.measure + ": " + this._getFormat()(d.height));
+                    break;
+                case "z":
+                    rows.push(this.measure + ": " + this._getFormat()(d.zValue));
+                    break;
+                case "c":
+                    rows.push(this.measure + ": " + this._getFormat()(d.cValue));
+                    break;
+                }
             }
         };
         // Copyright: 2014 PMSI-AlignAlytics
@@ -1489,7 +1502,7 @@ var dimple = {
                     gridSize = -chartWidth;
                 }
                 // Draw the axis
-                // This code might seem unneccesary but even applying a duration of 0 to a transition will cause the code to execute after the 
+                // This code might seem unneccesary but even applying a duration of 0 to a transition will cause the code to execute after the
                 // code below and precedence is important here.
                 handleTrans = function (ob) {
                     var returnObj;
@@ -3085,7 +3098,9 @@ var dimple = {
                 theseShapes = null,
                 classes = ["dimple-series-" + chart.series.indexOf(series), "dimple-bar"],
                 updated,
-                removed;
+                removed,
+                xFloat = !series.stacked && series.x._hasMeasure(),
+                yFloat = !series.stacked && series.y._hasMeasure();
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
                 chart._tooltipGroup.remove();
@@ -3129,10 +3144,10 @@ var dimple = {
 
             // Update
             updated = dimple._handleTransition(theseShapes, duration)
-                .attr("x", function (d) { return dimple._helpers.x(d, chart, series); })
-                .attr("y", function (d) { return dimple._helpers.y(d, chart, series); })
-                .attr("width", function (d) { return dimple._helpers.width(d, chart, series); })
-                .attr("height", function (d) { return dimple._helpers.height(d, chart, series); })
+                .attr("x", function (d) { return xFloat ? dimple._helpers.cx(d, chart, series) - series.x.floatingBarWidth / 2 : dimple._helpers.x(d, chart, series); })
+                .attr("y", function (d) { return yFloat ? dimple._helpers.cy(d, chart, series) - series.y.floatingBarWidth / 2 : dimple._helpers.y(d, chart, series); })
+                .attr("width", function (d) { return (xFloat ? series.x.floatingBarWidth : dimple._helpers.width(d, chart, series)); })
+                .attr("height", function (d) { return (yFloat ? series.y.floatingBarWidth : dimple._helpers.height(d, chart, series)); })
                 .call(function () {
                     if (!chart.noFormats) {
                         this.attr("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
@@ -3143,9 +3158,9 @@ var dimple = {
             // Remove
             removed = dimple._handleTransition(theseShapes.exit(), duration)
                 .attr("x", function (d) { return dimple._helpers.x(d, chart, series); })
-                .attr("y", function (d) { return dimple._helpers.y(d, chart, series); })
-                .attr("width", function (d) { return dimple._helpers.width(d, chart, series); })
-                .attr("height", function (d) { return dimple._helpers.height(d, chart, series); });
+                .attr("y", function (d) { return dimple._helpers.y(d, chart, series) + dimple._helpers.height(d, chart, series); })
+                .attr("width", function (d) {return (d.xField !== null && d.xField.length > 0 ? dimple._helpers.width(d, chart, series) : 0); })
+                .attr("height", function (d) {return (d.yField !== null && d.yField.length > 0 ? dimple._helpers.height(d, chart, series) : 0); });
 
             dimple._postDrawHandling(series, updated, removed, duration);
 
@@ -4350,19 +4365,22 @@ var dimple = {
             h = 0,
             // Values to shift the popup
             translateX,
-            translateY;
+            translateY,
+            offset;
 
         if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
             chart._tooltipGroup.remove();
         }
         chart._tooltipGroup = chart.svg.append("g");
 
+        offset = (series.stacked ? 1 : width / 2);
+
         // Add a drop line to the x axis
         if (!series.x._hasCategories() && dropDest.y !== null) {
             chart._tooltipGroup.append("line")
-                .attr("x1", (x < series.x._origin ? x + 1 : x + width - 1))
+                .attr("x1", (x < series.x._origin ? x + offset : x + width - offset))
                 .attr("y1", (y < dropDest.y ? y + height : y))
-                .attr("x2", (x < series.x._origin ? x + 1 : x + width - 1))
+                .attr("x2", (x < series.x._origin ? x + offset : x + width - offset))
                 .attr("y2", (y < dropDest.y ? y + height : y))
                 .style("fill", "none")
                 .style("stroke", fill)
@@ -4379,13 +4397,15 @@ var dimple = {
                 .attr("y2", (y < dropDest.y ? dropDest.y - 1 : dropDest.y + 1));
         }
 
+        offset = (series.stacked ? 1 : height / 2);
+
         // Add a drop line to the y axis
         if (!series.y._hasCategories() && dropDest.x !== null) {
             chart._tooltipGroup.append("line")
                 .attr("x1", (x < dropDest.x ? x + width : x))
-                .attr("y1", (y < series.y._origin ? y + 1 : y + height - 1))
+                .attr("y1", (y < series.y._origin ? y + offset : y + height - offset))
                 .attr("x2", (x < dropDest.x ? x + width : x))
-                .attr("y2", (y < series.y._origin ? y + 1 : y + height - 1))
+                .attr("y2", (y < series.y._origin ? y + offset : y + height - offset))
                 .style("fill", "none")
                 .style("stroke", fill)
                 .style("stroke-width", 2)
@@ -4507,7 +4527,8 @@ var dimple = {
             t,
             box,
             tipText = series.getTooltipText(e),
-            overlap;
+            translateX,
+            translateY;
 
         if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
             chart._tooltipGroup.remove();
@@ -4617,16 +4638,6 @@ var dimple = {
             .style("stroke-width", 2)
             .style("opacity", 0.95);
 
-//        // Shift the ring margin left or right depending on whether it will overlap the edge
-//        overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.node().getBBox().width);
-
-//        // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
-//        t.attr("transform", "translate(" +
-//            (overlap ? cx - (r + textMargin + popupMargin + w) : cx + r + textMargin + popupMargin) + " , " +
-//            (cy - ((y - (h - textMargin)) / 2)) +
-//            ")");
-
-        var translateX, translateY;
         // Shift the popup around to avoid overlapping the svg edge
         if (cx + r + textMargin + popupMargin + w < parseFloat(chart.svg.node().getBBox().width)) {
             // Draw centre right

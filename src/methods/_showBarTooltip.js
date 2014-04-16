@@ -40,19 +40,22 @@
             h = 0,
             // Values to shift the popup
             translateX,
-            translateY;
+            translateY,
+            offset;
 
         if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
             chart._tooltipGroup.remove();
         }
         chart._tooltipGroup = chart.svg.append("g");
 
+        offset = (series.stacked ? 1 : width / 2);
+
         // Add a drop line to the x axis
         if (!series.x._hasCategories() && dropDest.y !== null) {
             chart._tooltipGroup.append("line")
-                .attr("x1", (x < series.x._origin ? x + 1 : x + width - 1))
+                .attr("x1", (x < series.x._origin ? x + offset : x + width - offset))
                 .attr("y1", (y < dropDest.y ? y + height : y))
-                .attr("x2", (x < series.x._origin ? x + 1 : x + width - 1))
+                .attr("x2", (x < series.x._origin ? x + offset : x + width - offset))
                 .attr("y2", (y < dropDest.y ? y + height : y))
                 .style("fill", "none")
                 .style("stroke", fill)
@@ -69,13 +72,15 @@
                 .attr("y2", (y < dropDest.y ? dropDest.y - 1 : dropDest.y + 1));
         }
 
+        offset = (series.stacked ? 1 : height / 2);
+
         // Add a drop line to the y axis
         if (!series.y._hasCategories() && dropDest.x !== null) {
             chart._tooltipGroup.append("line")
                 .attr("x1", (x < dropDest.x ? x + width : x))
-                .attr("y1", (y < series.y._origin ? y + 1 : y + height - 1))
+                .attr("y1", (y < series.y._origin ? y + offset : y + height - offset))
                 .attr("x2", (x < dropDest.x ? x + width : x))
-                .attr("y2", (y < series.y._origin ? y + 1 : y + height - 1))
+                .attr("y2", (y < series.y._origin ? y + offset : y + height - offset))
                 .style("fill", "none")
                 .style("stroke", fill)
                 .style("stroke-width", 2)

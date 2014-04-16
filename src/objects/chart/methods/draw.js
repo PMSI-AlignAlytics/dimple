@@ -179,7 +179,7 @@
                     gridSize = -chartWidth;
                 }
                 // Draw the axis
-                // This code might seem unneccesary but even applying a duration of 0 to a transition will cause the code to execute after the 
+                // This code might seem unneccesary but even applying a duration of 0 to a transition will cause the code to execute after the
                 // code below and precedence is important here.
                 handleTrans = function (ob) {
                     var returnObj;
