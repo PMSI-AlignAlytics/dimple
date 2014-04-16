@@ -206,6 +206,26 @@ var dimple = {
 
         // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/axis/methods/getTooltipText.js
+        this._getTooltipText = function (rows, d) {
+            if (this._hasTimeField()) {
+                if (d[this.position + "Field"][0]) {
+                    rows.push(this.timeField + ": " + this._getFormat()(d[this.position + "Field"][0]));
+                }
+            } else if (this._hasCategories()) {
+                // Add the x axis categories
+                this.categoryFields.forEach(function (c, i) {
+                    if (c !== null && c !== undefined && d[this.position + "Field"][i]) {
+                        // If the category name and value match don't display the category name
+                        rows.push(c + (d[this.position + "Field"][i] !== c ? ": " + d[this.position + "Field"][i] : ""));
+                    }
+                }, this);
+            } else if (this._hasMeasure()) {
+                rows.push(this.measure + ": " + this._getFormat()(d[this.position] || d[this.position + "Value"]));
+            }
+        };
+        // Copyright: 2014 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_getTopMaster.js
         this._getTopMaster = function () {
             // The highest level master
@@ -2297,6 +2317,36 @@ var dimple = {
         this.addOrderRule = function (ordering, desc) {
             this._orderRules.push({ ordering : ordering, desc : desc });
         };
+        // Copyright: 2014 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/series/methods/getTooltipText.js
+        this.getTooltipText = function (e) {
+            var rows = [];
+            // Add the series categories
+            if (this.categoryFields !== null && this.categoryFields !== undefined && this.categoryFields.length > 0) {
+                this.categoryFields.forEach(function (c, i) {
+                    if (c !== null && c !== undefined && e.aggField[i] !== null && e.aggField[i] !== undefined) {
+                        // If the category name and value match don't display the category name
+                        rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
+                    }
+                }, this);
+            }
+
+            if (this.x) {
+                this.x._getTooltipText(rows, e);
+            }
+            if (this.y) {
+                this.y._getTooltipText(rows, e);
+            }
+            if (this.z) {
+                this.z._getTooltipText(rows, e);
+            }
+            if (this.c) {
+                this.c._getTooltipText(rows, e);
+            }
+            // Get distinct text rows to deal with cases where 2 axes have the same dimensionality
+            return rows.filter(function (elem, pos) { return rows.indexOf(elem) === pos; });
+        };
     };
     // End dimple.series
 
@@ -3031,22 +3081,9 @@ var dimple = {
         // Draw the chart
         draw: function (chart, series, duration) {
 
-            // Get self pointer for inner functions
-            var self = this,
-                // Get the series data
-                chartData = series._positionData,
-                // If the series is uninitialised create placeholders, otherwise use the existing shapes
+            var chartData = series._positionData,
                 theseShapes = null,
                 classes = ["dimple-series-" + chart.series.indexOf(series), "dimple-bar"],
-                addTransition = function (input, duration) {
-                    var returnShape = null;
-                    if (duration === 0) {
-                        returnShape = input;
-                    } else {
-                        returnShape = input.transition().duration(duration);
-                    }
-                    return returnShape;
-                },
                 updated,
                 removed;
 
@@ -3078,10 +3115,10 @@ var dimple = {
                 .attr("height", function (d) {return (d.yField !== null && d.yField.length > 0 ? dimple._helpers.height(d, chart, series) : 0); })
                 .attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
                 .on("mouseover", function (e) {
-                    self.enterEventHandler(e, this, chart, series);
+                    dimple._showBarTooltip(e, this, chart, series);
                 })
-                .on("mouseleave", function () {
-                    self.leaveEventHandler(chart);
+                .on("mouseleave", function (e) {
+                    dimple._removeTooltip(e, this, chart, series);
                 })
                 .call(function () {
                     if (!chart.noFormats) {
@@ -3091,7 +3128,7 @@ var dimple = {
                 });
 
             // Update
-            updated = addTransition(theseShapes, duration)
+            updated = dimple._handleTransition(theseShapes, duration)
                 .attr("x", function (d) { return dimple._helpers.x(d, chart, series); })
                 .attr("y", function (d) { return dimple._helpers.y(d, chart, series); })
                 .attr("width", function (d) { return dimple._helpers.width(d, chart, series); })
@@ -3104,270 +3141,16 @@ var dimple = {
                 });
 
             // Remove
-            removed = addTransition(theseShapes.exit(), duration)
+            removed = dimple._handleTransition(theseShapes.exit(), duration)
                 .attr("x", function (d) { return dimple._helpers.x(d, chart, series); })
                 .attr("y", function (d) { return dimple._helpers.y(d, chart, series); })
                 .attr("width", function (d) { return dimple._helpers.width(d, chart, series); })
                 .attr("height", function (d) { return dimple._helpers.height(d, chart, series); });
 
-            // Run after transition methods
-            if (duration === 0) {
-                updated.each(function (d, i) {
-                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
-                        series.afterDraw(this, d, i);
-                    }
-                });
-                removed.remove();
-            } else {
-                updated.each("end", function (d, i) {
-                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
-                        series.afterDraw(this, d, i);
-                    }
-                });
-                removed.each("end", function () {
-                    d3.select(this).remove();
-                });
-            }
+            dimple._postDrawHandling(series, updated, removed, duration);
 
             // Save the shapes to the series array
             series.shapes = theseShapes;
-        },
-
-        // Handle the mouse enter event
-        enterEventHandler: function (e, shape, chart, series) {
-
-            // The margin between the text and the box
-            var textMargin = 5,
-                // The margin between the ring and the popup
-                popupMargin = 10,
-                // The popup animation duration in ms
-                animDuration = 750,
-                // Collect some facts about the highlighted bar
-                selectedShape = d3.select(shape),
-                x = parseFloat(selectedShape.attr("x")),
-                y = parseFloat(selectedShape.attr("y")),
-                width = parseFloat(selectedShape.attr("width")),
-                height = parseFloat(selectedShape.attr("height")),
-                opacity = selectedShape.attr("opacity"),
-                fill = selectedShape.attr("fill"),
-                dropDest = series._dropLineOrigin(),
-                // Fade the popup stroke mixing the shape fill with 60% white
-                popupStrokeColor = d3.rgb(
-                    d3.rgb(fill).r + 0.6 * (255 - d3.rgb(fill).r),
-                    d3.rgb(fill).g + 0.6 * (255 - d3.rgb(fill).g),
-                    d3.rgb(fill).b + 0.6 * (255 - d3.rgb(fill).b)
-                ),
-                // Fade the popup fill mixing the shape fill with 80% white
-                popupFillColor = d3.rgb(
-                    d3.rgb(fill).r + 0.8 * (255 - d3.rgb(fill).r),
-                    d3.rgb(fill).g + 0.8 * (255 - d3.rgb(fill).g),
-                    d3.rgb(fill).b + 0.8 * (255 - d3.rgb(fill).b)
-                ),
-                t,
-                box,
-                rows = [],
-                // The running y value for the text elements
-                yRunning = 0,
-                // The maximum bounds of the text elements
-                w = 0,
-                h = 0,
-                // Values to shift the popup
-                translateX,
-                translateY;
-
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
-                chart._tooltipGroup.remove();
-            }
-            chart._tooltipGroup = chart.svg.append("g");
-
-            // Add a drop line to the x axis
-            if (!series.x._hasCategories() && dropDest.y !== null) {
-                chart._tooltipGroup.append("line")
-                    .attr("x1", (x < series.x._origin ? x + 1 : x + width - 1))
-                    .attr("y1", (y < dropDest.y ? y + height : y))
-                    .attr("x2", (x < series.x._origin ? x + 1 : x + width - 1))
-                    .attr("y2", (y < dropDest.y ? y + height : y))
-                    .style("fill", "none")
-                    .style("stroke", fill)
-                    .style("stroke-width", 2)
-                    .style("stroke-dasharray", ("3, 3"))
-                    .style("opacity", opacity)
-                    .transition()
-                        .delay(animDuration / 2)
-                        .duration(animDuration / 2)
-                        .ease("linear")
-                        // Added 1px offset to cater for svg issue where a transparent
-                        // group overlapping a line can sometimes hide it in some browsers
-                        // Issue #10
-                        .attr("y2", (y < dropDest.y ? dropDest.y - 1 : dropDest.y + 1));
-            }
-
-            // Add a drop line to the y axis
-            if (!series.y._hasCategories() && dropDest.x !== null) {
-                chart._tooltipGroup.append("line")
-                    .attr("x1", (x < dropDest.x ? x + width : x))
-                    .attr("y1", (y < series.y._origin ? y + 1 : y + height - 1))
-                    .attr("x2", (x < dropDest.x ? x + width : x))
-                    .attr("y2", (y < series.y._origin ? y + 1 : y + height - 1))
-                    .style("fill", "none")
-                    .style("stroke", fill)
-                    .style("stroke-width", 2)
-                    .style("stroke-dasharray", ("3, 3"))
-                    .style("opacity", opacity)
-                    .transition()
-                        .delay(animDuration / 2)
-                        .duration(animDuration / 2)
-                        .ease("linear")
-                        // Added 1px offset to cater for svg issue where a transparent
-                        // group overlapping a line can sometimes hide it in some browsers
-                        // Issue #10
-                        .attr("x2", (x < dropDest.x ? dropDest.x - 1 : dropDest.x + 1));
-            }
-
-            // Add a group for text
-            t = chart._tooltipGroup.append("g");
-            // Create a box for the popup in the text group
-            box = t.append("rect")
-                .attr("class", "dimple-tooltip");
-
-            // Add the series categories
-            if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
-                series.categoryFields.forEach(function (c, i) {
-                    if (c !== null && c !== undefined && e.aggField[i] !== null && e.aggField[i] !== undefined) {
-                        // If the category name and value match don't display the category name
-                        rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
-                    }
-                }, this);
-            }
-
-            if (series.x._hasTimeField()) {
-                if (e.xField[0] !== null && e.xField[0] !== undefined) {
-                    rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
-                }
-            } else if (series.x._hasCategories()) {
-                // Add the x axis categories
-                series.x.categoryFields.forEach(function (c, i) {
-                    if (c !== null && c !== undefined && e.xField[i] !== null && e.xField[i] !== undefined) {
-                        // If the category name and value match don't display the category name
-                        rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
-                    }
-                }, this);
-            } else {
-                // Add the axis measure value
-                if (series.x.measure !== null && series.x.measure !== undefined && e.width !== null && e.width !== undefined) {
-                    rows.push(series.x.measure + ": " + series.x._getFormat()(e.width));
-                }
-            }
-
-            if (series.y._hasTimeField()) {
-                if (e.yField[0] !== null && e.yField[0] !== undefined) {
-                    rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
-                }
-            } else if (series.y._hasCategories()) {
-                // Add the y axis categories
-                series.y.categoryFields.forEach(function (c, i) {
-                    if (c !== null && c !== undefined && e.yField[i] !== null && e.yField[i] !== undefined) {
-                        rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
-                    }
-                }, this);
-            } else {
-                // Add the axis measure value
-                if (series.y.measure !== null && series.y.measure !== undefined && e.height !== null && e.height !== undefined) {
-                    rows.push(series.y.measure + ": " + series.y._getFormat()(e.height));
-                }
-            }
-
-            if (series.z !== null && series.z !== undefined) {
-                // Add the axis measure value
-                if (series.z.measure !== null && series.z.measure !== undefined && e.zValue !== null && e.zValue !== undefined) {
-                    rows.push(series.z.measure + ": " + series.z._getFormat()(e.zValue));
-                }
-            }
-
-            if (series.c !== null && series.c !== undefined) {
-                // Add the axis measure value
-                if (series.c.measure !== null && series.c.measure !== undefined && e.cValue !== null && e.cValue !== undefined) {
-                    rows.push(series.c.measure + ": " + series.c._getFormat()(e.cValue));
-                }
-            }
-
-            // Get distinct text rows to deal with cases where 2 axes have the same dimensionality
-            rows = rows.filter(function(elem, pos) {
-                return rows.indexOf(elem) === pos;
-            });
-
-            // Create a text object for every row in the popup
-            t.selectAll(".dimple-dont-select-any").data(rows).enter()
-                .append("text")
-                    .attr("class", "dimple-tooltip")
-                    .text(function (d) { return d; })
-                    .style("font-family", "sans-serif")
-                    .style("font-size", "10px");
-
-            // Get the max height and width of the text items
-            t.each(function () {
-                w = (this.getBBox().width > w ? this.getBBox().width : w);
-                h = (this.getBBox().width > h ? this.getBBox().height : h);
-            });
-
-            // Position the text relative to the bar, the absolute positioning
-            // will be done by translating the group
-            t.selectAll("text")
-                .attr("x", 0)
-                .attr("y", function () {
-                    // Increment the y position
-                    yRunning += this.getBBox().height;
-                    // Position the text at the centre point
-                    return yRunning - (this.getBBox().height / 2);
-                });
-
-            // Draw the box with a margin around the text
-            box.attr("x", -textMargin)
-                .attr("y", -textMargin)
-                .attr("height", Math.floor(yRunning + textMargin) - 0.5)
-                .attr("width", w + 2 * textMargin)
-                .attr("rx", 5)
-                .attr("ry", 5)
-                .style("fill", popupFillColor)
-                .style("stroke", popupStrokeColor)
-                .style("stroke-width", 2)
-                .style("opacity", 0.95);
-
-            // Shift the popup around to avoid overlapping the svg edge
-            if (x + width + textMargin + popupMargin + w < parseFloat(chart.svg.node().getBBox().width)) {
-                // Draw centre right
-                translateX = (x + width + textMargin + popupMargin);
-                translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
-                t.attr("transform", "translate(" + translateX + " , " + translateY + ")");
-            } else if (x - (textMargin + popupMargin + w) > 0) {
-                // Draw centre left
-                translateX = (x - (textMargin + popupMargin + w));
-                translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
-                t.attr("transform", "translate(" + translateX + " , " + translateY + ")");
-            } else if (y + height + yRunning + popupMargin + textMargin < parseFloat(chart.svg.node().getBBox().height)) {
-                // Draw centre below
-                translateX = (x + (width / 2) - (2 * textMargin + w) / 2);
-                translateY = (y + height + 2 * textMargin);
-                t.attr("transform", "translate(" +
-                    (translateX > 0 ? translateX : popupMargin) + " , " +
-                    translateY +
-                    ")");
-            } else {
-                // Draw centre above
-                translateX = (x + (width / 2) - (2 * textMargin + w) / 2);
-                translateY = (y - yRunning - (h - textMargin));
-                t.attr("transform", "translate(" +
-                    (translateX > 0 ? translateX : popupMargin) + " , " +
-                    translateY +
-                    ")");
-            }
-        },
-
-        // Handle the mouse leave event
-        leaveEventHandler: function (chart) {
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
-                chart._tooltipGroup.remove();
-            }
         }
     };
 
@@ -3386,22 +3169,9 @@ var dimple = {
         // Draw the axis
         draw: function (chart, series, duration) {
 
-            // Get self pointer for inner functions
-            var self = this,
-                // Get the series data
-                chartData = series._positionData,
-                // If the series is uninitialised create placeholders, otherwise use the existing shapes
+            var chartData = series._positionData,
                 theseShapes = null,
                 classes = ["dimple-series-" + chart.series.indexOf(series), "dimple-bubble"],
-                addTransition = function (input, duration) {
-                    var returnShape = null;
-                    if (duration === 0) {
-                        returnShape = input;
-                    } else {
-                        returnShape = input.transition().duration(duration);
-                    }
-                    return returnShape;
-                },
                 updated,
                 removed;
 
@@ -3412,14 +3182,18 @@ var dimple = {
             if (series.shapes === null || series.shapes === undefined) {
                 theseShapes = chart._group.selectAll("." + classes.join(".")).data(chartData);
             } else {
-                theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
+                theseShapes = series.shapes.data(chartData, function (d) {
+                    return d.key;
+                });
             }
 
             // Add
             theseShapes
                 .enter()
                 .append("circle")
-                .attr("id", function (d) { return d.key; })
+                .attr("id", function (d) {
+                    return d.key;
+                })
                 .attr("class", function (d) {
                     var c = [];
                     c = c.concat(d.aggField);
@@ -3435,34 +3209,50 @@ var dimple = {
                     return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin);
                 })
                 .attr("r", 0)
-                .attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
-                .on("mouseover", function (e) {
-                    self.enterEventHandler(e, this, chart, series);
+                .attr("opacity", function (d) {
+                    return dimple._helpers.opacity(d, chart, series);
                 })
-                .on("mouseleave", function () {
-                    self.leaveEventHandler(chart);
+                .on("mouseover", function (e) {
+                    dimple._showPointTooltip(e, this, chart, series);
+                })
+                .on("mouseleave", function (e) {
+                    dimple._removeTooltip(e, this, chart, series);
                 })
                 .call(function () {
                     if (!chart.noFormats) {
-                        this.attr("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
-                            .attr("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
+                        this.attr("fill", function (d) {
+                            return dimple._helpers.fill(d, chart, series);
+                        })
+                            .attr("stroke", function (d) {
+                                return dimple._helpers.stroke(d, chart, series);
+                            });
                     }
                 });
 
             // Update
-            updated = addTransition(theseShapes, duration)
-                .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
-                .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                .attr("r", function (d) { return dimple._helpers.r(d, chart, series); })
+            updated = dimple._handleTransition(theseShapes, duration)
+                .attr("cx", function (d) {
+                    return dimple._helpers.cx(d, chart, series);
+                })
+                .attr("cy", function (d) {
+                    return dimple._helpers.cy(d, chart, series);
+                })
+                .attr("r", function (d) {
+                    return dimple._helpers.r(d, chart, series);
+                })
                 .call(function () {
                     if (!chart.noFormats) {
-                        this.attr("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
-                            .attr("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
+                        this.attr("fill", function (d) {
+                            return dimple._helpers.fill(d, chart, series);
+                        })
+                            .attr("stroke", function (d) {
+                                return dimple._helpers.stroke(d, chart, series);
+                            });
                     }
                 });
 
             // Remove
-            removed = addTransition(theseShapes.exit(), duration)
+            removed = dimple._handleTransition(theseShapes.exit(), duration)
                 .attr("r", 0)
                 .attr("cx", function (d) {
                     return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin);
@@ -3471,279 +3261,33 @@ var dimple = {
                     return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin);
                 });
 
-            // Run after transition methods
-            if (duration === 0) {
-                updated.each(function (d, i) {
-                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
-                        series.afterDraw(this, d, i);
-                    }
-                });
-                removed.remove();
-            } else {
-                updated.each("end", function (d, i) {
-                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
-                        series.afterDraw(this, d, i);
-                    }
-                });
-                removed.each("end", function () {
-                    d3.select(this).remove();
-                });
-            }
+            dimple._postDrawHandling(series, updated, removed, duration);
 
             // Save the shapes to the series array
             series.shapes = theseShapes;
-        },
-
-        // Handle the mouse enter event
-        enterEventHandler: function (e, shape, chart, series) {
-
-            // The margin between the text and the box
-            var textMargin = 5,
-                // The margin between the ring and the popup
-                popupMargin = 10,
-                // The popup animation duration in ms
-                animDuration = 750,
-                // Collect some facts about the highlighted bubble
-                selectedShape = d3.select(shape),
-                cx = parseFloat(selectedShape.attr("cx")),
-                cy = parseFloat(selectedShape.attr("cy")),
-                r = parseFloat(selectedShape.attr("r")),
-                opacity = selectedShape.attr("opacity"),
-                fill = selectedShape.attr("fill"),
-                dropDest = series._dropLineOrigin(),
-                // Fade the popup stroke mixing the shape fill with 60% white
-                popupStrokeColor = d3.rgb(
-                    d3.rgb(fill).r + 0.6 * (255 - d3.rgb(fill).r),
-                    d3.rgb(fill).g + 0.6 * (255 - d3.rgb(fill).g),
-                    d3.rgb(fill).b + 0.6 * (255 - d3.rgb(fill).b)
-                ),
-                // Fade the popup fill mixing the shape fill with 80% white
-                popupFillColor = d3.rgb(
-                    d3.rgb(fill).r + 0.8 * (255 - d3.rgb(fill).r),
-                    d3.rgb(fill).g + 0.8 * (255 - d3.rgb(fill).g),
-                    d3.rgb(fill).b + 0.8 * (255 - d3.rgb(fill).b)
-                ),
-                t,
-                box,
-                rows = [],
-                // The running y value for the text elements
-                y = 0,
-                // The maximum bounds of the text elements
-                w = 0,
-                h = 0,
-                overlap;
-
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
-                chart._tooltipGroup.remove();
-            }
-            chart._tooltipGroup = chart.svg.append("g");
-
-            // Add a ring around the data point
-            chart._tooltipGroup.append("circle")
-                .attr("cx", cx)
-                .attr("cy", cy)
-                .attr("r", r)
-                .attr("opacity", 0)
-                .style("fill", "none")
-                .style("stroke", fill)
-                .style("stroke-width", 1)
-                .transition()
-                    .duration(animDuration / 2)
-                    .ease("linear")
-                        .attr("opacity", 1)
-                        .attr("r", r + 4)
-                        .style("stroke-width", 2);
-
-            // Add a drop line to the x axis
-            if (dropDest.y !== null) {
-                chart._tooltipGroup.append("line")
-                    .attr("x1", cx)
-                    .attr("y1", (cy < dropDest.y ? cy + r + 4 : cy - r - 4))
-                    .attr("x2", cx)
-                    .attr("y2", (cy < dropDest.y ? cy + r + 4 : cy - r - 4))
-                    .style("fill", "none")
-                    .style("stroke", fill)
-                    .style("stroke-width", 2)
-                    .style("stroke-dasharray", ("3, 3"))
-                    .style("opacity", opacity)
-                    .transition()
-                        .delay(animDuration / 2)
-                        .duration(animDuration / 2)
-                        .ease("linear")
-                            // Added 1px offset to cater for svg issue where a transparent
-                            // group overlapping a line can sometimes hide it in some browsers
-                            // Issue #10
-                            .attr("y2", (cy < dropDest.y ? dropDest.y - 1 : dropDest.y + 1));
-            }
-
-            // Add a drop line to the y axis
-            if (dropDest.x !== null) {
-                chart._tooltipGroup.append("line")
-                    .attr("x1", (cx < dropDest.x ? cx + r + 4 : cx - r - 4))
-                    .attr("y1", cy)
-                    .attr("x2", (cx < dropDest.x ? cx + r + 4 : cx - r - 4))
-                    .attr("y2", cy)
-                    .style("fill", "none")
-                    .style("stroke", fill)
-                    .style("stroke-width", 2)
-                    .style("stroke-dasharray", ("3, 3"))
-                    .style("opacity", opacity)
-                    .transition()
-                        .delay(animDuration / 2)
-                        .duration(animDuration / 2)
-                        .ease("linear")
-                            // Added 1px offset to cater for svg issue where a transparent
-                            // group overlapping a line can sometimes hide it in some browsers
-                            // Issue #10
-                            .attr("x2", (cx < dropDest.x ? dropDest.x - 1 : dropDest.x + 1));
-            }
-
-            // Add a group for text
-            t = chart._tooltipGroup.append("g");
-            // Create a box for the popup in the text group
-            box = t.append("rect")
-                .attr("class", "dimple-tooltip");
-
-            // Add the series categories
-            if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
-                series.categoryFields.forEach(function (c, i) {
-                    if (c !== null && c !== undefined && e.aggField[i] !== null && e.aggField[i] !== undefined) {
-                        // If the category name and value match don't display the category name
-                        rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
-                    }
-                }, this);
-            }
-
-            if (series.x._hasTimeField()) {
-                if (e.xField[0] !== null && e.xField[0] !== undefined) {
-                    rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
-                }
-            } else if (series.x._hasCategories()) {
-                // Add the x axis categories
-                series.x.categoryFields.forEach(function (c, i) {
-                    if (c !== null && c !== undefined && e.xField[i] !== null && e.xField[i] !== undefined) {
-                        // If the category name and value match don't display the category name
-                        rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
-                    }
-                }, this);
-            } else {
-                // Add the axis measure value
-                if (series.x.measure !== null && series.x.measure !== undefined && e.width !== null && e.width !== undefined) {
-                    rows.push(series.x.measure + ": " + series.x._getFormat()(e.width));
-                }
-            }
-
-            if (series.y._hasTimeField()) {
-                if (e.yField[0] !== null && e.yField[0] !== undefined) {
-                    rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
-                }
-            } else if (series.y._hasCategories()) {
-                // Add the y axis categories
-                series.y.categoryFields.forEach(function (c, i) {
-                    if (c !== null && c !== undefined && e.yField[i] !== null && e.yField[i] !== undefined) {
-                        rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
-                    }
-                }, this);
-            } else {
-                // Add the axis measure value
-                if (series.y.measure !== null && series.y.measure !== undefined && e.height !== null && e.height !== undefined) {
-                    rows.push(series.y.measure + ": " + series.y._getFormat()(e.height));
-                }
-            }
-
-            if (series.z !== null && series.z !== undefined) {
-                // Add the axis measure value
-                if (series.z.measure !== null && series.z.measure !== undefined && e.zValue !== null && e.zValue !== undefined) {
-                    rows.push(series.z.measure + ": " + series.z._getFormat()(e.zValue));
-                }
-            }
-
-            if (series.c !== null && series.c !== undefined) {
-                // Add the axis measure value
-                if (series.c.measure !== null && series.c.measure !== undefined && e.cValue !== null && e.cValue !== undefined) {
-                    rows.push(series.c.measure + ": " + series.c._getFormat()(e.cValue));
-                }
-            }
-
-            // Get distinct text rows to deal with cases where 2 axes have the same dimensionality
-            rows = rows.filter(function(elem, pos) {
-                return rows.indexOf(elem) === pos;
-            });
-
-            // Create a text object for every row in the popup
-            t.selectAll(".dimple-dont-select-any").data(rows).enter()
-                .append("text")
-                    .attr("class", "dimple-tooltip")
-                    .text(function (d) { return d; })
-                    .style("font-family", "sans-serif")
-                    .style("font-size", "10px");
-
-            // Get the max height and width of the text items
-            t.each(function () {
-                w = (this.getBBox().width > w ? this.getBBox().width : w);
-                h = (this.getBBox().width > h ? this.getBBox().height : h);
-            });
-
-            // Position the text relatve to the bubble, the absolute positioning
-            // will be done by translating the group
-            t.selectAll("text")
-                .attr("x", 0)
-                .attr("y", function () {
-                    // Increment the y position
-                    y += this.getBBox().height;
-                    // Position the text at the centre point
-                    return y - (this.getBBox().height / 2);
-                });
-
-            // Draw the box with a margin around the text
-            box.attr("x", -textMargin)
-                .attr("y", -textMargin)
-                .attr("height", Math.floor(y + textMargin) - 0.5)
-                .attr("width", w + 2 * textMargin)
-                .attr("rx", 5)
-                .attr("ry", 5)
-                .style("fill", popupFillColor)
-                .style("stroke", popupStrokeColor)
-                .style("stroke-width", 2)
-                .style("opacity", 0.95);
-
-            // Shift the ring margin left or right depending on whether it will overlap the edge
-            overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.node().getBBox().width);
-
-            // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
-            t.attr("transform", "translate(" +
-                   (overlap ? cx - (r + textMargin + popupMargin + w) : cx + r + textMargin + popupMargin) + " , " +
-                   (cy - ((y - (h - textMargin)) / 2)) +
-                ")");
-        },
-
-        // Handle the mouse leave event
-        leaveEventHandler: function (chart) {
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
-                chart._tooltipGroup.remove();
-            }
         }
     };
-
 
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/plot/line.js
     dimple.plot.line = {
+
+        // By default the bubble values are not stacked
         stacked: false,
+
+        // The axis positions affecting the line series
         supportedAxes: ["x", "y", "c"],
+
+        // Draw the axis
         draw: function (chart, series, duration) {
             // Get the position data
             var data = series._positionData,
-                self = this,
                 lineData = [],
                 theseShapes = null,
                 className = "dimple-series-" + chart.series.indexOf(series),
                 firstAgg = (series.x._hasCategories() || series.y._hasCategories() ? 0 : 1),
                 interpolation,
-                updateCoords,
-                entryCoords,
-                exitCoords,
                 graded = false,
                 i,
                 k,
@@ -3753,281 +3297,43 @@ var dimple = {
                 updated,
                 removed,
                 orderedSeriesArray,
-                dataClone;
-
-            function getSeriesOrder(d, s) {
-                var rules = [].concat(series._orderRules),
-                    cats = s.categoryFields,
-                    returnValue = [];
-                if (cats !== null && cats !== undefined && cats.length > 0) {
-                    // Concat is used here to break the reference to the parent array, if we don't do this, in a storyboarded chart,
-                    // the series rules to grow and grow until the system grinds to a halt trying to deal with them all.
-                    if (s.c !== null && s.c !== undefined && s.c._hasMeasure()) {
-                        rules.push({ ordering : s.c.measure, desc : true });
-                    }
-                    if (s.x._hasMeasure()) {
-                        rules.push({ ordering : s.x.measure, desc : true });
-                    }
-                    if (s.y._hasMeasure()) {
-                        rules.push({ ordering : s.y.measure, desc : true });
-                    }
-                    returnValue = dimple._getOrderedList(d, cats, rules);
-                }
-                return returnValue;
-            }
-
-            function arrayIndexCompare(array, a, b) {
-                var returnValue,
-                    p,
-                    q,
-                    aMatch,
-                    bMatch,
-                    rowArray;
-                for (p = 0; p < array.length; p += 1) {
-                    aMatch = true;
-                    bMatch = true;
-                    rowArray = [].concat(array[p]);
-                    for (q = 0; q < a.length; q += 1) {
-                        aMatch = aMatch && (a[q] === rowArray[q]);
-                    }
-                    for (q = 0; q < b.length; q += 1) {
-                        bMatch = bMatch && (b[q] === rowArray[q]);
-                    }
-                    if (aMatch && bMatch) {
-                        returnValue = 0;
-                        break;
-                    } else if (aMatch) {
-                        returnValue = -1;
-                        break;
-                    } else if (bMatch) {
-                        returnValue = 1;
-                        break;
-                    }
-                }
-                return returnValue;
-            }
-
-            function sortFunction(a, b) {
-                var sortValue = 0;
-                if (series.x._hasCategories()) {
-                    sortValue = (dimple._helpers.cx(a, chart, series) < dimple._helpers.cx(b, chart, series) ? -1 : 1);
-                } else if (series.y._hasCategories()) {
-                    sortValue = (dimple._helpers.cy(a, chart, series) < dimple._helpers.cy(b, chart, series) ? -1 : 1);
-                } else if (orderedSeriesArray !== null && orderedSeriesArray !== undefined) {
-                    sortValue = arrayIndexCompare(orderedSeriesArray, a.aggField, b.aggField);
-                }
-                return sortValue;
-            }
-
-            function addTransition(input, duration) {
-                var returnShape = null;
-                if (duration === 0) {
-                    returnShape = input;
-                } else {
-                    returnShape = input.transition().duration(duration);
-                }
-                return returnShape;
-            }
-
-            function drawMarkerBacks(lineDataRow) {
-                var markerBacks,
-                    markerBackClasses = ["dimple-marker-back", className, lineDataRow.keyString],
-                    rem;
-                if (series.lineMarkers) {
-                    if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
-                        markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.data);
+                dataClone,
+                onEnter = function (e, shape, chart, series) {
+                    d3.select(shape).style("opacity", 1);
+                    dimple._showPointTooltip(e, shape, chart, series);
+                },
+                onLeave = function (e, shape, chart, series) {
+                    d3.select(shape).style("opacity", (series.lineMarkers ? dimple._helpers.opacity(e, chart, series) : 0));
+                    dimple._removeTooltip(e, shape, chart, series);
+                },
+                drawMarkers = function (d) {
+                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter, onLeave);
+                },
+                coord = function (position, datum) {
+                    var val;
+                    if (series.interpolation === "step" && series[position]._hasCategories()) {
+                        series.barGap = 0;
+                        series.clusterBarGap = 0;
+                        val = dimple._helpers[position](datum, chart, series) + (position === "y" ? dimple._helpers.height(datum, chart, series) : 0);
                     } else {
-                        markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.data, function (d) { return d.key; });
+                        val = dimple._helpers["c" + position](datum, chart, series);
                     }
-                    // Add
-                    markerBacks
-                        .enter()
-                        .append("circle")
-                        .attr("id", function (d) { return d.key; })
-                        .attr("class", function (d) {
-                            var fields = [];
-                            if (series.x._hasCategories()) {
-                                fields = fields.concat(d.xField);
-                            }
-                            if (series.y._hasCategories()) {
-                                fields = fields.concat(d.yField);
-                            }
-                            return dimple._createClass(fields) + " " + markerBackClasses.join(" ");
-                        })
-                        .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin); })
-                        .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin); })
-                        .attr("r", 0)
-                        .attr("fill", "white")
-                        .attr("stroke", "none");
-
-                    // Update
-                    addTransition(markerBacks, duration)
-                        .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
-                        .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                        .attr("r", 2 + series.lineWeight);
-
-                    // Remove
-                    rem = addTransition(markerBacks.exit(), duration)
-                        .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
-                        .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
-                        .attr("r", 0);
-
-                    // Run after transition methods
-                    if (duration === 0) {
-                        rem.remove();
-                    } else {
-                        rem.each("end", function () {
-                            d3.select(this).remove();
-                        });
-                    }
-
-                    if (series._markerBacks === undefined || series._markerBacks === null) {
-                        series._markerBacks = {};
-                    }
-                    series._markerBacks[lineDataRow.keyString] = markerBacks;
-                }
-            }
-
-            // Add the actual marker. We need to do this even if we aren't displaying them because they
-            // catch hover events
-            function drawMarkers(lineDataRow) {
-                var markers,
-                    markerClasses = ["dimple-marker", className, lineDataRow.keyString],
-                    rem;
-                // Deal with markers in the same way as main series to fix #28
-                if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
-                    markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.data);
-                } else {
-                    markers = series._markers[lineDataRow.keyString].data(lineDataRow.data, function (d) {
-                        return d.key;
-                    });
-                }
-                // Add
-                markers
-                    .enter()
-                    .append("circle")
-                    .attr("id", function (d) {
-                        return d.key;
-                    })
-                    .attr("class", function (d) {
-                        var fields = [];
-                        if (series.x._hasCategories()) {
-                            fields = fields.concat(d.xField);
-                        }
-                        if (series.y._hasCategories()) {
-                            fields = fields.concat(d.yField);
-                        }
-                        return dimple._createClass(fields) + " " + markerClasses.join(" ");
-                    })
-                    .on("mouseover", function (e) {
-                        self.enterEventHandler(e, this, chart, series);
-                    })
-                    .on("mouseleave", function (e) {
-                        self.leaveEventHandler(e, this, chart, series);
-                    })
-                    .attr("cx", function (d) {
-                        return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin);
-                    })
-                    .attr("cy", function (d) {
-                        return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin);
-                    })
-                    .attr("r", 0)
-                    .attr("opacity", (series.lineMarkers || lineDataRow.data.length < 2 ? lineDataRow.color.opacity : 0))
-                    .call(function () {
-                        if (!chart.noFormats) {
-                            this.attr("fill", "white")
-                                .style("stroke-width", series.lineWeight)
-                                .attr("stroke", function (d) {
-                                    return (graded ? dimple._helpers.fill(d, chart, series) : lineDataRow.color.stroke);
-                                });
-                        }
-                    });
-
-                // Update
-                addTransition(markers, duration)
-                    .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
-                    .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                    .attr("r", 2 + series.lineWeight)
-                    .call(function () {
-                        if (!chart.noFormats) {
-                            this.attr("fill", "white")
-                                .style("stroke-width", series.lineWeight)
-                                .attr("stroke", function (d) {
-                                    return (graded ? dimple._helpers.fill(d, chart, series) : lineDataRow.color.stroke);
-                                });
-                        }
-                    });
-
-                // Remove
-                rem = addTransition(markers.exit(), duration)
-                    .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
-                    .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
-                    .attr("r", 0);
-
-                // Run after transition methods
-                if (duration === 0) {
-                    rem.remove();
-                } else {
-                    rem.each("end", function () {
-                        d3.select(this).remove();
-                    });
-                }
-
-                if (series._markers === undefined || series._markers === null) {
-                    series._markers = {};
-                }
-                series._markers[lineDataRow.keyString] = markers;
-            }
-
-            function calcX(dat, cht, srs) {
-                var val;
-                if (series.interpolation === "step" && series.x._hasCategories()) {
-                    srs.barGap = 0;
-                    srs.clusterBarGap = 0;
-                    val = dimple._helpers.x(dat, cht, srs);
-                } else {
-                    val = dimple._helpers.cx(dat, cht, srs);
-                }
-                return val;
-            }
-
-            function calcY(dat, cht, srs) {
-                var val;
-                if (series.interpolation === "step" && series.y._hasCategories()) {
-                    srs.barGap = 0;
-                    srs.clusterBarGap = 0;
-                    val = dimple._helpers.y(dat, cht, srs) + dimple._helpers.height(dat, cht, srs);
-                } else {
-                    val = dimple._helpers.cy(dat, cht, srs);
-                }
-                return val;
-            }
+                    return val;
+                },
+                getLine = function (inter, originProperty) {
+                    return d3.svg.line()
+                        .x(function (d) { return (series.x._hasCategories() || !originProperty ? coord("x", d) : series.x[originProperty]); })
+                        .y(function (d) { return (series.y._hasCategories() || !originProperty ? coord("y", d) : series.y[originProperty]); })
+                        .interpolate(inter);
+                };
 
             // Handle the special interpolation handling for step
             interpolation =  (series.interpolation === "step" ? "step-after" : series.interpolation);
-
-            // Build the point calculator for updates
-            updateCoords = d3.svg.line()
-                .x(function (d) { return (calcX(d, chart, series)).toFixed(2); })
-                .y(function (d) { return (calcY(d, chart, series)).toFixed(2); })
-                .interpolate(interpolation);
-
-            // Build the point calculator for entries
-            entryCoords = d3.svg.line()
-                .x(function (d) { return (series.x._hasCategories() ? calcX(d, chart, series) : series.x._previousOrigin).toFixed(2); })
-                .y(function (d) { return (series.y._hasCategories() ? calcY(d, chart, series) : series.y._previousOrigin).toFixed(2); })
-                .interpolate(interpolation);
-
-            // Build the point calculator for exits
-            exitCoords = d3.svg.line()
-                .x(function (d) { return (series.x._hasCategories() ? calcX(d, chart, series) : series.x._origin).toFixed(2); })
-                .y(function (d) { return (series.y._hasCategories() ? calcY(d, chart, series) : series.y._origin).toFixed(2); })
-                .interpolate(interpolation);
-
+//
             // Get the array of ordered values
-            orderedSeriesArray = getSeriesOrder(series.data || chart.data, series);
+            orderedSeriesArray = dimple._getSeriesOrder(series.data || chart.data, series);
 
-            if (series.c !== null && series.c !== undefined && ((series.x._hasCategories() && series.y._hasMeasure()) || (series.y._hasCategories() && series.x._hasMeasure()))) {
+            if (series.c && ((series.x._hasCategories() && series.y._hasMeasure()) || (series.y._hasCategories() && series.x._hasMeasure()))) {
                 graded = true;
             }
 
@@ -4065,16 +3371,16 @@ var dimple = {
 
             // Sort the line data itself based on the order series array - this matters for stacked lines and default color
             // consistency with colors usually awarded in terms of prominence
-            if (orderedSeriesArray !== null && orderedSeriesArray !== undefined) {
+            if (orderedSeriesArray) {
                 lineData.sort(function (a, b) {
-                    return arrayIndexCompare(orderedSeriesArray, a.key, b.key);
+                    return dimple._arrayIndexCompare(orderedSeriesArray, a.key, b.key);
                 });
             }
 
             // Create a set of line data grouped by the aggregation field
             for (i = 0; i < lineData.length; i += 1) {
                 // Sort the points so that lines are connected in the correct order
-                lineData[i].data.sort(sortFunction);
+                lineData[i].data.sort(dimple._getSeriesSortPredicate(chart, series, orderedSeriesArray));
                 // If this should have colour gradients, add them
                 if (graded) {
                     dimple._addGradient(lineData[i].key, "fill-line-gradient-" + lineData[i].keyString, (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
@@ -4098,11 +3404,9 @@ var dimple = {
                 }
 
                 // Get the points that this line will appear
-                lineData[i].entry = entryCoords(dataClone);
-                // Get the actual points of the line
-                lineData[i].update = updateCoords(dataClone);
-                // Get the actual points of the line
-                lineData[i].exit = exitCoords(dataClone);
+                lineData[i].entry = getLine(interpolation, "_previousOrigin")(dataClone);
+                lineData[i].update = getLine(interpolation)(dataClone);
+                lineData[i].exit = getLine(interpolation, "_origin")(dataClone);
 
                 // Add the color in this loop, it can't be done during initialisation of the row becase
                 // the lines should be ordered first (to ensure standard distribution of colors
@@ -4139,278 +3443,23 @@ var dimple = {
                             .attr("stroke-width", series.lineWeight);
                     }
                 })
-                .each(drawMarkerBacks)
                 .each(drawMarkers);
 
             // Update
-            updated = addTransition(theseShapes, duration)
+            updated = dimple._handleTransition(theseShapes, duration)
                 .attr("d", function (d) { return d.update; })
-                .each(drawMarkerBacks)
                 .each(drawMarkers);
 
             // Remove
-            removed = addTransition(theseShapes.exit(), duration)
+            removed = dimple._handleTransition(theseShapes.exit(), duration)
                 .attr("d", function (d) { return d.exit; })
-                .each(drawMarkerBacks)
                 .each(drawMarkers);
 
-            // Run after transition methods
-            if (duration === 0) {
-                updated.each(function (d, i) {
-                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
-                        series.afterDraw(this, d, i);
-                    }
-                });
-                removed.remove();
-            } else {
-                updated.each("end", function (d, i) {
-                    if (series.afterDraw !== null && series.afterDraw !== undefined) {
-                        series.afterDraw(this, d, i);
-                    }
-                });
-                removed.each("end", function () {
-                    d3.select(this).remove();
-                });
-            }
+            dimple._postDrawHandling(series, updated, removed, duration);
 
             // Save the shapes to the series array
             series.shapes = theseShapes;
 
-        },
-
-        // Handle the mouse enter event
-        enterEventHandler: function (e, shape, chart, series) {
-
-            // The margin between the text and the box
-            var textMargin = 5,
-                // The margin between the ring and the popup
-                popupMargin = 10,
-                // The popup animation duration in ms
-                animDuration = 750,
-                // Collect some facts about the highlighted bubble
-                selectedShape = d3.select(shape),
-                cx = parseFloat(selectedShape.attr("cx")),
-                cy = parseFloat(selectedShape.attr("cy")),
-                r = parseFloat(selectedShape.attr("r")),
-                opacity = dimple._helpers.opacity(e, chart, series),
-                fill = selectedShape.attr("stroke"),
-                dropDest = series._dropLineOrigin(),
-                // Fade the popup stroke mixing the shape fill with 60% white
-                popupStrokeColor = d3.rgb(
-                    d3.rgb(fill).r + 0.6 * (255 - d3.rgb(fill).r),
-                    d3.rgb(fill).g + 0.6 * (255 - d3.rgb(fill).g),
-                    d3.rgb(fill).b + 0.6 * (255 - d3.rgb(fill).b)
-                ),
-                // Fade the popup fill mixing the shape fill with 80% white
-                popupFillColor = d3.rgb(
-                    d3.rgb(fill).r + 0.8 * (255 - d3.rgb(fill).r),
-                    d3.rgb(fill).g + 0.8 * (255 - d3.rgb(fill).g),
-                    d3.rgb(fill).b + 0.8 * (255 - d3.rgb(fill).b)
-                ),
-                // The running y value for the text elements
-                y = 0,
-                // The maximum bounds of the text elements
-                w = 0,
-                h = 0,
-                t,
-                box,
-                rows = [],
-                overlap;
-
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
-                chart._tooltipGroup.remove();
-            }
-            chart._tooltipGroup = chart.svg.append("g");
-
-            // On hover make the line marker visible immediately
-            selectedShape.style("opacity", 1);
-
-            // Add a ring around the data point
-            chart._tooltipGroup.append("circle")
-                .attr("cx", cx)
-                .attr("cy", cy)
-                .attr("r", r)
-                .attr("opacity", 0)
-                .style("fill", "none")
-                .style("stroke", fill)
-                .style("stroke-width", 1)
-                .transition()
-                    .duration(animDuration / 2)
-                    .ease("linear")
-                        .attr("opacity", 1)
-                        .attr("r", r + series.lineWeight + 2)
-                        .style("stroke-width", 2);
-
-            // Add a drop line to the x axis
-            if (dropDest.y !== null) {
-                chart._tooltipGroup.append("line")
-                    .attr("x1", cx)
-                    .attr("y1", (cy < dropDest.y ? cy + r + series.lineWeight + 2 : cy - r - series.lineWeight - 2))
-                    .attr("x2", cx)
-                    .attr("y2", (cy < dropDest.y ? cy + r + series.lineWeight + 2 : cy - r - series.lineWeight - 2))
-                    .style("fill", "none")
-                    .style("stroke", fill)
-                    .style("stroke-width", 2)
-                    .style("stroke-dasharray", ("3, 3"))
-                    .style("opacity", opacity)
-                    .transition()
-                        .delay(animDuration / 2)
-                        .duration(animDuration / 2)
-                        .ease("linear")
-                            // Added 1px offset to cater for svg issue where a transparent
-                            // group overlapping a line can sometimes hide it in some browsers
-                            // Issue #10
-                            .attr("y2", (cy < dropDest.y ? dropDest.y - 1 : dropDest.y + 1));
-            }
-
-            // Add a drop line to the y axis
-            if (dropDest.x !== null) {
-                chart._tooltipGroup.append("line")
-                    .attr("x1", (cx < dropDest.x ? cx + r + series.lineWeight + 2 : cx - r - series.lineWeight - 2))
-                    .attr("y1", cy)
-                    .attr("x2", (cx < dropDest.x ? cx + r + series.lineWeight + 2 : cx - r - series.lineWeight - 2))
-                    .attr("y2", cy)
-                    .style("fill", "none")
-                    .style("stroke", fill)
-                    .style("stroke-width", 2)
-                    .style("stroke-dasharray", ("3, 3"))
-                    .style("opacity", opacity)
-                    .transition()
-                        .delay(animDuration / 2)
-                        .duration(animDuration / 2)
-                        .ease("linear")
-                            // Added 1px offset to cater for svg issue where a transparent
-                            // group overlapping a line can sometimes hide it in some browsers
-                            // Issue #10
-                            .attr("x2", (cx < dropDest.x ? dropDest.x - 1 : dropDest.x + 1));
-            }
-
-            // Add a group for text
-            t = chart._tooltipGroup.append("g");
-            // Create a box for the popup in the text group
-            box = t.append("rect")
-                .attr("class", "dimple-tooltip");
-
-            // Add the series categories
-            if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
-                series.categoryFields.forEach(function (c, i) {
-                    if (c !== null && c !== undefined && e.aggField[i] !== null && e.aggField[i] !== undefined) {
-                        // If the category name and value match don't display the category name
-                        rows.push(c + (e.aggField[i] !== c ? ": " + e.aggField[i] : ""));
-                    }
-                }, this);
-            }
-
-            if (series.x._hasTimeField()) {
-                if (e.xField[0] !== null && e.xField[0] !== undefined) {
-                    rows.push(series.x.timeField + ": " + series.x._getFormat()(e.xField[0]));
-                }
-            } else if (series.x._hasCategories()) {
-                // Add the x axis categories
-                series.x.categoryFields.forEach(function (c, i) {
-                    if (c !== null && c !== undefined && e.xField[i] !== null && e.xField[i] !== undefined) {
-                        // If the category name and value match don't display the category name
-                        rows.push(c + (e.xField[i] !== c ? ": " + e.xField[i] : ""));
-                    }
-                }, this);
-            } else {
-                // Add the axis measure value
-                if (series.x.measure !== null && series.x.measure !== undefined && e.width !== null && e.width !== undefined) {
-                    rows.push(series.x.measure + ": " + series.x._getFormat()(e.width));
-                }
-            }
-
-            if (series.y._hasTimeField()) {
-                if (e.yField[0] !== null && e.yField[0] !== undefined) {
-                    rows.push(series.y.timeField + ": " + series.y._getFormat()(e.yField[0]));
-                }
-            } else if (series.y._hasCategories()) {
-                // Add the y axis categories
-                series.y.categoryFields.forEach(function (c, i) {
-                    if (c !== null && c !== undefined && e.yField[i] !== null && e.yField[i] !== undefined) {
-                        rows.push(c + (e.yField[i] !== c ? ": " + e.yField[i] : ""));
-                    }
-                }, this);
-            } else {
-                // Add the axis measure value
-                if (series.y.measure !== null && series.y.measure !== undefined && e.height !== null && e.height !== undefined) {
-                    rows.push(series.y.measure + ": " + series.y._getFormat()(e.height));
-                }
-            }
-
-            if (series.z !== null && series.z !== undefined) {
-                // Add the axis measure value
-                if (series.z.measure !== null && series.z.measure !== undefined && e.zValue !== null && e.zValue !== undefined) {
-                    rows.push(series.z.measure + ": " + series.z._getFormat()(e.zValue));
-                }
-            }
-
-            if (series.c !== null && series.c !== undefined) {
-                // Add the axis measure value
-                if (series.c.measure !== null && series.c.measure !== undefined && e.cValue !== null && e.cValue !== undefined) {
-                    rows.push(series.c.measure + ": " + series.c._getFormat()(e.cValue));
-                }
-            }
-
-            // Get distinct text rows to deal with cases where 2 axes have the same dimensionality
-            rows = rows.filter(function(elem, pos) {
-                return rows.indexOf(elem) === pos;
-            });
-
-            // Create a text object for every row in the popup
-            t.selectAll(".dont-select-any").data(rows).enter()
-                .append("text")
-                    .attr("class", "dimple-tooltip")
-                    .text(function (d) { return d; })
-                    .style("font-family", "sans-serif")
-                    .style("font-size", "10px");
-
-            // Get the max height and width of the text items
-            t.each(function () {
-                w = (this.getBBox().width > w ? this.getBBox().width : w);
-                h = (this.getBBox().width > h ? this.getBBox().height : h);
-            });
-
-            // Position the text relative to the bubble, the absolute positioning
-            // will be done by translating the group
-            t.selectAll("text")
-                .attr("x", 0)
-                .attr("y", function () {
-                    // Increment the y position
-                    y += this.getBBox().height;
-                    // Position the text at the centre point
-                    return y - (this.getBBox().height / 2);
-                });
-
-            // Draw the box with a margin around the text
-            box.attr("x", -textMargin)
-                .attr("y", -textMargin)
-                .attr("height", Math.floor(y + textMargin) - 0.5)
-                .attr("width", w + 2 * textMargin)
-                .attr("rx", 5)
-                .attr("ry", 5)
-                .style("fill", popupFillColor)
-                .style("stroke", popupStrokeColor)
-                .style("stroke-width", 2)
-                .style("opacity", 0.95);
-
-            // Shift the ring margin left or right depending on whether it will overlap the edge
-            overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.node().getBBox().width);
-
-            // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
-            t.attr("transform", "translate(" +
-                   (overlap ? cx - (r + textMargin + popupMargin + w) : cx + r + textMargin + popupMargin) + " , " +
-                   (cy - ((y - (h - textMargin)) / 2)) +
-                ")");
-        },
-
-        // Handle the mouse leave event
-        leaveEventHandler: function (e, shape, chart, series) {
-            // Return the opacity of the marker
-            d3.select(shape).style("opacity", (series.lineMarkers ? dimple._helpers.opacity(e, chart, series) : 0));
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
-                chart._tooltipGroup.remove();
-            }
         }
     };
 
@@ -4478,6 +3527,41 @@ var dimple = {
     };
 
 
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_arrayIndexCompare.js
+    dimple._arrayIndexCompare = function (array, a, b) {
+        // Find the element which comes first in the array
+        var returnValue,
+            p,
+            q,
+            aMatch,
+            bMatch,
+            rowArray;
+        for (p = 0; p < array.length; p += 1) {
+            aMatch = true;
+            bMatch = true;
+            rowArray = [].concat(array[p]);
+            for (q = 0; q < a.length; q += 1) {
+                aMatch = aMatch && (a[q] === rowArray[q]);
+            }
+            for (q = 0; q < b.length; q += 1) {
+                bMatch = bMatch && (b[q] === rowArray[q]);
+            }
+            if (aMatch && bMatch) {
+                returnValue = 0;
+                break;
+            } else if (aMatch) {
+                returnValue = -1;
+                break;
+            } else if (bMatch) {
+                returnValue = 1;
+                break;
+            }
+        }
+        return returnValue;
+    };
+
 
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -4500,41 +3584,164 @@ var dimple = {
         }
         return returnArray.join(" ");
     };
-    dimple.checkClasses = function () {
-        var classes = {},
-            i,
-            key;
-
-        function walk(node, func) {
-            var children = node.childNodes,
-                i;
-            for (i = 0; i < children.length; i += 1) {
-                walk(children[i], func);
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_drawMarkerBacks.js
+    dimple._drawMarkerBacks = function (lineDataRow, chart, series, duration, className) {
+        var markerBacks,
+            markerBackClasses = ["dimple-marker-back", className, lineDataRow.keyString],
+            rem;
+        if (series.lineMarkers) {
+            if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
+                markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.data);
+            } else {
+                markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.data, function (d) { return d.key; });
             }
-            func(node);
-        }
-
-        walk(document.getElementById("chartContainer").children[document.getElementById("chartContainer").children.length - 1], function (n) {
-            if (n && n.classList && n.classList.length > 0) {
-                for (i = 0; i < n.classList.length; i += 1) {
-                    if (classes[n.classList[i]] === undefined) {
-                        classes[n.classList[i]] = [n];
-                    } else {
-                        classes[n.classList[i]].push(n);
+            // Add
+            markerBacks
+                .enter()
+                .append("circle")
+                .attr("id", function (d) { return d.key; })
+                .attr("class", function (d) {
+                    var fields = [];
+                    if (series.x._hasCategories()) {
+                        fields = fields.concat(d.xField);
                     }
-                }
+                    if (series.y._hasCategories()) {
+                        fields = fields.concat(d.yField);
+                    }
+                    return dimple._createClass(fields) + " " + markerBackClasses.join(" ");
+                })
+                .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin); })
+                .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin); })
+                .attr("r", 0)
+                .attr("fill", "white")
+                .attr("stroke", "none");
+
+            // Update
+            dimple._handleTransition(markerBacks, duration)
+                .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
+                .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
+                .attr("r", 2 + series.lineWeight);
+
+            // Remove
+            rem = dimple._handleTransition(markerBacks.exit(), duration)
+                .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
+                .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
+                .attr("r", 0);
+
+            // Run after transition methods
+            if (duration === 0) {
+                rem.remove();
+            } else {
+                rem.each("end", function () {
+                    d3.select(this).remove();
+                });
             }
-        });
-        for (key in classes) {
-            if (classes.hasOwnProperty(key)) {
-                if (key.substring(0, 7) !== "dimple-") {
-                    console.log(key, classes[key]);
-                } else {
-                    console.log(key, "done");
-                }
+
+            if (series._markerBacks === undefined || series._markerBacks === null) {
+                series._markerBacks = {};
             }
+            series._markerBacks[lineDataRow.keyString] = markerBacks;
         }
     };
+
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_drawMarkers.js
+    dimple._drawMarkers = function (lineDataRow, chart, series, duration, className, useGradient, enterEventHandler, leaveEventHandler) {
+        var markers,
+            markerClasses = ["dimple-marker", className, lineDataRow.keyString],
+            rem;
+
+        // Begin by drawing the backings
+        dimple._drawMarkerBacks(lineDataRow, chart, series, duration, className);
+
+        // Deal with markers in the same way as main series to fix #28
+        if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
+            markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.data);
+        } else {
+            markers = series._markers[lineDataRow.keyString].data(lineDataRow.data, function (d) {
+                return d.key;
+            });
+        }
+        // Add
+        markers
+            .enter()
+            .append("circle")
+            .attr("id", function (d) {
+                return d.key;
+            })
+            .attr("class", function (d) {
+                var fields = [];
+                if (series.x._hasCategories()) {
+                    fields = fields.concat(d.xField);
+                }
+                if (series.y._hasCategories()) {
+                    fields = fields.concat(d.yField);
+                }
+                return dimple._createClass(fields) + " " + markerClasses.join(" ");
+            })
+            .on("mouseover", function (e) {
+                enterEventHandler(e, this, chart, series);
+            })
+            .on("mouseleave", function (e) {
+                leaveEventHandler(e, this, chart, series);
+            })
+            .attr("cx", function (d) {
+                return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin);
+            })
+            .attr("cy", function (d) {
+                return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin);
+            })
+            .attr("r", 0)
+            .attr("opacity", (series.lineMarkers || lineDataRow.data.length < 2 ? lineDataRow.color.opacity : 0))
+            .call(function () {
+                if (!chart.noFormats) {
+                    this.attr("fill", "white")
+                        .style("stroke-width", series.lineWeight)
+                        .attr("stroke", function (d) {
+                            return (useGradient ? dimple._helpers.fill(d, chart, series) : lineDataRow.color.stroke);
+                        });
+                }
+            });
+
+        // Update
+        dimple._handleTransition(markers, duration)
+            .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
+            .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
+            .attr("r", 2 + series.lineWeight)
+            .call(function () {
+                if (!chart.noFormats) {
+                    this.attr("fill", "white")
+                        .style("stroke-width", series.lineWeight)
+                        .attr("stroke", function (d) {
+                            return (useGradient ? dimple._helpers.fill(d, chart, series) : lineDataRow.color.stroke);
+                        });
+                }
+            });
+
+        // Remove
+        rem = dimple._handleTransition(markers.exit(), duration)
+            .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
+            .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
+            .attr("r", 0);
+
+        // Run after transition methods
+        if (duration === 0) {
+            rem.remove();
+        } else {
+            rem.each("end", function () {
+                d3.select(this).remove();
+            });
+        }
+
+        if (series._markers === undefined || series._markers === null) {
+            series._markers = {};
+        }
+        series._markers[lineDataRow.keyString] = markers;
+    };
+
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/chart/methods/_getOrderedList.js
@@ -4682,6 +3889,58 @@ var dimple = {
         return finalArray;
     };
 
+
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_getSeriesOrder.js
+    dimple._getSeriesOrder = function (data, series) {
+        var rules = [].concat(series._orderRules),
+            cats = series.categoryFields,
+            returnValue = [];
+        if (cats !== null && cats !== undefined && cats.length > 0) {
+            if (series.c !== null && series.c !== undefined && series.c._hasMeasure()) {
+                rules.push({ ordering : series.c.measure, desc : true });
+            }
+            if (series.x._hasMeasure()) {
+                rules.push({ ordering : series.x.measure, desc : true });
+            }
+            if (series.y._hasMeasure()) {
+                rules.push({ ordering : series.y.measure, desc : true });
+            }
+            returnValue = dimple._getOrderedList(data, cats, rules);
+        }
+        return returnValue;
+    };
+
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_getSeriesSortPredicate.js
+    dimple._getSeriesSortPredicate = function (chart, series, orderedArray) {
+        return function (a, b) {
+            var sortValue = 0;
+            if (series.x._hasCategories()) {
+                sortValue = (dimple._helpers.cx(a, chart, series) < dimple._helpers.cx(b, chart, series) ? -1 : 1);
+            } else if (series.y._hasCategories()) {
+                sortValue = (dimple._helpers.cy(a, chart, series) < dimple._helpers.cy(b, chart, series) ? -1 : 1);
+            } else if (orderedArray) {
+                sortValue = dimple._arrayIndexCompare(orderedArray, a.aggField, b.aggField);
+            }
+            return sortValue;
+        };
+    };
+
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_handleTransition.js
+    dimple._handleTransition = function (input, duration) {
+        var returnShape = null;
+        if (duration === 0) {
+            returnShape = input;
+        } else {
+            returnShape = input.transition().duration(duration);
+        }
+        return returnShape;
+    };
 
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -4957,6 +4216,40 @@ var dimple = {
 
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_drawMarkers.js
+    dimple._postDrawHandling = function (series, updated, removed, duration) {
+        // Run after transition methods
+        if (duration === 0) {
+            updated.each(function (d, i) {
+                if (series.afterDraw !== null && series.afterDraw !== undefined) {
+                    series.afterDraw(this, d, i);
+                }
+            });
+            removed.remove();
+        } else {
+            updated.each("end", function (d, i) {
+                if (series.afterDraw !== null && series.afterDraw !== undefined) {
+                    series.afterDraw(this, d, i);
+                }
+            });
+            removed.each("end", function () {
+                d3.select(this).remove();
+            });
+        }
+    };
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_removeTooltip.js
+    /*jslint unparam: true */
+    dimple._removeTooltip = function (e, shape, chart, series) {
+        if (chart._tooltipGroup) {
+            chart._tooltipGroup.remove();
+        }
+    };
+    /*jslint unparam: false */
+
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_rollUp.js
     dimple._rollUp = function (data, fields, includeFields) {
 
@@ -5013,6 +4306,350 @@ var dimple = {
         }, this);
         // Return the flattened list
         return returnList;
+    };
+
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_showBarTooltip.js
+    dimple._showBarTooltip = function (e, shape, chart, series) {
+
+        // The margin between the text and the box
+        var textMargin = 5,
+            // The margin between the ring and the popup
+            popupMargin = 10,
+           // The popup animation duration in ms
+            animDuration = 750,
+            // Collect some facts about the highlighted bar
+            selectedShape = d3.select(shape),
+            x = parseFloat(selectedShape.attr("x")),
+            y = parseFloat(selectedShape.attr("y")),
+            width = parseFloat(selectedShape.attr("width")),
+            height = parseFloat(selectedShape.attr("height")),
+            opacity = selectedShape.attr("opacity"),
+            fill = selectedShape.attr("fill"),
+            dropDest = series._dropLineOrigin(),
+            // Fade the popup stroke mixing the shape fill with 60% white
+            popupStrokeColor = d3.rgb(
+                d3.rgb(fill).r + 0.6 * (255 - d3.rgb(fill).r),
+                d3.rgb(fill).g + 0.6 * (255 - d3.rgb(fill).g),
+                d3.rgb(fill).b + 0.6 * (255 - d3.rgb(fill).b)
+            ),
+            // Fade the popup fill mixing the shape fill with 80% white
+            popupFillColor = d3.rgb(
+                d3.rgb(fill).r + 0.8 * (255 - d3.rgb(fill).r),
+                d3.rgb(fill).g + 0.8 * (255 - d3.rgb(fill).g),
+                d3.rgb(fill).b + 0.8 * (255 - d3.rgb(fill).b)
+            ),
+            t,
+            box,
+            tipText = series.getTooltipText(e),
+            // The running y value for the text elements
+            yRunning = 0,
+            // The maximum bounds of the text elements
+            w = 0,
+            h = 0,
+            // Values to shift the popup
+            translateX,
+            translateY;
+
+        if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+            chart._tooltipGroup.remove();
+        }
+        chart._tooltipGroup = chart.svg.append("g");
+
+        // Add a drop line to the x axis
+        if (!series.x._hasCategories() && dropDest.y !== null) {
+            chart._tooltipGroup.append("line")
+                .attr("x1", (x < series.x._origin ? x + 1 : x + width - 1))
+                .attr("y1", (y < dropDest.y ? y + height : y))
+                .attr("x2", (x < series.x._origin ? x + 1 : x + width - 1))
+                .attr("y2", (y < dropDest.y ? y + height : y))
+                .style("fill", "none")
+                .style("stroke", fill)
+                .style("stroke-width", 2)
+                .style("stroke-dasharray", ("3, 3"))
+                .style("opacity", opacity)
+                .transition()
+                .delay(animDuration / 2)
+                .duration(animDuration / 2)
+                .ease("linear")
+                // Added 1px offset to cater for svg issue where a transparent
+                // group overlapping a line can sometimes hide it in some browsers
+                // Issue #10
+                .attr("y2", (y < dropDest.y ? dropDest.y - 1 : dropDest.y + 1));
+        }
+
+        // Add a drop line to the y axis
+        if (!series.y._hasCategories() && dropDest.x !== null) {
+            chart._tooltipGroup.append("line")
+                .attr("x1", (x < dropDest.x ? x + width : x))
+                .attr("y1", (y < series.y._origin ? y + 1 : y + height - 1))
+                .attr("x2", (x < dropDest.x ? x + width : x))
+                .attr("y2", (y < series.y._origin ? y + 1 : y + height - 1))
+                .style("fill", "none")
+                .style("stroke", fill)
+                .style("stroke-width", 2)
+                .style("stroke-dasharray", ("3, 3"))
+                .style("opacity", opacity)
+                .transition()
+                .delay(animDuration / 2)
+                .duration(animDuration / 2)
+                .ease("linear")
+                // Added 1px offset to cater for svg issue where a transparent
+                // group overlapping a line can sometimes hide it in some browsers
+                // Issue #10
+                .attr("x2", (x < dropDest.x ? dropDest.x - 1 : dropDest.x + 1));
+        }
+
+        // Add a group for text
+        t = chart._tooltipGroup.append("g");
+        // Create a box for the popup in the text group
+        box = t.append("rect")
+            .attr("class", "dimple-tooltip");
+
+        // Create a text object for every row in the popup
+        t.selectAll(".dimple-dont-select-any").data(tipText).enter()
+            .append("text")
+            .attr("class", "dimple-tooltip")
+            .text(function (d) { return d; })
+            .style("font-family", "sans-serif")
+            .style("font-size", "10px");
+
+        // Get the max height and width of the text items
+        t.each(function () {
+            w = (this.getBBox().width > w ? this.getBBox().width : w);
+            h = (this.getBBox().width > h ? this.getBBox().height : h);
+        });
+
+        // Position the text relative to the bar, the absolute positioning
+        // will be done by translating the group
+        t.selectAll("text")
+            .attr("x", 0)
+            .attr("y", function () {
+                // Increment the y position
+                yRunning += this.getBBox().height;
+                // Position the text at the centre point
+                return yRunning - (this.getBBox().height / 2);
+            });
+
+        // Draw the box with a margin around the text
+        box.attr("x", -textMargin)
+            .attr("y", -textMargin)
+            .attr("height", Math.floor(yRunning + textMargin) - 0.5)
+            .attr("width", w + 2 * textMargin)
+            .attr("rx", 5)
+            .attr("ry", 5)
+            .style("fill", popupFillColor)
+            .style("stroke", popupStrokeColor)
+            .style("stroke-width", 2)
+            .style("opacity", 0.95);
+
+        // Shift the popup around to avoid overlapping the svg edge
+        if (x + width + textMargin + popupMargin + w < parseFloat(chart.svg.node().getBBox().width)) {
+            // Draw centre right
+            translateX = (x + width + textMargin + popupMargin);
+            translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
+        } else if (x - (textMargin + popupMargin + w) > 0) {
+            // Draw centre left
+            translateX = (x - (textMargin + popupMargin + w));
+            translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
+        } else if (y + height + yRunning + popupMargin + textMargin < parseFloat(chart.svg.node().getBBox().height)) {
+            // Draw centre below
+            translateX = (x + (width / 2) - (2 * textMargin + w) / 2);
+            translateX = (translateX > 0 ? translateX : popupMargin);
+            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateY = (y + height + 2 * textMargin);
+        } else {
+            // Draw centre above
+            translateX = (x + (width / 2) - (2 * textMargin + w) / 2);
+            translateX = (translateX > 0 ? translateX : popupMargin);
+            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateY = (y - yRunning - (h - textMargin));
+        }
+        t.attr("transform", "translate(" + translateX + " , " + translateY + ")");
+    };
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_showPointTooltip.js
+    dimple._showPointTooltip = function (e, shape, chart, series) {
+
+        // The margin between the text and the box
+        var textMargin = 5,
+        // The margin between the ring and the popup
+            popupMargin = 10,
+        // The popup animation duration in ms
+            animDuration = 750,
+        // Collect some facts about the highlighted bubble
+            selectedShape = d3.select(shape),
+            cx = parseFloat(selectedShape.attr("cx")),
+            cy = parseFloat(selectedShape.attr("cy")),
+            r = parseFloat(selectedShape.attr("r")),
+            opacity = dimple._helpers.opacity(e, chart, series),
+            fill = selectedShape.attr("stroke"),
+            dropDest = series._dropLineOrigin(),
+        // Fade the popup stroke mixing the shape fill with 60% white
+            popupStrokeColor = d3.rgb(
+                d3.rgb(fill).r + 0.6 * (255 - d3.rgb(fill).r),
+                d3.rgb(fill).g + 0.6 * (255 - d3.rgb(fill).g),
+                d3.rgb(fill).b + 0.6 * (255 - d3.rgb(fill).b)
+            ),
+        // Fade the popup fill mixing the shape fill with 80% white
+            popupFillColor = d3.rgb(
+                d3.rgb(fill).r + 0.8 * (255 - d3.rgb(fill).r),
+                d3.rgb(fill).g + 0.8 * (255 - d3.rgb(fill).g),
+                d3.rgb(fill).b + 0.8 * (255 - d3.rgb(fill).b)
+            ),
+        // The running y value for the text elements
+            y = 0,
+        // The maximum bounds of the text elements
+            w = 0,
+            h = 0,
+            t,
+            box,
+            tipText = series.getTooltipText(e),
+            overlap;
+
+        if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+            chart._tooltipGroup.remove();
+        }
+        chart._tooltipGroup = chart.svg.append("g");
+
+        // Add a ring around the data point
+        chart._tooltipGroup.append("circle")
+            .attr("cx", cx)
+            .attr("cy", cy)
+            .attr("r", r)
+            .attr("opacity", 0)
+            .style("fill", "none")
+            .style("stroke", fill)
+            .style("stroke-width", 1)
+            .transition()
+            .duration(animDuration / 2)
+            .ease("linear")
+            .attr("opacity", 1)
+            .attr("r", r + series.lineWeight + 2)
+            .style("stroke-width", 2);
+
+        // Add a drop line to the x axis
+        if (dropDest.y !== null) {
+            chart._tooltipGroup.append("line")
+                .attr("x1", cx)
+                .attr("y1", (cy < dropDest.y ? cy + r + series.lineWeight + 2 : cy - r - series.lineWeight - 2))
+                .attr("x2", cx)
+                .attr("y2", (cy < dropDest.y ? cy + r + series.lineWeight + 2 : cy - r - series.lineWeight - 2))
+                .style("fill", "none")
+                .style("stroke", fill)
+                .style("stroke-width", 2)
+                .style("stroke-dasharray", ("3, 3"))
+                .style("opacity", opacity)
+                .transition()
+                .delay(animDuration / 2)
+                .duration(animDuration / 2)
+                .ease("linear")
+                // Added 1px offset to cater for svg issue where a transparent
+                // group overlapping a line can sometimes hide it in some browsers
+                // Issue #10
+                .attr("y2", (cy < dropDest.y ? dropDest.y - 1 : dropDest.y + 1));
+        }
+
+        // Add a drop line to the y axis
+        if (dropDest.x !== null) {
+            chart._tooltipGroup.append("line")
+                .attr("x1", (cx < dropDest.x ? cx + r + series.lineWeight + 2 : cx - r - series.lineWeight - 2))
+                .attr("y1", cy)
+                .attr("x2", (cx < dropDest.x ? cx + r + series.lineWeight + 2 : cx - r - series.lineWeight - 2))
+                .attr("y2", cy)
+                .style("fill", "none")
+                .style("stroke", fill)
+                .style("stroke-width", 2)
+                .style("stroke-dasharray", ("3, 3"))
+                .style("opacity", opacity)
+                .transition()
+                .delay(animDuration / 2)
+                .duration(animDuration / 2)
+                .ease("linear")
+                // Added 1px offset to cater for svg issue where a transparent
+                // group overlapping a line can sometimes hide it in some browsers
+                // Issue #10
+                .attr("x2", (cx < dropDest.x ? dropDest.x - 1 : dropDest.x + 1));
+        }
+
+        // Add a group for text
+        t = chart._tooltipGroup.append("g");
+        // Create a box for the popup in the text group
+        box = t.append("rect")
+            .attr("class", "dimple-tooltip");
+
+        // Create a text object for every row in the popup
+        t.selectAll(".dont-select-any").data(tipText).enter()
+            .append("text")
+            .attr("class", "dimple-tooltip")
+            .text(function (d) { return d; })
+            .style("font-family", "sans-serif")
+            .style("font-size", "10px");
+
+        // Get the max height and width of the text items
+        t.each(function () {
+            w = (this.getBBox().width > w ? this.getBBox().width : w);
+            h = (this.getBBox().width > h ? this.getBBox().height : h);
+        });
+
+        // Position the text relative to the bubble, the absolute positioning
+        // will be done by translating the group
+        t.selectAll("text")
+            .attr("x", 0)
+            .attr("y", function () {
+                // Increment the y position
+                y += this.getBBox().height;
+                // Position the text at the centre point
+                return y - (this.getBBox().height / 2);
+            });
+
+        // Draw the box with a margin around the text
+        box.attr("x", -textMargin)
+            .attr("y", -textMargin)
+            .attr("height", Math.floor(y + textMargin) - 0.5)
+            .attr("width", w + 2 * textMargin)
+            .attr("rx", 5)
+            .attr("ry", 5)
+            .style("fill", popupFillColor)
+            .style("stroke", popupStrokeColor)
+            .style("stroke-width", 2)
+            .style("opacity", 0.95);
+
+//        // Shift the ring margin left or right depending on whether it will overlap the edge
+//        overlap = cx + r + textMargin + popupMargin + w > parseFloat(chart.svg.node().getBBox().width);
+
+//        // Translate the shapes to the x position of the bubble (the x position of the shapes is handled)
+//        t.attr("transform", "translate(" +
+//            (overlap ? cx - (r + textMargin + popupMargin + w) : cx + r + textMargin + popupMargin) + " , " +
+//            (cy - ((y - (h - textMargin)) / 2)) +
+//            ")");
+
+        var translateX, translateY;
+        // Shift the popup around to avoid overlapping the svg edge
+        if (cx + r + textMargin + popupMargin + w < parseFloat(chart.svg.node().getBBox().width)) {
+            // Draw centre right
+            translateX = (cx + r + textMargin + popupMargin);
+            translateY = (cy - ((y - (h - textMargin)) / 2));
+        } else if (cx - r - (textMargin + popupMargin + w) > 0) {
+            // Draw centre left
+            translateX = (cx - r - (textMargin + popupMargin + w));
+            translateY = (cy - ((y - (h - textMargin)) / 2));
+        } else if (cy + r + y + popupMargin + textMargin < parseFloat(chart.svg.node().getBBox().height)) {
+            // Draw centre below
+            translateX = (cx - (2 * textMargin + w) / 2);
+            translateX = (translateX > 0 ? translateX : popupMargin);
+            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateY = (cy + r + 2 * textMargin);
+        } else {
+            // Draw centre above
+            translateX = (cx - (2 * textMargin + w) / 2);
+            translateX = (translateX > 0 ? translateX : popupMargin);
+            translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
+            translateY = (cy - y - (h - textMargin));
+        }
+        t.attr("transform", "translate(" + translateX + " , " + translateY + ")");
     };
 
     // Copyright: 2014 PMSI-AlignAlytics
