@@ -17,7 +17,7 @@
                         isDate = true,
                         currentValue = null,
                         i,
-                        definitions = [];
+                        definitions;
                     // Check whether this field is a date
                     for (i = 0; i < axisData.length; i += 1) {
                         currentValue = self._parseDate(axisData[i][category]);

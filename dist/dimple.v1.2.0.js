@@ -179,7 +179,7 @@ var dimple = {
             var outPeriod = this.timePeriod,
                 maxPeriods = 30,
                 diff = this._max - this._min;
-            if (this._hasTimeField && (this.timePeriod === null || this.timePeriod === undefined)) {
+            if (this._hasTimeField() && !this.timePeriod) {
                 // Calculate using millisecond values for speed.  Using the date range requires creating an array
                 // which in the case of seconds kills the browser.  All constants are straight sums of milliseconds
                 // except months taken as (86400000 * 365.25) / 12 = 2629800000
@@ -317,7 +317,7 @@ var dimple = {
                         isDate = true,
                         currentValue = null,
                         i,
-                        definitions = [];
+                        definitions;
                     // Check whether this field is a date
                     for (i = 0; i < axisData.length; i += 1) {
                         currentValue = self._parseDate(axisData[i][category]);
@@ -2622,6 +2622,7 @@ var dimple = {
                 interpolation,
                 graded = false,
                 i,
+                j,
                 k,
                 key,
                 keyString,
@@ -2629,17 +2630,29 @@ var dimple = {
                 updated,
                 removed,
                 orderedSeriesArray,
-                dataClone,
-                onEnter = function (e, shape, chart, series) {
-                    d3.select(shape).style("opacity", 1);
-                    dimple._showPointTooltip(e, shape, chart, series);
+                catPoints = {},
+                allPoints = [],
+                points,
+                finalPointArray = [],
+                basePoints,
+                basePoint,
+                cat,
+                catCoord,
+                valCoord,
+                onEnter = function () {
+                    return function (e, shape, chart, series) {
+                        d3.select(shape).style("opacity", 1);
+                        dimple._showPointTooltip(e, shape, chart, series);
+                    };
                 },
-                onLeave = function (e, shape, chart, series) {
-                    d3.select(shape).style("opacity", (series.lineMarkers ? dimple._helpers.opacity(e, chart, series) : 0));
-                    dimple._removeTooltip(e, shape, chart, series);
+                onLeave = function (lineData) {
+                    return function (e, shape, chart, series) {
+                        d3.select(shape).style("opacity", (series.lineMarkers || lineData.data.length < 2 ? dimple._helpers.opacity(e, chart, series) : 0));
+                        dimple._removeTooltip(e, shape, chart, series);
+                    };
                 },
                 drawMarkers = function (d) {
-                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter, onLeave);
+                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d));
                 },
                 coord = function (position, datum) {
                     var val;
@@ -2650,12 +2663,14 @@ var dimple = {
                     } else {
                         val = dimple._helpers["c" + position](datum, chart, series);
                     }
-                    return val;
+                    // Remove long decimals from the coordinates as this fills the dom up with noise and makes matching below less likely to work.  It
+                    // shouldn't really matter but positioning to < 0.1 pixel is pretty pointless anyway.
+                    return parseFloat(val.toFixed(1));
                 },
                 getArea = function (inter, originProperty) {
                     return d3.svg.line()
-                        .x(function (d) { return (series.x._hasCategories() || !originProperty ? coord("x", d) : series.x[originProperty]); })
-                        .y(function (d) { return (series.y._hasCategories() || !originProperty ? coord("y", d) : series.y[originProperty]); })
+                        .x(function (d) { return (series.x._hasCategories() || !originProperty ? d.x : series.x[originProperty]); })
+                        .y(function (d) { return (series.y._hasCategories() || !originProperty ? d.y : series.y[originProperty]); })
                         .interpolate(inter);
                 };
 
@@ -2667,6 +2682,15 @@ var dimple = {
 
             if (series.c && ((series.x._hasCategories() && series.y._hasMeasure()) || (series.y._hasCategories() && series.x._hasMeasure()))) {
                 graded = true;
+            }
+
+            // If there is a coordinate with categories get it here so we don't have to keep checking
+            if (series.x._hasCategories()) {
+                catCoord = "x";
+                valCoord = "y";
+            } else if (series.y._hasCategories()) {
+                catCoord = "y";
+                valCoord = "x";
             }
 
             // Create a set of area data grouped by the aggregation field
@@ -2693,8 +2717,10 @@ var dimple = {
                         keyString: keyString,
                         color: "white",
                         data: [],
+                        points: [],
                         area: {},
-                        entryExit: {}
+                        entry: {},
+                        exit: {}
                     });
                 }
                 // Add this row to the relevant data
@@ -2713,37 +2739,150 @@ var dimple = {
             for (i = 0; i < areaData.length; i += 1) {
                 // Sort the points so that areas are connected in the correct order
                 areaData[i].data.sort(dimple._getSeriesSortPredicate(chart, series, orderedSeriesArray));
+                // Get points here, this is so that as well as drawing the line with them, we can also
+                // use them for the baseline
+                for (j = 0; j < areaData[i].data.length; j += 1) {
+                    areaData[i].points.push({
+                        x: coord("x", areaData[i].data[j]),
+                        y: coord("y", areaData[i].data[j])
+                    });
+                    // if there is a category axis, add the points to a distinct set.  Set these to use the origin value
+                    // this will be updated with the last value in each case as we build the areas
+                    if (catCoord) {
+                        catPoints[areaData[i].points[areaData[i].points.length - 1][catCoord]] = series[valCoord]._previousOrigin;
+                    }
+                }
+            }
+
+            // catPoints needs to be lookup, but also accessed sequentially so we need to create an array of keys
+            for (cat in catPoints) {
+                if (catPoints.hasOwnProperty(cat)) {
+                    allPoints.push(parseFloat(cat));
+                }
+            }
+            // Sort the points as integers
+            allPoints.sort(function (a, b) { return parseFloat(a) - parseFloat(b); });
+
+            // Create the areas
+            for (i = 0; i < areaData.length; i += 1) {
+                points = areaData[i].points;
+                basePoints = [];
+                finalPointArray = [];
                 // If this should have colour gradients, add them
                 if (graded) {
                     dimple._addGradient(areaData[i].key, "fill-area-gradient-" + areaData[i].keyString, (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
                 }
-                // Clone the data before adding elements
-                dataClone = [].concat(areaData[i].data);
-                // If this is a custom dimple step area duplicate the last datum so that the final step is completed
-                if (series.interpolation === "step") {
-                    if (series.x._hasCategories()) {
-                        // Clone the last row and duplicate it.
-                        dataClone = dataClone.concat(JSON.parse(JSON.stringify(dataClone[dataClone.length - 1])));
-                        dataClone[dataClone.length - 1].cx = "";
-                        dataClone[dataClone.length - 1].x = "";
-                    }
-                    if (series.y._hasCategories()) {
-                        // Clone the last row and duplicate it.
-                        dataClone = [JSON.parse(JSON.stringify(dataClone[0]))].concat(dataClone);
-                        dataClone[0].cy = "";
-                        dataClone[0].y = "";
+
+                // Iterate the point array because we need to fill in zero points for missing ones, otherwise the areas
+                // will cross where an upper area has no value and a lower value has a spike Issue #7
+                for (j = 0, k = 0; j < allPoints.length; j += 1) {
+                    // We are only interested in points between the first and last point of this areas data (i.e. don't fill ends - important
+                    // for grouped area charts)
+                    if (allPoints[j] >= points[0][catCoord] && allPoints[j] <= points[points.length - 1][catCoord]) {
+                        // Get a base point, this needs to go on the base points array as well as filling in gaps in the point array.
+                        // Create a point using the coordinate on the category axis and the last recorded value
+                        // position from the dictionary
+                        basePoint = {};
+                        basePoint[catCoord] = allPoints[j];
+                        basePoint[valCoord] = catPoints[allPoints[j]];
+                        // add the base point
+                        basePoints.push(basePoint);
+                        // handle missing points
+                        if (points[k][catCoord] > allPoints[j]) {
+                            // If there is a missing point we need to in fill
+                            finalPointArray.push(basePoint);
+                        } else {
+                            // They must be the same
+                            finalPointArray.push(points[k]);
+                            // Use this to update the dictionary to the new value coordinate
+                            catPoints[allPoints[j]] = points[k][valCoord];
+                            k += 1;
+                        }
                     }
                 }
 
+                // The final array of points for the entire outskirts of the area
+                finalPointArray = finalPointArray.concat(basePoints.reverse()).concat(finalPointArray[0]);
+
                 // Get the points that this area will appear
-                areaData[i].entry = getArea(interpolation, "_previousOrigin")(dataClone);
-                areaData[i].update = getArea(interpolation)(dataClone);
-                areaData[i].exit = getArea(interpolation, "_origin")(dataClone);
+                areaData[i].entry = getArea(interpolation, "_previousOrigin")(finalPointArray);
+                areaData[i].update = getArea(interpolation)(finalPointArray);
+                areaData[i].exit = getArea(interpolation, "_origin")(finalPointArray);
 
                 // Add the color in this loop, it can't be done during initialisation of the row because
                 // the areas should be ordered first (to ensure standard distribution of colors
                 areaData[i].color = chart.getColor(areaData[i].key.length > 0 ? areaData[i].key[areaData[i].key.length - 1] : "All");
+
             }
+//            // Create a set of area data grouped by the aggregation field
+//            for (i = 0; i < areaData.length; i += 1) {
+//
+//                // Sort the points so that areas are connected in the correct order
+//                areaData[i].data.sort(dimple._getSeriesSortPredicate(chart, series, orderedSeriesArray));
+//
+//                // If this should have colour gradients, add them
+//                if (graded) {
+//                    dimple._addGradient(areaData[i].key, "fill-area-gradient-" + areaData[i].keyString, (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
+//                }
+//
+//                // Clone the data before adding elements
+//                dataClone = [].concat(areaData[i].data);
+//
+//                // If this is a custom dimple step area duplicate the last datum so that the final step is completed
+//                if (series.interpolation === "step") {
+//                    if (series.x._hasCategories()) {
+//                        // Clone the last row and duplicate it.
+//                        dataClone = dataClone.concat(JSON.parse(JSON.stringify(dataClone[dataClone.length - 1])));
+//                        dataClone[dataClone.length - 1].cx = "";
+//                        dataClone[dataClone.length - 1].x = "";
+//                    }
+//                    if (series.y._hasCategories()) {
+//                        // Clone the last row and duplicate it.
+//                        dataClone = [JSON.parse(JSON.stringify(dataClone[0]))].concat(dataClone);
+//                        dataClone[0].cy = "";
+//                        dataClone[0].y = "";
+//                    }
+//                }
+//
+//                // Add zero baseline for this row
+//                if (series.x._hasCategories() && series.y._hasMeasure()) {
+//                    for (j = dataClone.length - 1; j >= 0; j -= 1) {
+//                        areaData[i].baseData.push({
+//                            x : dataClone[j].x,
+//                            cx : dataClone[j].cx,
+//                            xOffset : dataClone[j].xOffset,
+//                            width : dataClone[j].width,
+//                            y: (i === 0 ? 0 : areaData[i - 1].data[j].y),
+//                            cy : (i === 0 ? 0 : areaData[i - 1].data[j].cy),
+//                            yOffset: (i === 0 ? 0 : areaData[i - 1].data[j].yOffset),
+//                            height: (i === 0 ? 0 : areaData[i - 1].data[j].height)
+//                        });
+//                    }
+//                } else if (series.y._hasCategories() && series.x._hasMeasure()) {
+//                    for (j = dataClone.length - 1; j >= 0; j -= 1) {
+//                        areaData[i].baseData.push({
+//                            x : (i === 0 ? 0 : areaData[i - 1].data[j].x),
+//                            cx : (i === 0 ? 0 : areaData[i - 1].data[j].cx),
+//                            xOffset : (i === 0 ? 0 : areaData[i - 1].data[j].xOffset),
+//                            width : (i === 0 ? 0 : areaData[i - 1].data[j].width),
+//                            y: dataClone[j].y,
+//                            cy : dataClone[j].cy,
+//                            yOffset: dataClone[j].yOffset,
+//                            height: dataClone[j].height
+//                        });
+//                    }
+//                }
+//
+//                // Get the points that this area will appear
+//                areaData[i].entry = getArea(interpolation, "_previousOrigin")(areaData[i].baseData.concat(dataClone));
+//                areaData[i].update = getArea(interpolation)(areaData[i].baseData.concat(dataClone));
+//                areaData[i].exit = getArea(interpolation, "_origin")(areaData[i].baseData.concat(dataClone));
+//
+//                // Add the color in this loop, it can't be done during initialisation of the row because
+//                // the areas should be ordered first (to ensure standard distribution of colors
+//                areaData[i].color = chart.getColor(areaData[i].key.length > 0 ? areaData[i].key[areaData[i].key.length - 1] : "All");
+//
+//            }
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
                 chart._tooltipGroup.remove();
@@ -2770,8 +2909,8 @@ var dimple = {
                     // Apply formats optionally
                     if (!chart.noFormats) {
                         this.attr("opacity", function (d) { return (graded ? 1 : d.color.opacity); })
-                            .attr("fill", "none")
-                            .attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.keyString + ")" : d.color.stroke); })
+                            .attr("fill", function (d) { return (graded ? "url(#fill-line-gradient-" + d.keyString + ")" : d.color.fill); })
+                            .attr("stroke", function (d) { return (graded ? "url(#stroke-line-gradient-" + d.keyString + ")" : d.color.stroke); })
                             .attr("stroke-width", series.lineWeight);
                     }
                 })
@@ -3511,16 +3650,20 @@ var dimple = {
                 removed,
                 orderedSeriesArray,
                 dataClone,
-                onEnter = function (e, shape, chart, series) {
-                    d3.select(shape).style("opacity", 1);
-                    dimple._showPointTooltip(e, shape, chart, series);
+                onEnter = function () {
+                    return function (e, shape, chart, series) {
+                        d3.select(shape).style("opacity", 1);
+                        dimple._showPointTooltip(e, shape, chart, series);
+                    };
                 },
-                onLeave = function (e, shape, chart, series) {
-                    d3.select(shape).style("opacity", (series.lineMarkers ? dimple._helpers.opacity(e, chart, series) : 0));
-                    dimple._removeTooltip(e, shape, chart, series);
+                onLeave = function (lineData) {
+                    return function (e, shape, chart, series) {
+                        d3.select(shape).style("opacity", (series.lineMarkers || lineData.data.length < 2 ? dimple._helpers.opacity(e, chart, series) : 0));
+                        dimple._removeTooltip(e, shape, chart, series);
+                    };
                 },
                 drawMarkers = function (d) {
-                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter, onLeave);
+                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d));
                 },
                 coord = function (position, datum) {
                     var val;
@@ -3792,7 +3935,7 @@ var dimple = {
             };
         for (i = 0; i < stringArray.length; i += 1) {
             /*jslint regexp: true */
-            returnArray.push("dimple-" + stringArray[i].replace(/[^a-z0-9]/g, replacer));
+            returnArray.push("dimple-" + stringArray[i].toString().replace(/[^a-z0-9]/g, replacer));
             /*jslint regexp: false */
         }
         return returnArray.join(" ");

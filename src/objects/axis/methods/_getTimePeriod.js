@@ -6,7 +6,7 @@
             var outPeriod = this.timePeriod,
                 maxPeriods = 30,
                 diff = this._max - this._min;
-            if (this._hasTimeField && (this.timePeriod === null || this.timePeriod === undefined)) {
+            if (this._hasTimeField() && !this.timePeriod) {
                 // Calculate using millisecond values for speed.  Using the date range requires creating an array
                 // which in the case of seconds kills the browser.  All constants are straight sums of milliseconds
                 // except months taken as (86400000 * 365.25) / 12 = 2629800000

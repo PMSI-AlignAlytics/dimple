@@ -3,7 +3,7 @@
     // Source: /src/objects/plot/line.js
     dimple.plot.line = {
 
-        // By default the bubble values are not stacked
+        // By default the values are not stacked
         stacked: false,
 
         // The axis positions affecting the line series
@@ -28,16 +28,20 @@
                 removed,
                 orderedSeriesArray,
                 dataClone,
-                onEnter = function (e, shape, chart, series) {
-                    d3.select(shape).style("opacity", 1);
-                    dimple._showPointTooltip(e, shape, chart, series);
+                onEnter = function () {
+                    return function (e, shape, chart, series) {
+                        d3.select(shape).style("opacity", 1);
+                        dimple._showPointTooltip(e, shape, chart, series);
+                    };
                 },
-                onLeave = function (e, shape, chart, series) {
-                    d3.select(shape).style("opacity", (series.lineMarkers ? dimple._helpers.opacity(e, chart, series) : 0));
-                    dimple._removeTooltip(e, shape, chart, series);
+                onLeave = function (lineData) {
+                    return function (e, shape, chart, series) {
+                        d3.select(shape).style("opacity", (series.lineMarkers || lineData.data.length < 2 ? dimple._helpers.opacity(e, chart, series) : 0));
+                        dimple._removeTooltip(e, shape, chart, series);
+                    };
                 },
                 drawMarkers = function (d) {
-                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter, onLeave);
+                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d));
                 },
                 coord = function (position, datum) {
                     var val;
@@ -59,7 +63,7 @@
 
             // Handle the special interpolation handling for step
             interpolation =  (series.interpolation === "step" ? "step-after" : series.interpolation);
-//
+
             // Get the array of ordered values
             orderedSeriesArray = dimple._getSeriesOrder(series.data || chart.data, series);
 
@@ -138,7 +142,7 @@
                 lineData[i].update = getLine(interpolation)(dataClone);
                 lineData[i].exit = getLine(interpolation, "_origin")(dataClone);
 
-                // Add the color in this loop, it can't be done during initialisation of the row becase
+                // Add the color in this loop, it can't be done during initialisation of the row because
                 // the lines should be ordered first (to ensure standard distribution of colors
                 lineData[i].color = chart.getColor(lineData[i].key.length > 0 ? lineData[i].key[lineData[i].key.length - 1] : "All");
             }

@@ -15,7 +15,7 @@
             };
         for (i = 0; i < stringArray.length; i += 1) {
             /*jslint regexp: true */
-            returnArray.push("dimple-" + stringArray[i].replace(/[^a-z0-9]/g, replacer));
+            returnArray.push("dimple-" + stringArray[i].toString().replace(/[^a-z0-9]/g, replacer));
             /*jslint regexp: false */
         }
         return returnArray.join(" ");
