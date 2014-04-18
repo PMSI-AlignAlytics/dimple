@@ -35,6 +35,7 @@
                 basePoints,
                 basePoint,
                 cat,
+                lastAngle,
                 catCoord,
                 valCoord,
                 onEnter = function () {
@@ -70,6 +71,29 @@
                         .x(function (d) { return (series.x._hasCategories() || !originProperty ? d.x : series.x[originProperty]); })
                         .y(function (d) { return (series.y._hasCategories() || !originProperty ? d.y : series.y[originProperty]); })
                         .interpolate(inter);
+                },
+                sortByX = function (a, b) {
+                    return parseFloat(a.x) - parseFloat(b.x);
+                },
+                addNextPoint = function (source, target, startAngle) {
+                    // Given a point we need to find the next point clockwise from the start angle
+                    var i,
+                        point = target[target.length - 1],
+                        thisAngle,
+                        bestAngleSoFar = 9999,
+                        returnPoint = point;
+                    for (i = 0; i < source.length; i += 1) {
+                        if (source[i].x !== point.x || source[i].y !== point.y) {
+                            // get the angle in degrees since start angle
+                            thisAngle = 180 - (Math.atan2(source[i].x - point.x, source[i].y - point.y) * (180 / Math.PI));
+                            if (thisAngle > startAngle && thisAngle < bestAngleSoFar) {
+                                returnPoint = source[i];
+                                bestAngleSoFar = thisAngle;
+                            }
+                        }
+                    }
+                    target.push(returnPoint);
+                    return bestAngleSoFar;
                 };
 
             // Handle the special interpolation handling for step
@@ -171,31 +195,63 @@
                     dimple._addGradient(areaData[i].key, "fill-area-gradient-" + areaData[i].keyString, (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
                 }
 
-                // Iterate the point array because we need to fill in zero points for missing ones, otherwise the areas
-                // will cross where an upper area has no value and a lower value has a spike Issue #7
-                for (j = 0, k = 0; j < allPoints.length; j += 1) {
-                    // We are only interested in points between the first and last point of this areas data (i.e. don't fill ends - important
-                    // for grouped area charts)
-                    if (allPoints[j] >= points[0][catCoord] && allPoints[j] <= points[points.length - 1][catCoord]) {
-                        // Get a base point, this needs to go on the base points array as well as filling in gaps in the point array.
-                        // Create a point using the coordinate on the category axis and the last recorded value
-                        // position from the dictionary
-                        basePoint = {};
-                        basePoint[catCoord] = allPoints[j];
-                        basePoint[valCoord] = catPoints[allPoints[j]];
-                        // add the base point
-                        basePoints.push(basePoint);
-                        // handle missing points
-                        if (points[k][catCoord] > allPoints[j]) {
-                            // If there is a missing point we need to in fill
-                            finalPointArray.push(basePoint);
-                        } else {
-                            // They must be the same
-                            finalPointArray.push(points[k]);
-                            // Use this to update the dictionary to the new value coordinate
-                            catPoints[allPoints[j]] = points[k][valCoord];
-                            k += 1;
+                // All points will only be populated if there is a category axis
+                if (allPoints && allPoints.length > 0) {
+                    // Iterate the point array because we need to fill in zero points for missing ones, otherwise the areas
+                    // will cross where an upper area has no value and a lower value has a spike Issue #7
+                    for (j = 0, k = 0; j < allPoints.length; j += 1) {
+                        // We are only interested in points between the first and last point of this areas data (i.e. don't fill ends - important
+                        // for grouped area charts)
+                        if (allPoints[j] >= points[0][catCoord] && allPoints[j] <= points[points.length - 1][catCoord]) {
+                            // Get a base point, this needs to go on the base points array as well as filling in gaps in the point array.
+                            // Create a point using the coordinate on the category axis and the last recorded value
+                            // position from the dictionary
+                            basePoint = {};
+                            basePoint[catCoord] = allPoints[j];
+                            basePoint[valCoord] = catPoints[allPoints[j]];
+                            // add the base point
+                            basePoints.push(basePoint);
+                            // handle missing points
+                            if (points[k][catCoord] > allPoints[j]) {
+                                // If there is a missing point we need to in fill
+                                finalPointArray.push(basePoint);
+                            } else {
+                                // They must be the same
+                                finalPointArray.push(points[k]);
+                                // Use this to update the dictionary to the new value coordinate
+                                catPoints[allPoints[j]] = points[k][valCoord];
+                                k += 1;
+                            }
                         }
+                    }
+                } else {
+                    // If there is no category axis we need to apply some custom logic.  In order to avoid
+                    // really jagged areas the default behaviour will be to draw from the left most point then rotate a line
+                    // clockwise until it hits another point and continue from each point until back to where we started.  This
+                    // means it will not connect every point, but it will contain every point:
+                    // E.g.
+                    //                     D
+                    //         C
+                    //      A      B     E
+                    //         F      G
+                    //      H
+                    //
+                    // Would draw A -> C -> D -> E -> G -> H -> A
+                    //
+                    // This may not be what everyone wants so if there is a series order specified we will just join
+                    // the points in that order instead.  This will not allow users to skip points and therefore not achieve
+                    // the default behaviour explicitly.
+                    if (series._orderRules && series._orderRules.length > 0) {
+                        finalPointArray = points.concat(points[0]);
+                    } else {
+                        // Find the leftmost point
+                        points = points.sort(sortByX);
+                        finalPointArray.push(points[0]);
+                        lastAngle = 0;
+                        // Iterate until the first and last points match
+                        do {
+                            lastAngle = addNextPoint(points, finalPointArray, lastAngle);
+                        } while (finalPointArray.length <= points.length && (finalPointArray[0].x !== finalPointArray[finalPointArray.length - 1].x || finalPointArray[0].y !== finalPointArray[finalPointArray.length - 1].y));
                     }
                 }
 

@@ -43,7 +43,7 @@
             } else if (secondaryAxis === null || secondaryAxis.categoryFields === null || secondaryAxis.categoryFields.length === 0) {
                 aggData.forEach(function (d) {
                     // If the primary axis is stacked
-                    if (this.stacked && (primaryAxis.position === "x" || primaryAxis.position === "y")) {
+                    if (this._isStacked() && (primaryAxis.position === "x" || primaryAxis.position === "y")) {
                         // We just need to push the bounds.  A stacked axis will always include 0 so I just need to push the min and max out from there
                         if (d[primaryAxis.position + "Value"] < 0) {
                             bounds.min = bounds.min + d[primaryAxis.position + "Value"];

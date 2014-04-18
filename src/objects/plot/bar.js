@@ -17,8 +17,8 @@
                 classes = ["dimple-series-" + chart.series.indexOf(series), "dimple-bar"],
                 updated,
                 removed,
-                xFloat = !series.stacked && series.x._hasMeasure(),
-                yFloat = !series.stacked && series.y._hasMeasure();
+                xFloat = !series._isStacked() && series.x._hasMeasure(),
+                yFloat = !series._isStacked() && series.y._hasMeasure();
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
                 chart._tooltipGroup.remove();

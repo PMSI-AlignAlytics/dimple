@@ -48,7 +48,7 @@
         }
         chart._tooltipGroup = chart.svg.append("g");
 
-        offset = (series.stacked ? 1 : width / 2);
+        offset = (series._isStacked() ? 1 : width / 2);
 
         // Add a drop line to the x axis
         if (!series.x._hasCategories() && dropDest.y !== null) {
@@ -72,7 +72,7 @@
                 .attr("y2", (y < dropDest.y ? dropDest.y - 1 : dropDest.y + 1));
         }
 
-        offset = (series.stacked ? 1 : height / 2);
+        offset = (series._isStacked() ? 1 : height / 2);
 
         // Add a drop line to the y axis
         if (!series.y._hasCategories() && dropDest.x !== null) {
