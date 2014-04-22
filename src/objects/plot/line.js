@@ -20,6 +20,7 @@
                 interpolation,
                 graded = false,
                 i,
+                j,
                 k,
                 key,
                 keyString,
@@ -27,7 +28,6 @@
                 updated,
                 removed,
                 orderedSeriesArray,
-                dataClone,
                 onEnter = function () {
                     return function (e, shape, chart, series) {
                         d3.select(shape).style("opacity", 1);
@@ -52,14 +52,33 @@
                     } else {
                         val = dimple._helpers["c" + position](datum, chart, series);
                     }
-                    return val;
+                    // Remove long decimals from the coordinates as this fills the dom up with noise and makes matching below less likely to work.  It
+                    // shouldn't really matter but positioning to < 0.1 pixel is pretty pointless anyway.
+                    return parseFloat(val.toFixed(1));
                 },
                 getLine = function (inter, originProperty) {
                     return d3.svg.line()
-                        .x(function (d) { return (series.x._hasCategories() || !originProperty ? coord("x", d) : series.x[originProperty]); })
-                        .y(function (d) { return (series.y._hasCategories() || !originProperty ? coord("y", d) : series.y[originProperty]); })
+                        .x(function (d) { return (series.x._hasCategories() || !originProperty ? d.x : series.x[originProperty]); })
+                        .y(function (d) { return (series.y._hasCategories() || !originProperty ? d.y : series.y[originProperty]); })
                         .interpolate(inter);
                 };
+//                coord = function (position, datum) {
+//                    var val;
+//                    if (series.interpolation === "step" && series[position]._hasCategories()) {
+//                        series.barGap = 0;
+//                        series.clusterBarGap = 0;
+//                        val = dimple._helpers[position](datum, chart, series) + (position === "y" ? dimple._helpers.height(datum, chart, series) : 0);
+//                    } else {
+//                        val = dimple._helpers["c" + position](datum, chart, series);
+//                    }
+//                    return parseFloat(val).toFixed(1);
+//                },
+//                getLine = function (inter, originProperty) {
+//                    return d3.svg.line()
+//                        .x(function (d) { return (series.x._hasCategories() || !originProperty ? coord("x", d) : series.x[originProperty]); })
+//                        .y(function (d) { return (series.y._hasCategories() || !originProperty ? coord("y", d) : series.y[originProperty]); })
+//                        .interpolate(inter);
+//                };
 
             // Handle the special interpolation handling for step
             interpolation =  (series.interpolation === "step" ? "step-after" : series.interpolation);
@@ -95,8 +114,10 @@
                         keyString: keyString,
                         color: "white",
                         data: [],
+                        points: [],
                         line: {},
-                        entryExit: {}
+                        entry: {},
+                        exit: {}
                     });
                 }
                 // Add this row to the relevant data
@@ -119,28 +140,55 @@
                 if (graded) {
                     dimple._addGradient(lineData[i].key, "fill-line-gradient-" + lineData[i].keyString, (series.x._hasCategories() ? series.x : series.y), data, chart, duration, "fill");
                 }
-                // Clone the data before adding elements
-                dataClone = [].concat(lineData[i].data);
-                // If this is a custom dimple step line duplicate the last datum so that the final step is completed
-                if (series.interpolation === "step") {
+
+                // Get points here, this is so that as well as drawing the line with them, we can also
+                // use them for the baseline
+                for (j = 0; j < lineData[i].data.length; j += 1) {
+                    lineData[i].points.push({
+                        x: coord("x", lineData[i].data[j]),
+                        y: coord("y", lineData[i].data[j])
+                    });
+                }
+                // If this is a step interpolation we need to add in some extra points to the category axis
+                // This is a little tricky but we need to add a new point duplicating the last category value.  In order
+                // to place the point we need to calculate the gap between the last x and the penultimate x and apply that
+                // gap again.
+                if (series.interpolation === "step" && lineData[i].points.length > 1) {
                     if (series.x._hasCategories()) {
-                        // Clone the last row and duplicate it.
-                        dataClone = dataClone.concat(JSON.parse(JSON.stringify(dataClone[dataClone.length - 1])));
-                        dataClone[dataClone.length - 1].cx = "";
-                        dataClone[dataClone.length - 1].x = "";
-                    }
-                    if (series.y._hasCategories()) {
-                        // Clone the last row and duplicate it.
-                        dataClone = [JSON.parse(JSON.stringify(dataClone[0]))].concat(dataClone);
-                        dataClone[0].cy = "";
-                        dataClone[0].y = "";
+                        lineData[i].points.push({
+                            x : 2 * lineData[i].points[lineData[i].points.length - 1].x - lineData[i].points[lineData[i].points.length - 2].x,
+                            y : lineData[i].points[lineData[i].points.length - 1].y
+                        });
+                    } else if (series.y._hasCategories()) {
+                        lineData[i].points = [{
+                            x : lineData[i].points[0].x,
+                            y : 2 * lineData[i].points[0].y - lineData[i].points[1].y
+                        }].concat(lineData[i].points);
                     }
                 }
 
+//                // Clone the data before adding elements
+//                dataClone = [].concat(lineData[i].data);
+//                // If this is a custom dimple step line duplicate the last datum so that the final step is completed
+//                if (series.interpolation === "step") {
+//                    if (series.x._hasCategories()) {
+//                        // Clone the last row and duplicate it.
+//                        dataClone = dataClone.concat(JSON.parse(JSON.stringify(dataClone[dataClone.length - 1])));
+//                        dataClone[dataClone.length - 1].cx = "";
+//                        dataClone[dataClone.length - 1].x = "";
+//                    }
+//                    if (series.y._hasCategories()) {
+//                        // Clone the last row and duplicate it.
+//                        dataClone = [JSON.parse(JSON.stringify(dataClone[0]))].concat(dataClone);
+//                        dataClone[0].cy = "";
+//                        dataClone[0].y = "";
+//                    }
+//                }
+
                 // Get the points that this line will appear
-                lineData[i].entry = getLine(interpolation, "_previousOrigin")(dataClone);
-                lineData[i].update = getLine(interpolation)(dataClone);
-                lineData[i].exit = getLine(interpolation, "_origin")(dataClone);
+                lineData[i].entry = getLine(interpolation, "_previousOrigin")(lineData[i].points);
+                lineData[i].update = getLine(interpolation)(lineData[i].points);
+                lineData[i].exit = getLine(interpolation, "_origin")(lineData[i].points);
 
                 // Add the color in this loop, it can't be done during initialisation of the row because
                 // the lines should be ordered first (to ensure standard distribution of colors
