@@ -75,8 +75,12 @@
         // Add the main series - keyVal is for color and tooltip
         var b = bullet.addSeries(keyVal, dimple.plot.bar, [bY, bX]);
         // Add the comparison series - compareVal is for color and tooltip
-        var m = bullet.addSeries(compareVal, dimple.plot.bubble, [bY, cX]);
-        
+        var m = bullet.addSeries(compareVal, dimple.plot.bar, [bY, cX]);
+
+        // Configure the markers as floating bars
+        m.stacked = false;
+        cX.floatingBarWidth = 2;
+
         // Set the gaps for the bar series with a narrow main series and full
         // width for the markers
         hm.barGap = 0;
