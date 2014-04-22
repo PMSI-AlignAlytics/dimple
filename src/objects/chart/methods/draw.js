@@ -15,7 +15,7 @@
                 chartY = this._yPixels(),
                 chartWidth = this._widthPixels(),
                 chartHeight = this._heightPixels(),
-                linkedDimensions = [];
+                linkedDimensions;
 
             // Many of the draw methods use positioning data in each series.  Therefore we should
             // decorate the series with it now
@@ -33,6 +33,7 @@
             this.axes.forEach(function (axis) {
                 axis._min = 0;
                 axis._max = 0;
+                linkedDimensions = [];
                 // Check that the axis has a measure
                 if (axis._hasMeasure()) {
                     // Is this axis linked to a series

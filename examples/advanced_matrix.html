@@ -67,14 +67,14 @@
 
         // Draw a new chart which will go in the current shape
         var subChart = new dimple.chart(svg, filteredData);
-        
+
         // Get the shape from the main chart on which this chart is based
         var shape = d3.select(this);
 
         // Position the chart inside the shape
         subChart.setBounds(
             parseFloat(shape.attr("x")),
-            parseFloat(shape.attr("y")) - parseFloat(shape.attr("height")),
+            parseFloat(shape.attr("y")),
             parseFloat(shape.attr("width")),
             parseFloat(shape.attr("height")));
 

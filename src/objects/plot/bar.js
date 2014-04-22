@@ -18,7 +18,16 @@
                 updated,
                 removed,
                 xFloat = !series._isStacked() && series.x._hasMeasure(),
-                yFloat = !series._isStacked() && series.y._hasMeasure();
+                yFloat = !series._isStacked() && series.y._hasMeasure(),
+                cat = "none";
+
+            if (series.x._hasCategories() && series.y._hasCategories()) {
+                cat = "both";
+            } else if (series.x._hasCategories()) {
+                cat = "x";
+            } else if (series.y._hasCategories()) {
+                cat = "y";
+            }
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
                 chart._tooltipGroup.remove();
@@ -42,17 +51,29 @@
                     c = c.concat(d.yField);
                     return classes.join(" ") + " " + dimple._createClass(c);
                 })
-                .attr("x", function (d) { return dimple._helpers.x(d, chart, series); })
-                .attr("y", function (d) { return dimple._helpers.y(d, chart, series) + dimple._helpers.height(d, chart, series); })
-                .attr("width", function (d) {return (d.xField !== null && d.xField.length > 0 ? dimple._helpers.width(d, chart, series) : 0); })
-                .attr("height", function (d) {return (d.yField !== null && d.yField.length > 0 ? dimple._helpers.height(d, chart, series) : 0); })
+                .attr("x", function (d) {
+                    var returnValue = series.x._previousOrigin;
+                    if (cat === "x") {
+                        returnValue = dimple._helpers.x(d, chart, series);
+                    } else if (cat === "both") {
+                        returnValue = dimple._helpers.cx(d, chart, series);
+                    }
+                    return returnValue;
+                })
+                .attr("y", function (d) {
+                    var returnValue = series.y._previousOrigin;
+                    if (cat === "y") {
+                        returnValue = dimple._helpers.y(d, chart, series);
+                    } else if (cat === "both") {
+                        returnValue = dimple._helpers.cy(d, chart, series);
+                    }
+                    return returnValue;
+                })
+                .attr("width", function (d) { return (cat === "x" ?  dimple._helpers.width(d, chart, series) : 0); })
+                .attr("height", function (d) { return (cat === "y" ?  dimple._helpers.height(d, chart, series) : 0); })
                 .attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
-                .on("mouseover", function (e) {
-                    dimple._showBarTooltip(e, this, chart, series);
-                })
-                .on("mouseleave", function (e) {
-                    dimple._removeTooltip(e, this, chart, series);
-                })
+                .on("mouseover", function (e) { dimple._showBarTooltip(e, this, chart, series); })
+                .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
                 .call(function () {
                     if (!chart.noFormats) {
                         this.attr("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
@@ -75,10 +96,26 @@
 
             // Remove
             removed = dimple._handleTransition(theseShapes.exit(), duration)
-                .attr("x", function (d) { return dimple._helpers.x(d, chart, series); })
-                .attr("y", function (d) { return dimple._helpers.y(d, chart, series) + dimple._helpers.height(d, chart, series); })
-                .attr("width", function (d) {return (d.xField !== null && d.xField.length > 0 ? dimple._helpers.width(d, chart, series) : 0); })
-                .attr("height", function (d) {return (d.yField !== null && d.yField.length > 0 ? dimple._helpers.height(d, chart, series) : 0); });
+                .attr("x", function (d) {
+                    var returnValue = series.x._origin;
+                    if (cat === "x") {
+                        returnValue = dimple._helpers.x(d, chart, series);
+                    } else if (cat === "both") {
+                        returnValue = dimple._helpers.cx(d, chart, series);
+                    }
+                    return returnValue;
+                })
+                .attr("y", function (d) {
+                    var returnValue = series.y._origin;
+                    if (cat === "y") {
+                        returnValue = dimple._helpers.y(d, chart, series);
+                    } else if (cat === "both") {
+                        returnValue = dimple._helpers.cy(d, chart, series);
+                    }
+                    return returnValue;
+                })
+                .attr("width", function (d) { return (cat === "x" ?  dimple._helpers.width(d, chart, series) : 0); })
+                .attr("height", function (d) { return (cat === "y" ?  dimple._helpers.height(d, chart, series) : 0); });
 
             dimple._postDrawHandling(series, updated, removed, duration);
 
