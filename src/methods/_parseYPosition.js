@@ -20,5 +20,9 @@
                 }
             }, this);
         }
+        // Take the position from the extremity if the value is negative
+        if (returnValue < 0) {
+            returnValue = dimple._parentHeight(parent) + returnValue;
+        }
         return returnValue;
     };
