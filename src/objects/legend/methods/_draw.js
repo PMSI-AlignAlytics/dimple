@@ -47,8 +47,8 @@
                 })
                 .call(function () {
                     if (!self.chart.noFormats) {
-                        this.style("font-family", "sans-serif")
-                            .style("font-size", (self.chart._heightPixels() / 35 > 10 ? self.chart._heightPixels() / 35 : 10) + "px")
+                        this.style("font-family", self.fontFamily)
+                            .style("font-size", self._getFontSize())
                             .style("shape-rendering", "crispEdges");
                     }
                 })
@@ -89,7 +89,7 @@
                             .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + keyWidth + 5 + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth) + keyWidth + 5))
                             .attr("y", function () {
                                 // This was previously done with dominant-baseline but this is used
-                                // instead due to browser inconsistancy.
+                                // instead due to browser inconsistency.
                                 return self._yPixels() + runningY + this.getBBox().height / 1.65;
                             })
                             .attr("width", self._widthPixels())
@@ -102,9 +102,9 @@
                             .attr("y", self._yPixels() + runningY)
                             .attr("height", keyHeight)
                             .attr("width",  keyWidth)
-                            .style("fill", function () { return dimple._helpers.fill(d, self.chart, d.series); })
-                            .style("stroke", function () { return dimple._helpers.stroke(d, self.chart, d.series); })
-                            .style("opacity", function () { return dimple._helpers.opacity(d, self.chart, d.series); })
+                            .style("fill", d.fill)
+                            .style("stroke", d.stroke)
+                            .style("opacity", d.opacity)
                             .style("shape-rendering", "crispEdges");
                         runningX += maxWidth;
                     }

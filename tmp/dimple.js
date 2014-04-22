@@ -67,6 +67,10 @@ var dimple = {
         this.clamp = true;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-ticks
         this.ticks = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontSize
+        this.fontSize = "10px";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontFamily
+        this.fontFamily = "sans-serif";
 
         // If this is a composite axis, store links to all slaves
         this._slaves = [];
@@ -118,6 +122,21 @@ var dimple = {
                 }
             }
             return returnData;
+        };
+
+        // Copyright: 2014 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/axis/methods/_getFontSize.js
+        this._getFontSize = function () {
+            var fontSize;
+            if (!this.fontSize || this.fontSize.toString().toLowerCase() === "auto") {
+                fontSize = (this.chart._heightPixels() / 35 > 10 ? this.chart._heightPixels() / 35 : 10) + "px";
+            } else if (!isNaN(this.fontSize)) {
+                fontSize = this.fontSize + "px";
+            } else {
+                fontSize = this.fontSize;
+            }
+            return fontSize;
         };
 
         // Copyright: 2014 PMSI-AlignAlytics
@@ -349,7 +368,7 @@ var dimple = {
             this._max = (this.overrideMax !== null ? this.overrideMax : this._max);
 
             // If this is an x axis
-            if (this.position === "x" && this._scale === null) {
+            if (this.position === "x" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
@@ -406,7 +425,7 @@ var dimple = {
                         break;
                     }
                 }
-            } else if (this.position === "y" && this._scale === null) {
+            } else if (this.position === "y" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
@@ -1551,8 +1570,8 @@ var dimple = {
                 // Set some initial css values
                 if (!this.noFormats) {
                     handleTrans(axis.shapes.selectAll("text"))
-                        .style("font-family", "sans-serif")
-                        .style("font-size", (chartHeight / 35 > 10 ? chartHeight / 35 : 10) + "px");
+                        .style("font-family", axis.fontFamily)
+                        .style("font-size", axis._getFontSize());
                     handleTrans(axis.shapes.selectAll("path, line"))
                         .style("fill", "none")
                         .style("stroke", "black")
@@ -1675,8 +1694,8 @@ var dimple = {
                         .each(function () {
                             if (!chart.noFormats) {
                                 d3.select(this)
-                                    .style("font-family", "sans-serif")
-                                    .style("font-size", (chartHeight / 35 > 10 ? chartHeight / 35 : 10) + "px");
+                                    .style("font-family", axis.fontFamily)
+                                    .style("font-size", axis._getFontSize());
                             }
                         });
 
@@ -1885,6 +1904,11 @@ var dimple = {
         this.horizontalAlign = horizontalAlign;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-shapes
         this.shapes = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-fontSize
+        this.fontSize = "10px";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-fontFamily
+        this.fontFamily = "sans-serif";
+
         // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_draw.js
@@ -1934,8 +1958,8 @@ var dimple = {
                 })
                 .call(function () {
                     if (!self.chart.noFormats) {
-                        this.style("font-family", "sans-serif")
-                            .style("font-size", (self.chart._heightPixels() / 35 > 10 ? self.chart._heightPixels() / 35 : 10) + "px")
+                        this.style("font-family", self.fontFamily)
+                            .style("font-size", self._getFontSize())
                             .style("shape-rendering", "crispEdges");
                     }
                 })
@@ -1976,7 +2000,7 @@ var dimple = {
                             .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + keyWidth + 5 + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth) + keyWidth + 5))
                             .attr("y", function () {
                                 // This was previously done with dominant-baseline but this is used
-                                // instead due to browser inconsistancy.
+                                // instead due to browser inconsistency.
                                 return self._yPixels() + runningY + this.getBBox().height / 1.65;
                             })
                             .attr("width", self._widthPixels())
@@ -1989,9 +2013,9 @@ var dimple = {
                             .attr("y", self._yPixels() + runningY)
                             .attr("height", keyHeight)
                             .attr("width",  keyWidth)
-                            .style("fill", function () { return dimple._helpers.fill(d, self.chart, d.series); })
-                            .style("stroke", function () { return dimple._helpers.stroke(d, self.chart, d.series); })
-                            .style("opacity", function () { return dimple._helpers.opacity(d, self.chart, d.series); })
+                            .style("fill", d.fill)
+                            .style("stroke", d.stroke)
+                            .style("opacity", d.opacity)
                             .style("shape-rendering", "crispEdges");
                         runningX += maxWidth;
                     }
@@ -2016,7 +2040,7 @@ var dimple = {
             // Create an array of distinct series values
             var entries = [];
             // If there are some series
-            if (this.series !== null && this.series !== undefined) {
+            if (this.series) {
                 // Iterate all the associated series
                 this.series.forEach(function (series) {
                     // Get the series data
@@ -2025,22 +2049,46 @@ var dimple = {
                     data.forEach(function (row) {
                         // Check whether this element is new
                         var index = -1,
-                            j;
+                            j,
+                            // Handle grouped plots (e.g. line and area where multiple points are coloured the same way
+                            field = ((series.plot.grouped && !series.x._hasCategories() && !series.y._hasCategories() && row.aggField.length < 2 ? "All" : row.aggField.slice(-1)[0]));
                         for (j = 0; j < entries.length; j += 1) {
-                            if (entries[j].key === row.aggField.slice(-1)[0]) {
+                            if (entries[j].key === field) {
                                 index = j;
                                 break;
                             }
                         }
-                        if (index === -1) {
+                        if (index === -1 && series.chart._assignedColors[field]) {
                             // If it's a new element create a new row in the return array
-                            entries.push({ key: row.aggField.slice(-1)[0], fill: row.fill, stroke: row.stroke, series: series, aggField: row.aggField });
+                            entries.push({
+                                key: field,
+                                fill: series.chart._assignedColors[field].fill,
+                                stroke: series.chart._assignedColors[field].stroke,
+                                opacity: series.chart._assignedColors[field].opacity,
+                                series: series,
+                                aggField: row.aggField
+                            });
                             index = entries.length - 1;
                         }
                     });
                 }, this);
             }
             return entries;
+        };
+
+        // Copyright: 2014 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/legend/methods/_getFontSize.js
+        this._getFontSize = function () {
+            var fontSize;
+            if (!this.fontSize || this.fontSize.toString().toLowerCase() === "auto") {
+                fontSize = (this.chart._heightPixels() / 35 > 10 ? this.chart._heightPixels() / 35 : 10) + "px";
+            } else if (!isNaN(this.fontSize)) {
+                fontSize = this.fontSize + "px";
+            } else {
+                fontSize = this.fontSize;
+            }
+            return fontSize;
         };
 
         // Copyright: 2014 PMSI-AlignAlytics
@@ -2112,6 +2160,10 @@ var dimple = {
         this.afterDraw = null;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-interpolation
         this.interpolation = "linear";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontSize
+        this.tooltipFontSize = "10px";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontFamily
+        this.tooltipFontFamily = "sans-serif";
 
         // Any event handlers joined to this series
         this._eventHandlers = [];
@@ -2319,6 +2371,21 @@ var dimple = {
         };
         // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/series/methods/_getTooltipFontSize.js
+        this._getTooltipFontSize = function () {
+            var fontSize;
+            if (!this.tooltipFontSize || this.tooltipFontSize.toString().toLowerCase() === "auto") {
+                fontSize = (this.chart._heightPixels() / 35 > 10 ? this.chart._heightPixels() / 35 : 10) + "px";
+            } else if (!isNaN(this.tooltipFontSize)) {
+                fontSize = this.tooltipFontSize + "px";
+            } else {
+                fontSize = this.tooltipFontSize;
+            }
+            return fontSize;
+        };
+
+        // Copyright: 2014 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/series/methods/_isStacked.js
         this._isStacked = function() {
             return this.stacked && (this.x._hasCategories() || this.y._hasCategories());
@@ -2396,6 +2463,10 @@ var dimple = {
         this.storyLabel = null;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-onTick
         this.onTick = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-fontSize
+        this.fontSize = "10px";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-fontFamily
+        this.fontFamily = "sans-serif";
 
         // The current frame index
         this._frame = 0;
@@ -2414,6 +2485,7 @@ var dimple = {
         this._drawText = function (duration) {
             if (this.storyLabel === null || this.storyLabel === undefined) {
                 var chart = this.chart,
+                    self = this,
                     xCount = 0;
                 // Check for a secondary x axis
                 this.chart.axes.forEach(function (a) {
@@ -2426,8 +2498,8 @@ var dimple = {
                     .attr("y", this.chart._yPixels() + (this.chart._heightPixels() / 35 > 10 ? this.chart._heightPixels() / 35 : 10) * (xCount > 1 ? 1.25 : -1))
                     .call(function () {
                         if (!chart.noFormats) {
-                            this.style("font-family", "sans-serif")
-                                .style("font-size", (chart._heightPixels() / 35 > 10 ? chart._heightPixels() / 35 : 10) + "px");
+                            this.style("font-family", self.fontFamily)
+                                .style("font-size", self._getFontSize());
                         }
                     });
             }
@@ -2476,6 +2548,21 @@ var dimple = {
             // Return the array
             return this._categories;
         };
+        // Copyright: 2014 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/storyboard/methods/_getFontSize.js
+        this._getFontSize = function () {
+            var fontSize;
+            if (!this.fontSize || this.fontSize.toString().toLowerCase() === "auto") {
+                fontSize = (this.chart._heightPixels() / 35 > 10 ? this.chart._heightPixels() / 35 : 10) + "px";
+            } else if (!isNaN(this.fontSize)) {
+                fontSize = this.fontSize + "px";
+            } else {
+                fontSize = this.fontSize;
+            }
+            return fontSize;
+        };
+
         // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/_goToFrameIndex.js
@@ -2615,6 +2702,9 @@ var dimple = {
         // By default the values are stacked
         stacked: true,
 
+        // This is a grouped plot meaning many points are treated as one series value
+        grouped: true,
+
         // The axis positions affecting the area series
         supportedAxes: ["x", "y", "c"],
 
@@ -2670,8 +2760,8 @@ var dimple = {
                 coord = function (position, datum) {
                     var val;
                     if (series.interpolation === "step" && series[position]._hasCategories()) {
-                        series.barGap = 0;
-                        series.clusterBarGap = 0;
+//                        series.barGap = 0;
+//                        series.clusterBarGap = 0;
                         val = dimple._helpers[position](datum, chart, series) + (position === "y" ? dimple._helpers.height(datum, chart, series) : 0);
                     } else {
                         val = dimple._helpers["c" + position](datum, chart, series);
@@ -2913,17 +3003,17 @@ var dimple = {
                 p = getArea(interpolation, "_previousOrigin")(finalPointArray);
                 b = getArea((interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation)), "_previousOrigin")(basePoints);
                 l = getArea("linear", "_previousOrigin")(finalPointArray);
-                areaData[i].entry = p + "L" + b.substring(1) + "L" + l.substring(1, l.indexOf("L"));
+                areaData[i].entry = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
 
                 p = getArea(interpolation)(finalPointArray);
                 b = getArea(interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation))(basePoints);
                 l = getArea("linear")(finalPointArray);
-                areaData[i].update = p + "L" + b.substring(1) + "L" + l.substring(1, l.indexOf("L"));
+                areaData[i].update = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
 
                 p = getArea(interpolation, "_origin")(finalPointArray);
                 b = getArea((interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation)), "_origin")(basePoints);
                 l = getArea("linear", "_origin")(finalPointArray);
-                areaData[i].exit = p + "L" + b.substring(1) + "L" + l.substring(1, l.indexOf("L"));
+                areaData[i].exit = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
 
                 // Add the color in this loop, it can't be done during initialisation of the row because
                 // the areas should be ordered first (to ensure standard distribution of colors
@@ -2988,6 +3078,9 @@ var dimple = {
 
         // By default the bar series is stacked if there are series categories
         stacked: true,
+
+        // This is not a grouped plot meaning that one point is treated as one series value
+        grouped: false,
 
         // The axes which will affect the bar chart - not z
         supportedAxes: ["x", "y", "c"],
@@ -3116,6 +3209,9 @@ var dimple = {
         // By default the bubble values are not stacked
         stacked: false,
 
+        // This is not a grouped plot meaning that one point is treated as one series value
+        grouped: false,
+
         // The axis positions affecting the bubble series
         supportedAxes: ["x", "y", "z", "c"],
 
@@ -3229,6 +3325,9 @@ var dimple = {
         // By default the values are not stacked
         stacked: false,
 
+        // This is a grouped plot meaning many points are treated as one series value
+        grouped: true,
+
         // The axis positions affecting the line series
         supportedAxes: ["x", "y", "c"],
 
@@ -3285,23 +3384,6 @@ var dimple = {
                         .y(function (d) { return (series.y._hasCategories() || !originProperty ? d.y : series.y[originProperty]); })
                         .interpolate(inter);
                 };
-//                coord = function (position, datum) {
-//                    var val;
-//                    if (series.interpolation === "step" && series[position]._hasCategories()) {
-//                        series.barGap = 0;
-//                        series.clusterBarGap = 0;
-//                        val = dimple._helpers[position](datum, chart, series) + (position === "y" ? dimple._helpers.height(datum, chart, series) : 0);
-//                    } else {
-//                        val = dimple._helpers["c" + position](datum, chart, series);
-//                    }
-//                    return parseFloat(val).toFixed(1);
-//                },
-//                getLine = function (inter, originProperty) {
-//                    return d3.svg.line()
-//                        .x(function (d) { return (series.x._hasCategories() || !originProperty ? coord("x", d) : series.x[originProperty]); })
-//                        .y(function (d) { return (series.y._hasCategories() || !originProperty ? coord("y", d) : series.y[originProperty]); })
-//                        .interpolate(inter);
-//                };
 
             // Handle the special interpolation handling for step
             interpolation =  (series.interpolation === "step" ? "step-after" : series.interpolation);
@@ -3389,24 +3471,6 @@ var dimple = {
                         }].concat(lineData[i].points);
                     }
                 }
-
-//                // Clone the data before adding elements
-//                dataClone = [].concat(lineData[i].data);
-//                // If this is a custom dimple step line duplicate the last datum so that the final step is completed
-//                if (series.interpolation === "step") {
-//                    if (series.x._hasCategories()) {
-//                        // Clone the last row and duplicate it.
-//                        dataClone = dataClone.concat(JSON.parse(JSON.stringify(dataClone[dataClone.length - 1])));
-//                        dataClone[dataClone.length - 1].cx = "";
-//                        dataClone[dataClone.length - 1].x = "";
-//                    }
-//                    if (series.y._hasCategories()) {
-//                        // Clone the last row and duplicate it.
-//                        dataClone = [JSON.parse(JSON.stringify(dataClone[0]))].concat(dataClone);
-//                        dataClone[0].cy = "";
-//                        dataClone[0].y = "";
-//                    }
-//                }
 
                 // Get the points that this line will appear
                 lineData[i].entry = getLine(interpolation, "_previousOrigin")(lineData[i].points);
@@ -3582,10 +3646,14 @@ var dimple = {
                 }
                 return returnString;
             };
-        for (i = 0; i < stringArray.length; i += 1) {
-            /*jslint regexp: true */
-            returnArray.push("dimple-" + stringArray[i].toString().replace(/[^a-z0-9]/g, replacer));
-            /*jslint regexp: false */
+        if (stringArray.length > 0) {
+            for (i = 0; i < stringArray.length; i += 1) {
+                /*jslint regexp: true */
+                returnArray.push("dimple-" + stringArray[i].toString().replace(/[^a-z0-9]/g, replacer));
+                /*jslint regexp: false */
+            }
+        } else {
+            returnArray = ["dimple-all"];
         }
         return returnArray.join(" ");
     };
@@ -4422,8 +4490,8 @@ var dimple = {
             .append("text")
             .attr("class", "dimple-tooltip")
             .text(function (d) { return d; })
-            .style("font-family", "sans-serif")
-            .style("font-size", "10px");
+            .style("font-family", series.tooltipFontFamily)
+            .style("font-size", series._getTooltipFontSize());
 
         // Get the max height and width of the text items
         t.each(function () {
@@ -4596,8 +4664,8 @@ var dimple = {
             .append("text")
             .attr("class", "dimple-tooltip")
             .text(function (d) { return d; })
-            .style("font-family", "sans-serif")
-            .style("font-size", "10px");
+            .style("font-family", series.tooltipFontFamily)
+            .style("font-size", series._getTooltipFontSize());
 
         // Get the max height and width of the text items
         t.each(function () {

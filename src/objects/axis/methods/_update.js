@@ -49,7 +49,7 @@
             this._max = (this.overrideMax !== null ? this.overrideMax : this._max);
 
             // If this is an x axis
-            if (this.position === "x" && this._scale === null) {
+            if (this.position === "x" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
@@ -106,7 +106,7 @@
                         break;
                     }
                 }
-            } else if (this.position === "y" && this._scale === null) {
+            } else if (this.position === "y" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
                         .rangeRound([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])

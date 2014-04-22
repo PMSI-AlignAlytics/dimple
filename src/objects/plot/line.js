@@ -6,6 +6,9 @@
         // By default the values are not stacked
         stacked: false,
 
+        // This is a grouped plot meaning many points are treated as one series value
+        grouped: true,
+
         // The axis positions affecting the line series
         supportedAxes: ["x", "y", "c"],
 
@@ -62,23 +65,6 @@
                         .y(function (d) { return (series.y._hasCategories() || !originProperty ? d.y : series.y[originProperty]); })
                         .interpolate(inter);
                 };
-//                coord = function (position, datum) {
-//                    var val;
-//                    if (series.interpolation === "step" && series[position]._hasCategories()) {
-//                        series.barGap = 0;
-//                        series.clusterBarGap = 0;
-//                        val = dimple._helpers[position](datum, chart, series) + (position === "y" ? dimple._helpers.height(datum, chart, series) : 0);
-//                    } else {
-//                        val = dimple._helpers["c" + position](datum, chart, series);
-//                    }
-//                    return parseFloat(val).toFixed(1);
-//                },
-//                getLine = function (inter, originProperty) {
-//                    return d3.svg.line()
-//                        .x(function (d) { return (series.x._hasCategories() || !originProperty ? coord("x", d) : series.x[originProperty]); })
-//                        .y(function (d) { return (series.y._hasCategories() || !originProperty ? coord("y", d) : series.y[originProperty]); })
-//                        .interpolate(inter);
-//                };
 
             // Handle the special interpolation handling for step
             interpolation =  (series.interpolation === "step" ? "step-after" : series.interpolation);
@@ -166,24 +152,6 @@
                         }].concat(lineData[i].points);
                     }
                 }
-
-//                // Clone the data before adding elements
-//                dataClone = [].concat(lineData[i].data);
-//                // If this is a custom dimple step line duplicate the last datum so that the final step is completed
-//                if (series.interpolation === "step") {
-//                    if (series.x._hasCategories()) {
-//                        // Clone the last row and duplicate it.
-//                        dataClone = dataClone.concat(JSON.parse(JSON.stringify(dataClone[dataClone.length - 1])));
-//                        dataClone[dataClone.length - 1].cx = "";
-//                        dataClone[dataClone.length - 1].x = "";
-//                    }
-//                    if (series.y._hasCategories()) {
-//                        // Clone the last row and duplicate it.
-//                        dataClone = [JSON.parse(JSON.stringify(dataClone[0]))].concat(dataClone);
-//                        dataClone[0].cy = "";
-//                        dataClone[0].y = "";
-//                    }
-//                }
 
                 // Get the points that this line will appear
                 lineData[i].entry = getLine(interpolation, "_previousOrigin")(lineData[i].points);

@@ -107,8 +107,8 @@
             .append("text")
             .attr("class", "dimple-tooltip")
             .text(function (d) { return d; })
-            .style("font-family", "sans-serif")
-            .style("font-size", "10px");
+            .style("font-family", series.tooltipFontFamily)
+            .style("font-size", series._getTooltipFontSize());
 
         // Get the max height and width of the text items
         t.each(function () {

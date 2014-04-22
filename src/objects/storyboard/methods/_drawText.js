@@ -4,6 +4,7 @@
         this._drawText = function (duration) {
             if (this.storyLabel === null || this.storyLabel === undefined) {
                 var chart = this.chart,
+                    self = this,
                     xCount = 0;
                 // Check for a secondary x axis
                 this.chart.axes.forEach(function (a) {
@@ -16,8 +17,8 @@
                     .attr("y", this.chart._yPixels() + (this.chart._heightPixels() / 35 > 10 ? this.chart._heightPixels() / 35 : 10) * (xCount > 1 ? 1.25 : -1))
                     .call(function () {
                         if (!chart.noFormats) {
-                            this.style("font-family", "sans-serif")
-                                .style("font-size", (chart._heightPixels() / 35 > 10 ? chart._heightPixels() / 35 : 10) + "px");
+                            this.style("font-family", self.fontFamily)
+                                .style("font-size", self._getFontSize());
                         }
                     });
             }

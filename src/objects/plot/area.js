@@ -6,6 +6,9 @@
         // By default the values are stacked
         stacked: true,
 
+        // This is a grouped plot meaning many points are treated as one series value
+        grouped: true,
+
         // The axis positions affecting the area series
         supportedAxes: ["x", "y", "c"],
 
@@ -61,8 +64,8 @@
                 coord = function (position, datum) {
                     var val;
                     if (series.interpolation === "step" && series[position]._hasCategories()) {
-                        series.barGap = 0;
-                        series.clusterBarGap = 0;
+//                        series.barGap = 0;
+//                        series.clusterBarGap = 0;
                         val = dimple._helpers[position](datum, chart, series) + (position === "y" ? dimple._helpers.height(datum, chart, series) : 0);
                     } else {
                         val = dimple._helpers["c" + position](datum, chart, series);
@@ -304,17 +307,17 @@
                 p = getArea(interpolation, "_previousOrigin")(finalPointArray);
                 b = getArea((interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation)), "_previousOrigin")(basePoints);
                 l = getArea("linear", "_previousOrigin")(finalPointArray);
-                areaData[i].entry = p + "L" + b.substring(1) + "L" + l.substring(1, l.indexOf("L"));
+                areaData[i].entry = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
 
                 p = getArea(interpolation)(finalPointArray);
                 b = getArea(interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation))(basePoints);
                 l = getArea("linear")(finalPointArray);
-                areaData[i].update = p + "L" + b.substring(1) + "L" + l.substring(1, l.indexOf("L"));
+                areaData[i].update = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
 
                 p = getArea(interpolation, "_origin")(finalPointArray);
                 b = getArea((interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation)), "_origin")(basePoints);
                 l = getArea("linear", "_origin")(finalPointArray);
-                areaData[i].exit = p + "L" + b.substring(1) + "L" + l.substring(1, l.indexOf("L"));
+                areaData[i].exit = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
 
                 // Add the color in this loop, it can't be done during initialisation of the row because
                 // the areas should be ordered first (to ensure standard distribution of colors

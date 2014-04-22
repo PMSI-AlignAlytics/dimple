@@ -52,6 +52,10 @@
         this.clamp = true;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-ticks
         this.ticks = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontSize
+        this.fontSize = "10px";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontFamily
+        this.fontFamily = "sans-serif";
 
         // If this is a composite axis, store links to all slaves
         this._slaves = [];

@@ -6,6 +6,9 @@
         // By default the bubble values are not stacked
         stacked: false,
 
+        // This is not a grouped plot meaning that one point is treated as one series value
+        grouped: false,
+
         // The axis positions affecting the bubble series
         supportedAxes: ["x", "y", "z", "c"],
 

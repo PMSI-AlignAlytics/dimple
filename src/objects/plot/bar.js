@@ -6,6 +6,9 @@
         // By default the bar series is stacked if there are series categories
         stacked: true,
 
+        // This is not a grouped plot meaning that one point is treated as one series value
+        grouped: false,
+
         // The axes which will affect the bar chart - not z
         supportedAxes: ["x", "y", "c"],
 

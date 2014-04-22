@@ -226,8 +226,8 @@
                 // Set some initial css values
                 if (!this.noFormats) {
                     handleTrans(axis.shapes.selectAll("text"))
-                        .style("font-family", "sans-serif")
-                        .style("font-size", (chartHeight / 35 > 10 ? chartHeight / 35 : 10) + "px");
+                        .style("font-family", axis.fontFamily)
+                        .style("font-size", axis._getFontSize());
                     handleTrans(axis.shapes.selectAll("path, line"))
                         .style("fill", "none")
                         .style("stroke", "black")
@@ -350,8 +350,8 @@
                         .each(function () {
                             if (!chart.noFormats) {
                                 d3.select(this)
-                                    .style("font-family", "sans-serif")
-                                    .style("font-size", (chartHeight / 35 > 10 ? chartHeight / 35 : 10) + "px");
+                                    .style("font-family", axis.fontFamily)
+                                    .style("font-size", axis._getFontSize());
                             }
                         });
 

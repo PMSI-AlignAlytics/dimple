@@ -21,6 +21,10 @@
         this.storyLabel = null;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-onTick
         this.onTick = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-fontSize
+        this.fontSize = "10px";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-fontFamily
+        this.fontFamily = "sans-serif";
 
         // The current frame index
         this._frame = 0;

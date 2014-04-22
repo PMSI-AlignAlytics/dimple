@@ -20,3 +20,7 @@
         this.horizontalAlign = horizontalAlign;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-shapes
         this.shapes = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-fontSize
+        this.fontSize = "10px";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-fontFamily
+        this.fontFamily = "sans-serif";
