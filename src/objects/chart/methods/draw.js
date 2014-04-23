@@ -160,7 +160,15 @@
                 }
                 if (axis.shapes === null) {
                     // Add a group for the axes to allow css formatting
-                    axis.shapes = this._group.append("g").attr("class", "dimple-axis");
+                    axis.shapes = this._group.append("g")
+                        .attr("class", "dimple-axis")
+                        .each(function () {
+                            if (!chart.noFormats) {
+                                d3.select(this)
+                                    .style("font-family", axis.fontFamily)
+                                    .style("font-size", axis._getFontSize());
+                            }
+                        });
                     firstDraw = true;
                 }
                 // If this is the first x and there is a y axis cross them at zero
