@@ -100,6 +100,7 @@
                         keyString: keyString,
                         color: "white",
                         data: [],
+                        markerData: [],
                         points: [],
                         line: {},
                         entry: {},
@@ -193,17 +194,30 @@
                             .attr("stroke-width", series.lineWeight);
                     }
                 })
-                .each(drawMarkers);
+                .each(function (d) {
+                    // Pass line data to markers
+                    d.markerData = d.data;
+                    drawMarkers(d);
+                });
 
             // Update
             updated = chart._handleTransition(theseShapes, duration, chart)
                 .attr("d", function (d) { return d.update; })
-                .each(drawMarkers);
+                .each(function (d) {
+                    // Pass line data to markers
+                    d.markerData = d.data;
+                    drawMarkers(d);
+                });
 
             // Remove
             removed = chart._handleTransition(theseShapes.exit(), duration, chart)
                 .attr("d", function (d) { return d.exit; })
-                .each(drawMarkers);
+                .each(function (d) {
+                    // Using all data for the markers fails because there are no exits in the markers
+                    // only the whole line, therefore we need to clear the points here
+                    d.markerData = [];
+                    drawMarkers(d);
+                });
 
             dimple._postDrawHandling(series, updated, removed, duration);
 

@@ -11,9 +11,9 @@
 
         // Deal with markers in the same way as main series to fix #28
         if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
-            markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.data);
+            markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.markerData);
         } else {
-            markers = series._markers[lineDataRow.keyString].data(lineDataRow.data, function (d) {
+            markers = series._markers[lineDataRow.keyString].data(lineDataRow.markerData, function (d) {
                 return d.key;
             });
         }

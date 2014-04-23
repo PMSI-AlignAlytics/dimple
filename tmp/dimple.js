@@ -3098,16 +3098,30 @@ var dimple = {
                             .attr("stroke-width", series.lineWeight);
                     }
                 })
-                .each(drawMarkers);
+                .each(function (d) {
+                    // Pass line data to markers
+                    d.markerData = d.data;
+                    drawMarkers(d);
+                });
+
             // Update
             updated = chart._handleTransition(theseShapes, duration, chart)
                 .attr("d", function (d) { return d.update; })
-                .each(drawMarkers);
+                .each(function (d) {
+                    // Pass line data to markers
+                    d.markerData = d.data;
+                    drawMarkers(d);
+                });
 
             // Remove
             removed = chart._handleTransition(theseShapes.exit(), duration, chart)
                 .attr("d", function (d) { return d.exit; })
-                .each(drawMarkers);
+                .each(function (d) {
+                    // Using all data for the markers fails because there are no exits in the markers
+                    // only the whole line, therefore we need to clear the points here
+                    d.markerData = [];
+                    drawMarkers(d);
+                });
 
             dimple._postDrawHandling(series, updated, removed, duration);
 
@@ -3466,6 +3480,7 @@ var dimple = {
                         keyString: keyString,
                         color: "white",
                         data: [],
+                        markerData: [],
                         points: [],
                         line: {},
                         entry: {},
@@ -3559,17 +3574,30 @@ var dimple = {
                             .attr("stroke-width", series.lineWeight);
                     }
                 })
-                .each(drawMarkers);
+                .each(function (d) {
+                    // Pass line data to markers
+                    d.markerData = d.data;
+                    drawMarkers(d);
+                });
 
             // Update
             updated = chart._handleTransition(theseShapes, duration, chart)
                 .attr("d", function (d) { return d.update; })
-                .each(drawMarkers);
+                .each(function (d) {
+                    // Pass line data to markers
+                    d.markerData = d.data;
+                    drawMarkers(d);
+                });
 
             // Remove
             removed = chart._handleTransition(theseShapes.exit(), duration, chart)
                 .attr("d", function (d) { return d.exit; })
-                .each(drawMarkers);
+                .each(function (d) {
+                    // Using all data for the markers fails because there are no exits in the markers
+                    // only the whole line, therefore we need to clear the points here
+                    d.markerData = [];
+                    drawMarkers(d);
+                });
 
             dimple._postDrawHandling(series, updated, removed, duration);
 
@@ -3711,9 +3739,9 @@ var dimple = {
             rem;
         if (series.lineMarkers) {
             if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
-                markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.data);
+                markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.markerData);
             } else {
-                markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.data, function (d) { return d.key; });
+                markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.markerData, function (d) { return d.key; });
             }
             // Add
             markerBacks
@@ -3777,9 +3805,9 @@ var dimple = {
 
         // Deal with markers in the same way as main series to fix #28
         if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
-            markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.data);
+            markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.markerData);
         } else {
-            markers = series._markers[lineDataRow.keyString].data(lineDataRow.data, function (d) {
+            markers = series._markers[lineDataRow.keyString].data(lineDataRow.markerData, function (d) {
                 return d.key;
             });
         }
