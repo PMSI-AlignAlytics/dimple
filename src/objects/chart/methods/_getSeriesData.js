@@ -47,7 +47,7 @@
                         yCat = "",
                         ySortArray = [],
                         rules = [],
-                        sortedData = series.data || this.data,
+                        sortedData = series.data || this.data || [],
                         groupRules = [];
 
                     if (this.storyboard !== null && this.storyboard !== undefined && this.storyboard.categoryFields.length > 0) {
@@ -65,7 +65,7 @@
                         ySortArray = dimple._getOrderedList(sortedData, yCat, series.y._orderRules.concat([{ ordering : series.y.measure, desc : true }]));
                     }
 
-                    if (series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
+                    if (sortedData.length > 0 && series.categoryFields !== null && series.categoryFields !== undefined && series.categoryFields.length > 0) {
                         // Concat is used here to break the reference to the parent array, if we don't do this, in a storyboarded chart,
                         // the series rules to grow and grow until the system grinds to a halt trying to deal with them all.
                         rules = [].concat(series._orderRules);
