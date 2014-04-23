@@ -2760,9 +2760,10 @@ var dimple = {
                 coord = function (position, datum) {
                     var val;
                     if (series.interpolation === "step" && series[position]._hasCategories()) {
-//                        series.barGap = 0;
-//                        series.clusterBarGap = 0;
                         val = dimple._helpers[position](datum, chart, series) + (position === "y" ? dimple._helpers.height(datum, chart, series) : 0);
+                        if (series[position].categoryFields.length < 2) {
+                            val += (position === "y" ? 1 : -1) * dimple._helpers[position + "Gap"](chart, series);
+                        }
                     } else {
                         val = dimple._helpers["c" + position](datum, chart, series);
                     }
