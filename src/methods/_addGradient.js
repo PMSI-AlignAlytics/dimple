@@ -45,9 +45,7 @@
         }, this);
 
         if (transition) {
-            grad.selectAll("stop")
-                .data(colors)
-                .transition().duration(duration)
+            chart._handleTransition(grad.selectAll("stop").data(colors), duration, chart)
                 .attr("offset", function(d) { return d.offset; })
                 .attr("stop-color", function(d) { return d.color; });
         } else {

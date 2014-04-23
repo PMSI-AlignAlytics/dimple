@@ -85,7 +85,7 @@
                 });
 
             // Update
-            updated = dimple._handleTransition(theseShapes, duration)
+            updated = chart._handleTransition(theseShapes, duration, chart, series)
                 .attr("x", function (d) { return xFloat ? dimple._helpers.cx(d, chart, series) - series.x.floatingBarWidth / 2 : dimple._helpers.x(d, chart, series); })
                 .attr("y", function (d) { return yFloat ? dimple._helpers.cy(d, chart, series) - series.y.floatingBarWidth / 2 : dimple._helpers.y(d, chart, series); })
                 .attr("width", function (d) { return (xFloat ? series.x.floatingBarWidth : dimple._helpers.width(d, chart, series)); })
@@ -98,7 +98,7 @@
                 });
 
             // Remove
-            removed = dimple._handleTransition(theseShapes.exit(), duration)
+            removed = chart._handleTransition(theseShapes.exit(), duration, chart, series)
                 .attr("x", function (d) {
                     var returnValue = series.x._origin;
                     if (cat === "x") {

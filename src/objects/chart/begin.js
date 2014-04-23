@@ -30,6 +30,10 @@
         this.titleShape = null;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-shapes
         this.shapes = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-ease
+        this.ease = "linear";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-staggerDraw
+        this.staggerDraw = false;
 
         // The group within which to put all of this chart's objects
         this._group = svg.append("g");

@@ -33,13 +33,13 @@
                 .attr("stroke", "none");
 
             // Update
-            dimple._handleTransition(markerBacks, duration)
+            chart._handleTransition(markerBacks, duration, chart)
                 .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
                 .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
                 .attr("r", 2 + series.lineWeight);
 
             // Remove
-            rem = dimple._handleTransition(markerBacks.exit(), duration)
+            rem = chart._handleTransition(markerBacks.exit(), duration, chart)
                 .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
                 .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
                 .attr("r", 0);

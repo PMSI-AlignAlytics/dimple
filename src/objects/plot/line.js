@@ -196,12 +196,12 @@
                 .each(drawMarkers);
 
             // Update
-            updated = dimple._handleTransition(theseShapes, duration)
+            updated = chart._handleTransition(theseShapes, duration, chart)
                 .attr("d", function (d) { return d.update; })
                 .each(drawMarkers);
 
             // Remove
-            removed = dimple._handleTransition(theseShapes.exit(), duration)
+            removed = chart._handleTransition(theseShapes.exit(), duration, chart)
                 .attr("d", function (d) { return d.exit; })
                 .each(drawMarkers);
 

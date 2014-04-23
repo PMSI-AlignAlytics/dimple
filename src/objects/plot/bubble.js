@@ -76,7 +76,7 @@
                 });
 
             // Update
-            updated = dimple._handleTransition(theseShapes, duration)
+            updated = chart._handleTransition(theseShapes, duration, chart, series)
                 .attr("cx", function (d) {
                     return dimple._helpers.cx(d, chart, series);
                 })
@@ -98,7 +98,7 @@
                 });
 
             // Remove
-            removed = dimple._handleTransition(theseShapes.exit(), duration)
+            removed = chart._handleTransition(theseShapes.exit(), duration, chart, series)
                 .attr("r", 0)
                 .attr("cx", function (d) {
                     return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin);

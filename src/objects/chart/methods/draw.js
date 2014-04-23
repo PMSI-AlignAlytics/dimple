@@ -187,7 +187,7 @@
                     if (transform === null || duration === 0 || firstDraw) {
                         returnObj = ob;
                     } else {
-                        returnObj = ob.transition().duration(duration);
+                        returnObj = chart._handleTransition(ob, duration, chart);
                     }
                     return returnObj;
                 };

@@ -603,6 +603,10 @@ var dimple = {
         this.titleShape = null;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-shapes
         this.shapes = null;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-ease
+        this.ease = "linear";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-staggerDraw
+        this.staggerDraw = false;
 
         // The group within which to put all of this chart's objects
         this._group = svg.append("g");
@@ -662,6 +666,24 @@ var dimple = {
             }
             // Return the final dataset
             return returnData;
+        };
+
+
+        // Copyright: 2014 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/objects/chart/methods/_getDelay.js
+        this._getDelay = function (duration, chart, series) {
+            return function (d) {
+                var returnValue = 0;
+                if (series && chart.staggerDraw) {
+                    if (series.x._hasCategories()) {
+                        returnValue = (dimple._helpers.cx(d, chart, series) / chart._widthPixels()) * (duration / 2);
+                    } else if (series.y._hasCategories()) {
+                        returnValue = (1 - dimple._helpers.cy(d, chart, series) / chart._heightPixels()) * (duration / 2);
+                    }
+                }
+                return returnValue;
+            };
         };
 
 
@@ -1061,6 +1083,22 @@ var dimple = {
             }
         };
 
+
+          // Copyright: 2014 PMSI-AlignAlytics
+        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+        // Source: /src/chart/methods/_handleTransition.js
+        this._handleTransition = function (input, duration, chart, series) {
+            var returnShape = null;
+            if (duration === 0) {
+                returnShape = input;
+            } else {
+                returnShape = input.transition()
+                    .duration(duration)
+                    .delay(chart._getDelay(duration, chart, series))
+                    .ease(chart.ease);
+            }
+            return returnShape;
+        };
 
         // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -1531,7 +1569,7 @@ var dimple = {
                     if (transform === null || duration === 0 || firstDraw) {
                         returnObj = ob;
                     } else {
-                        returnObj = ob.transition().duration(duration);
+                        returnObj = chart._handleTransition(ob, duration, chart);
                     }
                     return returnObj;
                 };
@@ -3054,12 +3092,12 @@ var dimple = {
                 })
                 .each(drawMarkers);
             // Update
-            updated = dimple._handleTransition(theseShapes, duration)
+            updated = chart._handleTransition(theseShapes, duration, chart)
                 .attr("d", function (d) { return d.update; })
                 .each(drawMarkers);
 
             // Remove
-            removed = dimple._handleTransition(theseShapes.exit(), duration)
+            removed = chart._handleTransition(theseShapes.exit(), duration, chart)
                 .attr("d", function (d) { return d.exit; })
                 .each(drawMarkers);
 
@@ -3159,7 +3197,7 @@ var dimple = {
                 });
 
             // Update
-            updated = dimple._handleTransition(theseShapes, duration)
+            updated = chart._handleTransition(theseShapes, duration, chart, series)
                 .attr("x", function (d) { return xFloat ? dimple._helpers.cx(d, chart, series) - series.x.floatingBarWidth / 2 : dimple._helpers.x(d, chart, series); })
                 .attr("y", function (d) { return yFloat ? dimple._helpers.cy(d, chart, series) - series.y.floatingBarWidth / 2 : dimple._helpers.y(d, chart, series); })
                 .attr("width", function (d) { return (xFloat ? series.x.floatingBarWidth : dimple._helpers.width(d, chart, series)); })
@@ -3172,7 +3210,7 @@ var dimple = {
                 });
 
             // Remove
-            removed = dimple._handleTransition(theseShapes.exit(), duration)
+            removed = chart._handleTransition(theseShapes.exit(), duration, chart, series)
                 .attr("x", function (d) {
                     var returnValue = series.x._origin;
                     if (cat === "x") {
@@ -3280,7 +3318,7 @@ var dimple = {
                 });
 
             // Update
-            updated = dimple._handleTransition(theseShapes, duration)
+            updated = chart._handleTransition(theseShapes, duration, chart, series)
                 .attr("cx", function (d) {
                     return dimple._helpers.cx(d, chart, series);
                 })
@@ -3302,7 +3340,7 @@ var dimple = {
                 });
 
             // Remove
-            removed = dimple._handleTransition(theseShapes.exit(), duration)
+            removed = chart._handleTransition(theseShapes.exit(), duration, chart, series)
                 .attr("r", 0)
                 .attr("cx", function (d) {
                     return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin);
@@ -3516,12 +3554,12 @@ var dimple = {
                 .each(drawMarkers);
 
             // Update
-            updated = dimple._handleTransition(theseShapes, duration)
+            updated = chart._handleTransition(theseShapes, duration, chart)
                 .attr("d", function (d) { return d.update; })
                 .each(drawMarkers);
 
             // Remove
-            removed = dimple._handleTransition(theseShapes.exit(), duration)
+            removed = chart._handleTransition(theseShapes.exit(), duration, chart)
                 .attr("d", function (d) { return d.exit; })
                 .each(drawMarkers);
 
@@ -3581,9 +3619,7 @@ var dimple = {
         }, this);
 
         if (transition) {
-            grad.selectAll("stop")
-                .data(colors)
-                .transition().duration(duration)
+            chart._handleTransition(grad.selectAll("stop").data(colors), duration, chart)
                 .attr("offset", function(d) { return d.offset; })
                 .attr("stop-color", function(d) { return d.color; });
         } else {
@@ -3693,13 +3729,13 @@ var dimple = {
                 .attr("stroke", "none");
 
             // Update
-            dimple._handleTransition(markerBacks, duration)
+            chart._handleTransition(markerBacks, duration, chart)
                 .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
                 .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
                 .attr("r", 2 + series.lineWeight);
 
             // Remove
-            rem = dimple._handleTransition(markerBacks.exit(), duration)
+            rem = chart._handleTransition(markerBacks.exit(), duration, chart)
                 .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
                 .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
                 .attr("r", 0);
@@ -3781,7 +3817,7 @@ var dimple = {
             });
 
         // Update
-        dimple._handleTransition(markers, duration)
+        chart._handleTransition(markers, duration, chart)
             .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
             .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
             .attr("r", 2 + series.lineWeight)
@@ -3796,7 +3832,7 @@ var dimple = {
             });
 
         // Remove
-        rem = dimple._handleTransition(markers.exit(), duration)
+        rem = chart._handleTransition(markers.exit(), duration, chart)
             .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
             .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); })
             .attr("r", 0);
@@ -4001,19 +4037,6 @@ var dimple = {
             }
             return sortValue;
         };
-    };
-
-    // Copyright: 2014 PMSI-AlignAlytics
-    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-    // Source: /src/methods/_handleTransition.js
-    dimple._handleTransition = function (input, duration) {
-        var returnShape = null;
-        if (duration === 0) {
-            returnShape = input;
-        } else {
-            returnShape = input.transition().duration(duration);
-        }
-        return returnShape;
     };
 
     // Copyright: 2014 PMSI-AlignAlytics
