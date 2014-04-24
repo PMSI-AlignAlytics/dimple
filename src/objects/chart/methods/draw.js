@@ -133,14 +133,45 @@
                     transform = null,
                     gridSize = 0,
                     gridTransform = null,
-                    handleTrans,
                     rotated = false,
                     widest = 0,
                     box = { l: null, t: null, r: null, b: null },
                     titleX = 0,
                     titleY = 0,
                     rotate = "",
-                    chart = this;
+                    chart = this,
+                    handleTrans = function (ob) {
+                        // Draw the axis
+                        // This code might seem unnecessary but even applying a duration of 0 to a transition will cause the code to execute after the
+                        // code below and precedence is important here.
+                        var returnObj;
+                        if (transform === null || duration === 0 || firstDraw) {
+                            returnObj = ob;
+                        } else {
+                            returnObj = chart._handleTransition(ob, duration, chart);
+                        }
+                        return returnObj;
+                    },
+                    transformLabels = function () {
+                        if (!axis.measure) {
+                            if (axis.position === "x") {
+                                d3.select(this).selectAll("text").attr("x", (chartWidth / axis._max) / 2);
+                            } else if (axis.position === "y") {
+                                d3.select(this).selectAll("text").attr("y", -1 * (chartHeight / axis._max) / 2);
+                            }
+                        }
+                        if (axis.categoryFields && axis.categoryFields.length > 0) {
+                            // Off set the labels to counter the transform.  This will put the labels along the outside of the chart so they
+                            // don't interfere with the chart contents
+                            if (axis === firstX && (firstY.categoryFields === null || firstY.categoryFields.length === 0)) {
+                                d3.select(this).selectAll("text").attr("y", chartY + chartHeight - firstY._scale(0) + 9);
+                            }
+                            if (axis === firstY && (firstX.categoryFields === null || firstX.categoryFields.length === 0)) {
+                                d3.select(this).selectAll("text").attr("x", -1 * (firstX._scale(0) - chartX) - 9);
+                            }
+                        }
+                    };
+
                 if (axis.gridlineShapes === null) {
                     if (axis.showGridlines || (axis.showGridlines === null && !axis._hasCategories() && ((!xGridSet && axis.position === "x") || (!yGridSet && axis.position === "y")))) {
                         // Add a group for the gridlines to allow css formatting
@@ -187,48 +218,29 @@
                     gridTransform = transform = "translate(" + (axis === firstY ? chartX : chartX + chartWidth) + ", 0)";
                     gridSize = -chartWidth;
                 }
-                // Draw the axis
-                // This code might seem unneccesary but even applying a duration of 0 to a transition will cause the code to execute after the
-                // code below and precedence is important here.
-                handleTrans = function (ob) {
-                    var returnObj;
-                    if (transform === null || duration === 0 || firstDraw) {
-                        returnObj = ob;
-                    } else {
-                        returnObj = chart._handleTransition(ob, duration, chart);
-                    }
-                    return returnObj;
-                };
                 if (transform !== null && axis._draw !== null) {
 
                     // Add a tick format
                     if (axis._hasTimeField()) {
-                        handleTrans(axis.shapes).call(axis._draw.ticks(axis._getTimePeriod(), axis.timeInterval).tickFormat(axis._getFormat())).attr("transform", transform);
+                        handleTrans(axis.shapes)
+                            .call(axis._draw.ticks(axis._getTimePeriod(), axis.timeInterval).tickFormat(axis._getFormat()))
+                            .attr("transform", transform)
+                            .each(transformLabels);
                     } else if (axis.useLog) {
-                        handleTrans(axis.shapes).call(axis._draw.ticks(4, axis._getFormat())).attr("transform", transform);
+                        handleTrans(axis.shapes)
+                            .call(axis._draw.ticks(4, axis._getFormat()))
+                            .attr("transform", transform)
+                            .each(transformLabels);
                     } else {
-                        handleTrans(axis.shapes).call(axis._draw.tickFormat(axis._getFormat())).attr("transform", transform);
+                        handleTrans(axis.shapes)
+                            .call(axis._draw.tickFormat(axis._getFormat()))
+                            .attr("transform", transform)
+                            .each(transformLabels);
                     }
                     if (axis.gridlineShapes !== null) {
-                        handleTrans(axis.gridlineShapes).call(axis._draw.tickSize(gridSize, 0, 0).tickFormat("")).attr("transform", gridTransform);
-                    }
-                    // Move labels around
-                    if (axis.measure === null || axis.measure === undefined) {
-                        if (axis.position === "x") {
-                            handleTrans(axis.shapes.selectAll("text")).attr("x", (chartWidth / axis._max) / 2);
-                        } else if (axis.position === "y") {
-                            handleTrans(axis.shapes.selectAll("text")).attr("y", -1 * (chartHeight / axis._max) / 2);
-                        }
-                    }
-                    if (axis.categoryFields !== null && axis.categoryFields !== undefined && axis.categoryFields.length > 0) {
-                        // Off set the labels to counter the transform.  This will put the labels along the outside of the chart so they
-                        // don't interfere with the chart contents
-                        if (axis === firstX && (firstY.categoryFields === null || firstY.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll("text")).attr("y", chartY + chartHeight - firstY._scale(0) + 9);
-                        }
-                        if (axis === firstY && (firstX.categoryFields === null || firstX.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll("text")).attr("x", -1 * (firstX._scale(0) - chartX) - 9);
-                        }
+                        handleTrans(axis.gridlineShapes)
+                            .call(axis._draw.tickSize(gridSize, 0, 0).tickFormat(""))
+                            .attr("transform", gridTransform);
                     }
                 }
                 // Set some initial css values

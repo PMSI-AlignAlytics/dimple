@@ -188,7 +188,7 @@
                         if (!catPoints[areaData[i].group]) {
                             catPoints[areaData[i].group] = {};
                         }
-                        catPoints[areaData[i].group][areaData[i].points[areaData[i].points.length - 1][catCoord]] = series[valCoord]._previousOrigin;
+                        catPoints[areaData[i].group][areaData[i].points[areaData[i].points.length - 1][catCoord]] = series[valCoord]._origin;
                     }
                 }
                 points = areaData[i].points;
@@ -202,13 +202,13 @@
                             x : 2 * points[points.length - 1].x - points[points.length - 2].x,
                             y : points[points.length - 1].y
                         });
-                        catPoints[areaData[i].group][points[points.length - 1][catCoord]] = series[valCoord]._previousOrigin;
+                        catPoints[areaData[i].group][points[points.length - 1][catCoord]] = series[valCoord]._origin;
                     } else if (series.y._hasCategories()) {
                         points = [{
                             x : points[0].x,
                             y : 2 * points[0].y - points[1].y
                         }].concat(points);
-                        catPoints[areaData[i].group][points[0][catCoord]] = series[valCoord]._previousOrigin;
+                        catPoints[areaData[i].group][points[0][catCoord]] = series[valCoord]._origin;
                         // The prepend above breaks the reference so it needs to be reapplied here.
                         areaData[i].points = points;
                     }
@@ -341,12 +341,8 @@
                 .enter()
                 .append("path")
                 .attr("id", function (d) { return d.key; })
-                .attr("class", function (d) {
-                    return className + " dimple-line " + d.keyString;
-                })
-                .attr("d", function (d) {
-                    return d.entry;
-                })
+                .attr("class", function (d) { return className + " dimple-line " + d.keyString; })
+                .attr("d", function (d) { return d.entry; })
                 .call(function () {
                     // Apply formats optionally
                     if (!chart.noFormats) {

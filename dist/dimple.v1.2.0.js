@@ -604,7 +604,7 @@ var dimple = {
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-shapes
         this.shapes = null;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-ease
-        this.ease = "linear";
+        this.ease = "cubic-in-out";
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-staggerDraw
         this.staggerDraw = false;
 
@@ -677,9 +677,9 @@ var dimple = {
                 var returnValue = 0;
                 if (series && chart.staggerDraw) {
                     if (series.x._hasCategories()) {
-                        returnValue = (dimple._helpers.cx(d, chart, series) / chart._widthPixels()) * (duration / 2);
+                        returnValue = (dimple._helpers.cx(d, chart, series) / chart._widthPixels()) * duration;
                     } else if (series.y._hasCategories()) {
-                        returnValue = (1 - dimple._helpers.cy(d, chart, series) / chart._heightPixels()) * (duration / 2);
+                        returnValue = (1 - dimple._helpers.cy(d, chart, series) / chart._heightPixels()) * duration;
                     }
                 }
                 return returnValue;
@@ -1515,14 +1515,45 @@ var dimple = {
                     transform = null,
                     gridSize = 0,
                     gridTransform = null,
-                    handleTrans,
                     rotated = false,
                     widest = 0,
                     box = { l: null, t: null, r: null, b: null },
                     titleX = 0,
                     titleY = 0,
                     rotate = "",
-                    chart = this;
+                    chart = this,
+                    handleTrans = function (ob) {
+                        // Draw the axis
+                        // This code might seem unnecessary but even applying a duration of 0 to a transition will cause the code to execute after the
+                        // code below and precedence is important here.
+                        var returnObj;
+                        if (transform === null || duration === 0 || firstDraw) {
+                            returnObj = ob;
+                        } else {
+                            returnObj = chart._handleTransition(ob, duration, chart);
+                        }
+                        return returnObj;
+                    },
+                    transformLabels = function () {
+                        if (!axis.measure) {
+                            if (axis.position === "x") {
+                                d3.select(this).selectAll("text").attr("x", (chartWidth / axis._max) / 2);
+                            } else if (axis.position === "y") {
+                                d3.select(this).selectAll("text").attr("y", -1 * (chartHeight / axis._max) / 2);
+                            }
+                        }
+                        if (axis.categoryFields && axis.categoryFields.length > 0) {
+                            // Off set the labels to counter the transform.  This will put the labels along the outside of the chart so they
+                            // don't interfere with the chart contents
+                            if (axis === firstX && (firstY.categoryFields === null || firstY.categoryFields.length === 0)) {
+                                d3.select(this).selectAll("text").attr("y", chartY + chartHeight - firstY._scale(0) + 9);
+                            }
+                            if (axis === firstY && (firstX.categoryFields === null || firstX.categoryFields.length === 0)) {
+                                d3.select(this).selectAll("text").attr("x", -1 * (firstX._scale(0) - chartX) - 9);
+                            }
+                        }
+                    };
+
                 if (axis.gridlineShapes === null) {
                     if (axis.showGridlines || (axis.showGridlines === null && !axis._hasCategories() && ((!xGridSet && axis.position === "x") || (!yGridSet && axis.position === "y")))) {
                         // Add a group for the gridlines to allow css formatting
@@ -1569,48 +1600,29 @@ var dimple = {
                     gridTransform = transform = "translate(" + (axis === firstY ? chartX : chartX + chartWidth) + ", 0)";
                     gridSize = -chartWidth;
                 }
-                // Draw the axis
-                // This code might seem unneccesary but even applying a duration of 0 to a transition will cause the code to execute after the
-                // code below and precedence is important here.
-                handleTrans = function (ob) {
-                    var returnObj;
-                    if (transform === null || duration === 0 || firstDraw) {
-                        returnObj = ob;
-                    } else {
-                        returnObj = chart._handleTransition(ob, duration, chart);
-                    }
-                    return returnObj;
-                };
                 if (transform !== null && axis._draw !== null) {
 
                     // Add a tick format
                     if (axis._hasTimeField()) {
-                        handleTrans(axis.shapes).call(axis._draw.ticks(axis._getTimePeriod(), axis.timeInterval).tickFormat(axis._getFormat())).attr("transform", transform);
+                        handleTrans(axis.shapes)
+                            .call(axis._draw.ticks(axis._getTimePeriod(), axis.timeInterval).tickFormat(axis._getFormat()))
+                            .attr("transform", transform)
+                            .each(transformLabels);
                     } else if (axis.useLog) {
-                        handleTrans(axis.shapes).call(axis._draw.ticks(4, axis._getFormat())).attr("transform", transform);
+                        handleTrans(axis.shapes)
+                            .call(axis._draw.ticks(4, axis._getFormat()))
+                            .attr("transform", transform)
+                            .each(transformLabels);
                     } else {
-                        handleTrans(axis.shapes).call(axis._draw.tickFormat(axis._getFormat())).attr("transform", transform);
+                        handleTrans(axis.shapes)
+                            .call(axis._draw.tickFormat(axis._getFormat()))
+                            .attr("transform", transform)
+                            .each(transformLabels);
                     }
                     if (axis.gridlineShapes !== null) {
-                        handleTrans(axis.gridlineShapes).call(axis._draw.tickSize(gridSize, 0, 0).tickFormat("")).attr("transform", gridTransform);
-                    }
-                    // Move labels around
-                    if (axis.measure === null || axis.measure === undefined) {
-                        if (axis.position === "x") {
-                            handleTrans(axis.shapes.selectAll("text")).attr("x", (chartWidth / axis._max) / 2);
-                        } else if (axis.position === "y") {
-                            handleTrans(axis.shapes.selectAll("text")).attr("y", -1 * (chartHeight / axis._max) / 2);
-                        }
-                    }
-                    if (axis.categoryFields !== null && axis.categoryFields !== undefined && axis.categoryFields.length > 0) {
-                        // Off set the labels to counter the transform.  This will put the labels along the outside of the chart so they
-                        // don't interfere with the chart contents
-                        if (axis === firstX && (firstY.categoryFields === null || firstY.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll("text")).attr("y", chartY + chartHeight - firstY._scale(0) + 9);
-                        }
-                        if (axis === firstY && (firstX.categoryFields === null || firstX.categoryFields.length === 0)) {
-                            handleTrans(axis.shapes.selectAll("text")).attr("x", -1 * (firstX._scale(0) - chartX) - 9);
-                        }
+                        handleTrans(axis.gridlineShapes)
+                            .call(axis._draw.tickSize(gridSize, 0, 0).tickFormat(""))
+                            .attr("transform", gridTransform);
                     }
                 }
                 // Set some initial css values
@@ -2551,9 +2563,11 @@ var dimple = {
             }
             this.storyLabel
                 .transition().duration(duration * 0.2)
+                .ease(this.chart.ease)
                 .attr("opacity", 0);
             this.storyLabel
                 .transition().delay(duration * 0.2)
+                .ease(this.chart.ease)
                 .attr("class", "dimple-storyboard-label")
                 .text(this.categoryFields.join("\\") + ": " + this.getFrameValue())
                 .transition().duration(duration * 0.8)
@@ -2930,7 +2944,7 @@ var dimple = {
                         if (!catPoints[areaData[i].group]) {
                             catPoints[areaData[i].group] = {};
                         }
-                        catPoints[areaData[i].group][areaData[i].points[areaData[i].points.length - 1][catCoord]] = series[valCoord]._previousOrigin;
+                        catPoints[areaData[i].group][areaData[i].points[areaData[i].points.length - 1][catCoord]] = series[valCoord]._origin;
                     }
                 }
                 points = areaData[i].points;
@@ -2944,13 +2958,13 @@ var dimple = {
                             x : 2 * points[points.length - 1].x - points[points.length - 2].x,
                             y : points[points.length - 1].y
                         });
-                        catPoints[areaData[i].group][points[points.length - 1][catCoord]] = series[valCoord]._previousOrigin;
+                        catPoints[areaData[i].group][points[points.length - 1][catCoord]] = series[valCoord]._origin;
                     } else if (series.y._hasCategories()) {
                         points = [{
                             x : points[0].x,
                             y : 2 * points[0].y - points[1].y
                         }].concat(points);
-                        catPoints[areaData[i].group][points[0][catCoord]] = series[valCoord]._previousOrigin;
+                        catPoints[areaData[i].group][points[0][catCoord]] = series[valCoord]._origin;
                         // The prepend above breaks the reference so it needs to be reapplied here.
                         areaData[i].points = points;
                     }
@@ -3083,12 +3097,8 @@ var dimple = {
                 .enter()
                 .append("path")
                 .attr("id", function (d) { return d.key; })
-                .attr("class", function (d) {
-                    return className + " dimple-line " + d.keyString;
-                })
-                .attr("d", function (d) {
-                    return d.entry;
-                })
+                .attr("class", function (d) { return className + " dimple-line " + d.keyString; })
+                .attr("d", function (d) { return d.entry; })
                 .call(function () {
                     // Apply formats optionally
                     if (!chart.noFormats) {
@@ -3443,7 +3453,8 @@ var dimple = {
                     return d3.svg.line()
                         .x(function (d) { return (series.x._hasCategories() || !originProperty ? d.x : series.x[originProperty]); })
                         .y(function (d) { return (series.y._hasCategories() || !originProperty ? d.y : series.y[originProperty]); })
-                        .interpolate(inter);
+                        .interpolate(inter)
+                        .tension(series.interpolationTe);
                 };
 
             // Handle the special interpolation handling for step

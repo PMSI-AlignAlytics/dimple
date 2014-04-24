@@ -1,0 +1,20 @@
+<div id="chartContainer">
+  <script src="/lib/d3.v3.min.js"></script>
+  <script src="/dist/dimple.{version}.js"></script>
+  <script type="text/javascript">
+    var svg = dimple.newSvg("#chartContainer", 590, 400);
+    d3.tsv("/data/example_data.tsv", function (data) {
+      var myChart = new dimple.chart(svg, data);
+      myChart.setBounds(60, 80, 480, 260)
+      myChart.addMeasureAxis("x", "Price");
+      myChart.addMeasureAxis("y", "Distribution");
+      myChart.addMeasureAxis("z", "Sales Value");
+      myChart.addSeries(["SKU", "Channel", "Owner"],  dimple.plot.bubble);
+      myChart.addLegend(200, 10, 380, 20, "right");
+      myChart.setStoryboard("Date");
+      myChart.ease = "elastic";
+      myChart.draw(1000);
+      myChart.legends = [];
+    });
+  </script>
+</div>

@@ -24,9 +24,11 @@
             }
             this.storyLabel
                 .transition().duration(duration * 0.2)
+                .ease(this.chart.ease)
                 .attr("opacity", 0);
             this.storyLabel
                 .transition().delay(duration * 0.2)
+                .ease(this.chart.ease)
                 .attr("class", "dimple-storyboard-label")
                 .text(this.categoryFields.join("\\") + ": " + this.getFrameValue())
                 .transition().duration(duration * 0.8)
