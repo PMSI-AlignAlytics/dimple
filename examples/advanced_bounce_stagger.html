@@ -1,6 +1,9 @@
+<!----------------------------------------------------------------->
+<!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT TEMPLATE INSTEAD -->
+<!----------------------------------------------------------------->
 <div id="chartContainer">
   <script src="/lib/d3.v3.min.js"></script>
-  <script src="/dist/dimple.{version}.js"></script>
+  <script src="/dist/dimple.v1.2.0.js"></script>
   <script type="text/javascript">
     var svg = dimple.newSvg("#chartContainer", 590, 400);
     d3.tsv("/data/example_data.tsv", function (data) {
@@ -10,6 +13,7 @@
       x.addOrderRule("Date");
       myChart.addMeasureAxis("y", "Unit Sales");
       myChart.addSeries("Owner",  dimple.plot.bar);
+      myChart.setStoryboard("Price Tier");
       myChart.ease = "bounce"
       myChart.staggerDraw = true;
       myChart.addLegend(200, 10, 380, 20, "right");

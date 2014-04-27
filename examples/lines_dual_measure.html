@@ -8,19 +8,16 @@
     var svg = dimple.newSvg("#chartContainer", 590, 400);
     d3.tsv("/data/example_data.tsv", function (data) {
       var myChart = new dimple.chart(svg, data);
-      myChart.setBounds(60, 50, 480, 280)
-      var x = myChart.addCategoryAxis("x", "Month");
-      x.addOrderRule("Date");
-      myChart.addMeasureAxis("y", "Unit Sales");
-      myChart.addSeries("Owner",  dimple.plot.bar);
-
-      // Set the ease to bounce and stagger drawing so that
-      // each bar is offset from the bar before
-      myChart.ease = "bounce"
-      myChart.staggerDraw = true;
-
-      myChart.addLegend(200, 10, 380, 20, "right");
-      myChart.draw(800);
+      myChart.setBounds(50, 55, 500, 310)
+      var x = myChart.addMeasureAxis("x", "Distribution");
+      x.overrideMin = 20;
+      var y = myChart.addMeasureAxis("y", "Price");
+      y.overrideMin = 50
+      var s = myChart.addSeries(["Month", "Owner"], dimple.plot.line);
+      s.addOrderRule("Date");
+      s.aggregate = dimple.aggregateMethod.avg;
+      myChart.addLegend(130, 10, 400, 35, "right");
+      myChart.draw();
     });
   </script>
 </div>

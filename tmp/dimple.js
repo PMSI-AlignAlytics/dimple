@@ -3453,8 +3453,7 @@ var dimple = {
                     return d3.svg.line()
                         .x(function (d) { return (series.x._hasCategories() || !originProperty ? d.x : series.x[originProperty]); })
                         .y(function (d) { return (series.y._hasCategories() || !originProperty ? d.y : series.y[originProperty]); })
-                        .interpolate(inter)
-                        .tension(series.interpolationTe);
+                        .interpolate(inter);
                 };
 
             // Handle the special interpolation handling for step
