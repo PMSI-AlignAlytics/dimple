@@ -1,0 +1,72 @@
+[
+    {
+        "id":"adhoc_bar_custom_tooltips",
+        "title":"Custom Tooltip",
+        "shortTitle":"Custom Tooltip",
+        "desc":"Hover over a segment to see a custom tooltip",
+        "prev":{
+            "name":"Release Notes",
+            "url":"https://github.com/PMSI-AlignAlytics/dimple/releases/tag/2.0.0"
+        }
+    },
+    {
+        "id":"adhoc_bar_labels",
+        "title":"Bar Labels",
+        "shortTitle":"Bar Labels",
+        "desc":"This shows how the bar labels example can be done with a starting animation",
+        "prev": {
+            "name": "Release Notes",
+            "url": "https://github.com/PMSI-AlignAlytics/dimple/releases/tag/2.0.0"
+        }
+    },
+    {
+        "id": "adhoc_bar_scroll",
+        "title": "Bar Scroll",
+        "shortTitle": "Bar Scroll",
+        "desc": "A linear transition example. Once the chart fills up it will begin to scroll sideways.",
+        "prev": {
+            "name": "Release Notes",
+            "url": "https://github.com/PMSI-AlignAlytics/dimple/releases/tag/2.0.0"
+        }
+    },
+    {
+        "id": "adhoc_bounce_stagger",
+        "title": "Bounce Stagger",
+        "shortTitle": "Bounce Stagger",
+        "desc": "Dimple v2.0 supports far more robust transitions and flexibility, for example this is how to make bouncy bars in a couple of lines of code.",
+        "prev": {
+            "name": "Release Notes",
+            "url": "https://github.com/PMSI-AlignAlytics/dimple/releases/tag/2.0.0"
+        }
+    },
+    {
+        "id": "adhoc_composite_axis_category",
+        "title": "Composite Categories",
+        "shortTitle": "Composite Categories",
+        "desc": "Example of 3 categories plotted on the same x axis",
+        "prev": {
+            "name": "Release Notes",
+            "url": "https://github.com/PMSI-AlignAlytics/dimple/releases/tag/2.0.0"
+        }
+    },
+    {
+        "id": "adhoc_composite_axis_measure",
+        "title": "Composite Measures",
+        "shortTitle": "Composite Measures",
+        "desc": "Example of 2 measures plotted on the same y axis",
+        "prev": {
+            "name": "Release Notes",
+            "url": "https://github.com/PMSI-AlignAlytics/dimple/releases/tag/2.0.0"
+        }
+    },
+    {
+        "id": "adhoc_dual_axis",
+        "title": "Dual Y Axis",
+        "shortTitle": "Dual Y Axis",
+        "desc": "Example of 2 measures plotted on different y axes",
+        "prev": {
+            "name": "Release Notes",
+            "url": "https://github.com/PMSI-AlignAlytics/dimple/releases/tag/2.0.0"
+        }
+    }
+]

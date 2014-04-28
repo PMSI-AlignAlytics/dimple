@@ -3,7 +3,7 @@
 <!----------------------------------------------------------------->
 <div id="chartContainer">
   <script src="/lib/d3.v3.min.js"></script>
-  <script src="/dist/dimple.v1.1.5.js"></script>
+  <script src="/dist/dimple.v2.0.0.js"></script>
   <script type="text/javascript">
 
     // Create the svg and set the dimensions
@@ -13,7 +13,7 @@
 
       // Add a bullet chart to the svg
       function addBullet(x, y, height, width, measure, lowMark,
-                        highMark, axisMax, compareField, keyVal,
+                        highMark, compareField, keyVal,
                         compareVal, color) {
         
         // This is a custom algorithm to lighten the passed color, I find I can't
@@ -62,22 +62,12 @@
         var bX = bullet.addMeasureAxis("x", "Value");
 
         // Add a separate x axis for each measure, this is required
-        // where we want to do a series for each measure
-        var lX = bullet.addMeasureAxis("x", "Low Value");
-        var hX = bullet.addMeasureAxis("x", "High Value");
-        var cX = bullet.addMeasureAxis("x", "Compare Value");
-
-        // Fix all max values so that a single x axis will read correctly
-        // for all 4.  Without this all axes would scale differently
-        bX.overrideMax = axisMax;
-        lX.overrideMax = axisMax;
-        hX.overrideMax = axisMax;
-        cX.overrideMax = axisMax;
-
-        // Hide the additional axes
-        lX.hidden = true;
-        hX.hidden = true;
-        cX.hidden = true;
+        // where we want to do a series for each measure.  By passing
+        // another axis in place of the position we combine them to create
+        // a 4 measure composite.
+        var lX = bullet.addMeasureAxis(bX, "Low Value");
+        var hX = bullet.addMeasureAxis(bX, "High Value");
+        var cX = bullet.addMeasureAxis(bX, "Compare Value");
 
         // Add a series for the marks first (the order defines)
         // document z position - first at back, last on top
@@ -88,8 +78,12 @@
         // Add the main series - keyVal is for color and tooltip
         var b = bullet.addSeries(keyVal, dimple.plot.bar, [bY, bX]);
         // Add the comparison series - compareVal is for color and tooltip
-        var m = bullet.addSeries(compareVal, dimple.plot.bubble, [bY, cX]);
-        
+        var m = bullet.addSeries(compareVal, dimple.plot.bar, [bY, cX]);
+
+        // Configure the markers as floating bars
+        m.stacked = false;
+        cX.floatingBarWidth = 2;
+
         // Set the gaps for the bar series with a narrow main series and full
         // width for the markers
         hm.barGap = 0;
@@ -119,17 +113,17 @@
       // means to determine axis bounds would be better but I don't want to
       // bloat this example.
       addBullet(100, 30, 430, 30, "Unit Sales", 2300000, 2800000, 
-        3000000, "Owner", "Aperture", "Black Mesa", "#80B1D3");
+        "Owner", "Aperture", "Black Mesa", "#80B1D3");
       addBullet(100, 90, 430, 30, "Sales Value", 135000000, 145000000, 
-        180000000, "Owner", "Aperture", "Black Mesa", "#80B1D3");
+        "Owner", "Aperture", "Black Mesa", "#80B1D3");
       addBullet(100, 150, 430, 30, "Cost of Sales", 200000, 300000, 
-        500000, "Owner", "Aperture", "Black Mesa", "#FB8072");
+        "Owner", "Aperture", "Black Mesa", "#FB8072");
       addBullet(100, 210, 430, 30, "Gross Profit", 140000000, 170000000, 
-        180000000, "Owner", "Aperture", "Black Mesa", "#80B1D3");
+        "Owner", "Aperture", "Black Mesa", "#80B1D3");
       addBullet(100, 270, 430, 30, "Indirect Costs", 100000000, 150000000, 
-        160000000, "Owner", "Aperture", "Black Mesa", "#FB8072");
+        "Owner", "Aperture", "Black Mesa", "#FB8072");
       addBullet(100, 330, 430, 30, "Operating Profit", 12000000, 16000000, 
-        18000000, "Owner", "Aperture", "Black Mesa", "#80B1D3");
+        "Owner", "Aperture", "Black Mesa", "#80B1D3");
 
     });
   </script>

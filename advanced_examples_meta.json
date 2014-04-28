@@ -84,12 +84,6 @@
         "desc":"Example of the new responsive sizing functionality, meaning charts no longer have to have a fixed pixel size.  Click the button to open a resizeable chart."
     },
     {
-        "id":"advanced_christmas_tree",
-        "title":"Seasons Greetings",
-        "shortTitle":"Seasons Greetings",
-        "desc":"While analysing festive cheer we found these surprising results..."
-    },
-    {
         "id":"advanced_change_bubbles",
         "title":"Ghost Bubbles",
         "shortTitle":"Ghost Bubbles",

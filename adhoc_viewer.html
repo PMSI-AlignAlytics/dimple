@@ -1,0 +1,156 @@
+<!----------------------------------------------------------------->
+<!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT TEMPLATE INSTEAD -->
+<!----------------------------------------------------------------->
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title id="title"></title>
+    <script type="application/javascript" src="/lib/d3.v3.min.js"></script>
+    <script type="application/javascript" src="/dist/dimple.v2.0.0.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <script type="application/javascript">
+        window.opener = null;
+    </script>
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script type="application/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-47450855-1', 'dimplejs.org');
+        ga('send', 'pageview');
+    </script>
+</head>
+<body>
+<div class="wrapper">
+    <header>
+        <h2 id="heading"></h2>
+        <p>
+            <span id="desc"></span><br/>
+        <table style="width:100%">
+            <tr>
+                <td style="width:50%" align="left"><a style="text-align:left" id="prev"></a></td>
+                <td style="width:50%" align="right"><a style="text-align:right" id="next"></a></td>
+            </tr>
+        </table>
+        </p>
+        <h3>Libraries</h3>
+        <p>
+            <a href="/dist/dimple.v2.0.0.js">
+                Full Javascript Library With Comments
+            </a><br/>
+            <a href="/dist/dimple.v2.0.0.min.js">
+                Minified Javascript Library
+            </a><br/>
+            <a href="https://github.com/PMSI-AlignAlytics/dimple/zipball/master">
+                Zip File
+            </a><br/>
+            <a href="https://github.com/PMSI-AlignAlytics/dimple/tarball/master">
+                Tar Ball
+            </a><br/>
+        </p>
+        <h3>Resources</h3>
+        <p>
+            <a href="/examples_index.html">
+                Examples
+            </a><br/>
+            <a href="/advanced_examples_index.html">
+                Advanced Examples
+            </a><br/>
+            <a href="https://github.com/PMSI-AlignAlytics/dimple">
+                View On GitHub
+            </a><br/>
+            <a href="https://github.com/PMSI-AlignAlytics/dimple/wiki">
+                Full API Documentation
+            </a><br/>
+        </p>
+    </header>
+    <section>
+        <div id="chartBox" style="height:410px" class="chartWindow">
+            <img src="/images/wait.gif" style="display: table; margin: 0 auto; margin-top: 75px;"></img>
+        </div>
+        <pre><code id="codeContainer">
+            <img src="/images/wait.gif" style="display: table; margin: 0 auto;"></img>
+        </code></pre>
+        <div id="disqus_thread"></div>
+    </section>
+    <footer>
+        <p>
+            This is an open-source project by <br/>
+            <a href="http://www.align-alytics.com">
+                PMSI-AlignAlytics</a>
+        </p>
+    </footer>
+</div>
+<script src="/javascripts/scale.fix.js"></script>
+<script type="text/javascript">
+    // Get the query string as an object
+    function queryStringObj() {
+        var result = {}, keyValuePairs = location.search.slice(1).split('&');
+        keyValuePairs.forEach(function(keyValuePair) {
+            keyValuePair = keyValuePair.split('=');
+            result[keyValuePair[0]] = keyValuePair[1] || '';
+        });
+        return result;
+    }
+    // Load the page from the examples.json based on the query string
+    var id = queryStringObj().id;
+    // Prompt if no query string is passed.  Mainly useful for debugging.
+    if (id == undefined) { id = window.prompt("Please enter an example id","bars_vertical"); }
+    $.getJSON("/adhoc_meta.json", function(data) {
+        data.forEach(function (spec, i) {
+            if (spec.id == id) {
+                // Set the text elements
+                $("#title").text(spec.title);
+                $("#heading").text(spec.title);
+                $("#desc").text(spec.desc);
+                // Set the code display
+                $.get("adhoc/" + spec.id + ".html", function (page) {
+                    $("#codeContainer").text(
+                            page.slice(page.indexOf("<div"))
+                                    .replace("src=\"/dist/dimple.v2.0.0.js\"", "src=\"http://dimplejs.org/dist/dimple.v2.0.0.min.js\"")
+                                    .replace("src=\"/lib/d3.v3.min.js\"", "src=\"http://d3js.org/d3.v3.min.js\"")
+                    );
+                    $("#chartBox").html(
+                            page.slice(page.indexOf("<div"))
+                                    .replace("src=\"/dist/dimple.v2.0.0.js\"", "")
+                                    .replace("src=\"/lib/d3.v3.min.js\"", "")
+                    );
+                });
+                // adhoc_bouncSet the previous links
+                if (data[i].prev) {
+                    $("#prev").attr("href",data[i].prev.url);
+                    $("#prev").text("< " + data[i].prev.name);
+                } else {
+                    $("#prev").remove();
+                }
+                // Set the next links
+                if (data[i].next) {
+                    $("#next").attr("href",data[i].next.url);
+                    $("#next").text(data[i].next.name + " >");
+                } else {
+                    $("#next").remove();
+                }
+            }
+        });
+    });
+</script>
+<script type="text/javascript">
+    var disqus_shortname = 'dimplejs';
+    var disqus_identifier = id;
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+</body>
+</html>

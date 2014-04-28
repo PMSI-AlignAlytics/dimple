@@ -10,7 +10,7 @@
       var x = myChart.addCategoryAxis("x", "Month");
       x.addOrderRule("Date");
       myChart.addMeasureAxis("y", "Unit Sales");
-      myChart.addSeries("Channel", dimple.plot.area);
+      var s = myChart.addSeries("Channel", dimple.plot.area);
       myChart.addLegend(60, 10, 500, 20, "right");
       myChart.draw();
     });

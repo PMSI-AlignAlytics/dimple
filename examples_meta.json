@@ -25,9 +25,7 @@
         "title":"Vertical Grouped Bar",
         "shortTitle":"Vt Grouped Bar",
         "group":"Bar Charts",
-        "image":"bars_vertical_grouped.png",
-        "desc":"An unstacked grouped vertical bar chart",
-        "url":"examples/bars_vertical_grouped.html"
+        "desc":"An unstacked grouped vertical bar chart"
     },
     {
         "id":"bars_vertical_grouped_stacked",
@@ -105,6 +103,27 @@
         "shortTitle":"Block Matrix",
         "group":"Bar Charts",
         "desc":"A non-metric display of category presence"
+    },
+    {
+        "id":"bars_horizontal_floating",
+        "title":"Horizontal Floating Bars",
+        "shortTitle":"Horiz Float Bars",
+        "group":"Bar Charts",
+        "desc":"Horizontal floating marker bars"
+    },
+    {
+        "id":"bars_vertical_floating",
+        "title":"Vertical Floating Bars",
+        "shortTitle":"Vert Float Bars",
+        "group":"Bar Charts",
+        "desc":"Vertical floating marker bars"
+    },
+    {
+        "id":"bars_dual_measure_floating",
+        "title":"Floating Bars",
+        "shortTitle":"Floating Bars",
+        "group":"Bar Charts",
+        "desc":"A dual measure bar chart"
     },
     {
         "id":"scatter_standard",
@@ -272,7 +291,21 @@
         "title":"Vt Group 100% Area",
         "shortTitle":"Vt Grp 100% Area",
         "group":"Area Charts",
-        "desc":"A vertical grouped 100% area chart"  
+        "desc":"A vertical grouped 100% area chart"
+    },
+    {
+        "id":"areas_dual_measure",
+        "title":"Dual Measure Area",
+        "shortTitle":"Dual Measure Area",
+        "group":"Area Charts",
+        "desc":"An area chart with 2 measure axes"
+    },
+    {
+        "id":"areas_curvy",
+        "title":"Curvy Area Chart",
+        "shortTitle":"Curvy Area",
+        "group":"Area Charts",
+        "desc":"An area chart cardinal interpolation"
     },
     {
         "id":"lines_horizontal",
@@ -329,5 +362,159 @@
         "shortTitle":"Vt Grp Multi Line",
         "group":"Line Charts",
         "desc":"A vertical grouped multiple line chart"  
+    },
+    {
+        "id":"lines_dual_measure",
+        "title":"Dual Measure Line",
+        "shortTitle":"Dual Measure Line",
+        "group":"Line Charts",
+        "desc":"An line chart with 2 measure axes"
+    },
+    {
+        "id":"lines_curvy",
+        "title":"Curvy Line Chart",
+        "shortTitle":"Curvy Line",
+        "group":"Line Charts",
+        "desc":"An line chart cardinal interpolation"
+    },
+    {
+        "id":"steps_horizontal",
+        "title":"Single Step Line",
+        "shortTitle":"Single Steps",
+        "group":"Step Charts",
+        "desc":"An aggregate step line chart"
+    },
+    {
+        "id":"steps_horizontal_stacked",
+        "title":"Multiple Step Line",
+        "shortTitle":"Multiple Steps",
+        "group":"Step Charts",
+        "desc":"A standard split step line chart"
+    },
+    {
+        "id":"steps_horizontal_grouped",
+        "title":"Grouped Step Line",
+        "shortTitle":"Group Step Line",
+        "group":"Step Charts",
+        "desc":"A grouped single step line chart"
+    },
+    {
+        "id":"steps_horizontal_grouped_stacked",
+        "title":"Grouped Multiple Step Line",
+        "shortTitle":"Group Multi Step",
+        "group":"Step Charts",
+        "desc":"A grouped multiple step line chart"
+    },
+    {
+        "id":"steps_vertical",
+        "title":"Single Vertical Step Line",
+        "shortTitle":"Vertical Step",
+        "group":"Step Charts",
+        "desc":"An aggregate vertical step line chart"
+    },
+    {
+        "id":"steps_vertical_stacked",
+        "title":"Multiple Vertical Step Line",
+        "shortTitle":"Vert Multi Step",
+        "group":"Step Charts",
+        "desc":"A vertical split step line chart"
+    },
+    {
+        "id":"steps_vertical_grouped",
+        "title":"Grouped Vertical Step Line",
+        "shortTitle":"Group Vert Step",
+        "group":"Step Charts",
+        "desc":"A grouped vertical single step line chart"
+    },
+    {
+        "id":"steps_vertical_grouped_stacked",
+        "title":"Vert Grouped Multi Step Line",
+        "shortTitle":"Vt Grp Multi Step",
+        "group":"Step Charts",
+        "desc":"A vertical grouped multiple step line chart"
+    },
+    {
+        "id":"area_steps_horizontal",
+        "title":"Single Step Area",
+        "shortTitle":"Single Steps",
+        "group":"Step Area Charts",
+        "desc":"An aggregate step area chart"
+    },
+    {
+        "id":"area_steps_horizontal_stacked",
+        "title":"Multiple Step Area",
+        "shortTitle":"Multiple Steps",
+        "group":"Step Area Charts",
+        "desc":"A standard split step area chart"
+    },
+    {
+        "id":"area_steps_horizontal_stacked_100pct",
+        "title":"100% Stacked Step Area",
+        "shortTitle":"100% Steps",
+        "group":"Step Area Charts",
+        "desc":"A 100% stacked step area chart"
+    },
+    {
+        "id":"area_steps_horizontal_grouped",
+        "title":"Grouped Step Area",
+        "shortTitle":"Group Steps",
+        "group":"Step Area Charts",
+        "desc":"A grouped single step area chart"
+    },
+    {
+        "id":"area_steps_horizontal_grouped_stacked",
+        "title":"Grouped Multiple Step Area",
+        "shortTitle":"Group Multi Step",
+        "group":"Step Area Charts",
+        "desc":"A grouped multiple step area chart"
+    },
+    {
+        "id":"area_steps_horizontal_grouped_100pct",
+        "title":"100% Horizontal Group Step",
+        "shortTitle":"100% Hor Grp Step",
+        "group":"Step Area Charts",
+        "desc":"A grouped horizontal 100% step area chart"
+    },
+    {
+        "id":"area_steps_vertical",
+        "title":"Single Vertical Step Area",
+        "shortTitle":"Vertical Step",
+        "group":"Step Area Charts",
+        "desc":"An aggregate vertical step area chart"
+    },
+    {
+        "id":"area_steps_vertical_stacked",
+        "title":"Multiple Vertical Step Area",
+        "shortTitle":"Vert Multi Step",
+        "group":"Step Area Charts",
+        "desc":"A vertical split step area chart"
+    },
+    {
+        "id":"area_steps_vertical_stacked_100pct",
+        "title":"100% Vertical Step Area",
+        "shortTitle":"100% Vertical Steps",
+        "group":"Step Area Charts",
+        "desc":"A vertical 100% stacked step area chart"
+    },
+    {
+        "id":"area_steps_vertical_grouped",
+        "title":"Grouped Vertical Step Area",
+        "shortTitle":"Group Vert Step",
+        "group":"Step Area Charts",
+        "desc":"A grouped vertical single step area chart"
+    },
+    {
+        "id":"area_steps_vertical_grouped_stacked",
+        "title":"Vert Group Multi Step Area",
+        "shortTitle":"Vt Grp Multi Step",
+        "group":"Step Area Charts",
+        "desc":"A vertical grouped multiple step area chart"
+    },
+    {
+        "id":"area_steps_vertical_grouped_100pct",
+        "title":"100% Vertical Group Step Area",
+        "shortTitle":"100% Vert Grp Step",
+        "group":"Step Area Charts",
+        "desc":"A grouped vertical 100% stacked step area chart"
     }
 ]
