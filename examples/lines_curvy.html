@@ -7,17 +7,16 @@
   <script type="text/javascript">
     var svg = dimple.newSvg("#chartContainer", 590, 400);
     d3.tsv("/data/example_data.tsv", function (data) {
+      data = dimple.filterData(data, "Owner", ["Aperture", "Black Mesa"])
       var myChart = new dimple.chart(svg, data);
-      myChart.setBounds(60, 80, 480, 260)
-      myChart.addMeasureAxis("x", "Price Monthly Change");
-      myChart.addMeasureAxis("y", "Distribution Monthly Change");
-      myChart.addMeasureAxis("z", "Sales Value");
-      myChart.addSeries(["SKU", "Channel", "Owner"],  dimple.plot.bubble);
-      myChart.addLegend(200, 10, 380, 20, "right");
-      myChart.setStoryboard("Date");
-      myChart.ease = "elastic";
-      myChart.draw(2000);
-      myChart.legends = [];
+      myChart.setBounds(60, 30, 505, 305);
+      var x = myChart.addCategoryAxis("x", "Month");
+      x.addOrderRule("Date");
+      myChart.addMeasureAxis("y", "Unit Sales");
+      var s = myChart.addSeries("Channel", dimple.plot.line);
+      s.interpolation = "cardinal";
+      myChart.addLegend(60, 10, 500, 20, "right");
+      myChart.draw();
     });
   </script>
 </div>
