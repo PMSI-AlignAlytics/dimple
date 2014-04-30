@@ -31,13 +31,19 @@
 
         // Calculate the radius
         r: function (d, chart, series) {
-            var returnR = 0;
+            var returnR = 0,
+                scaleFactor = 1;
             if (series.z === null || series.z === undefined) {
-                returnR = 5;
-            } else if (series.z._hasMeasure()) {
-                returnR = series.z._scale(d.r);
+                returnR = (!series.radius || series.radius === "auto" ? 5 : series.radius);
             } else {
-                returnR = series.z._scale(chart._heightPixels() / 100);
+                if (series.radius && series.radius !== "auto" && series.radius > 1) {
+                    scaleFactor = series.radius / series.z._scale(series.z._max);
+                }
+                if (series.z._hasMeasure()) {
+                    returnR = series.z._scale(d.r) * scaleFactor;
+                } else {
+                    returnR = series.z._scale(chart._heightPixels() / 100) * scaleFactor;
+                }
             }
             return returnR;
         },

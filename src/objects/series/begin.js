@@ -38,6 +38,8 @@
         this.tooltipFontSize = "10px";
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontFamily
         this.tooltipFontFamily = "sans-serif";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-radius
+        this.radius = "auto";
 
         // Any event handlers joined to this series
         this._eventHandlers = [];

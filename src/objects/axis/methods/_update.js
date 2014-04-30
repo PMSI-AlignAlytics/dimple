@@ -175,7 +175,7 @@
                         .base(this.logBase);
                 } else {
                     this._scale = d3.scale.linear()
-                        .range([this.chart._heightPixels() / 300, this.chart._heightPixels() / 10])
+                        .range([1, this.chart._heightPixels() / 10])
                         .domain([this._min, this._max])
                         .clamp(this.clamp);
                 }
