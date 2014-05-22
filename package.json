@@ -1,6 +1,6 @@
 {
   "name": "dimple",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "licenses": [
     {
@@ -29,5 +29,8 @@
     "karma": "~0.10.9",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-karma": "~0.6.2"
+  },
+  "buildDependencies": {
+      "d3": "3.4.8"
   }
 }
