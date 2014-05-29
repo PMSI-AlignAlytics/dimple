@@ -2,7 +2,7 @@
 define(["dimple", "d3"], function (dimple, d3) {
     "use strict";
 
-    describe("newSvg", function () {
+    xdescribe("newSvg", function () {
 
         beforeEach(function () {
             d3.select("body").append("div").attr("id", "itDiv");

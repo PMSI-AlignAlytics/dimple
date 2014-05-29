@@ -72,7 +72,13 @@ module.exports = function(grunt) {
                     'module',
                     'define',
                     'require',
-                    'exports'
+                    'exports',
+                    'describe',
+                    'it',
+                    'xdescribe',
+                    'xit',
+                    'beforeEach',
+                    'afterEach'
                 ]
             }
         },
