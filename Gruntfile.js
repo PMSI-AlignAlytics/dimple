@@ -97,12 +97,12 @@ module.exports = function(grunt) {
         karma: {
             options: {
                 basepath: '',
-                frameworks: ['jasmine'],
+                frameworks: ['jasmine', 'requirejs'],
                 files: [
-                    'lib/d3.v<%= pkg.buildDependencies.d3 %>.min.js',
-                    'tmp/*.js',
-                    'test/**/*.spec.js',
-                    'test/*.spec.js'
+                    'test/test-main.js',
+                    { pattern: 'lib/*.min.js', included: false },
+                    { pattern: 'tmp/*.js', included: false },
+                    { pattern: 'test/**/*.spec.js', included: false }
                 ],
                 reporters: ['progress'],
                 port: 9876,
@@ -137,7 +137,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-jslint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-karma');
