@@ -62,12 +62,23 @@ module.exports = function(grunt) {
             directives: {
                 browser: true,
                 nomen: true,
+                plusplus: true,
                 predef: [
                     'd3',
                     'module',
                     'console',
                     'jasmine',
-                    'dimple'
+                    'dimple',
+                    'module',
+                    'define',
+                    'require',
+                    'exports',
+                    'describe',
+                    'it',
+                    'xdescribe',
+                    'xit',
+                    'beforeEach',
+                    'afterEach'
                 ]
             }
         },
@@ -78,9 +89,12 @@ module.exports = function(grunt) {
                 ]
             },
             options: {
-                dest: 'examples/',
-                tag: '{version}',
+                exampleOutputPath: 'examples/',
+                libPath: '/lib/',
+                distPath: '/dist/',
                 version: 'v<%= pkg.version %>',
+                d3version: 'v<%= pkg.buildDependencies.d3 %>',
+                scriptTag: '{scriptDependencies}',
                 header: "<!----------------------------------------------------------------->\n" +
                         "<!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT TEMPLATE INSTEAD -->\n" +
                         "<!----------------------------------------------------------------->\n"
@@ -89,12 +103,12 @@ module.exports = function(grunt) {
         karma: {
             options: {
                 basepath: '',
-                frameworks: ['jasmine'],
+                frameworks: ['jasmine', 'requirejs'],
                 files: [
-                    'lib/d3.v3.min.js',
-                    'tmp/*.js',
-                    'test/**/*.spec.js',
-                    'test/*.spec.js'
+                    'test/test-main.js',
+                    { pattern: 'lib/*.min.js', included: false },
+                    { pattern: 'tmp/*.js', included: false },
+                    { pattern: 'test/**/*.spec.js', included: false }
                 ],
                 reporters: ['progress'],
                 port: 9876,
@@ -129,34 +143,65 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-jslint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-karma');
 
     // Propogate version into relevant files
-    grunt.registerMultiTask('prop', 'Propagate Versions.', function() {
+    grunt.registerMultiTask('prop', 'Propagate Versions.', function () {
+        function generateScriptElements(options, indent) {
+            var d3Path = "{libFolder}d3.{d3version}.js",
+                dimplePath = "{distFolder}dimple.{version}.js",
+                createScriptElement = function (path) {
+                    var scriptElement = '<script src="{path}"></script>';
+                    return scriptElement.split("{path}").join(path);
+                },
+                libPath = options.libPath,
+                distPath = options.distPath,
+                version = options.version,
+                d3version = options.d3version,
+                tab = "",
+                i;
+
+            // default indentation to two spaces
+            indent = indent || 2;
+
+            for (i = 0; i < indent; i++) {
+                tab += " ";
+            }
+
+            d3Path = d3Path.split("{libFolder}").join(libPath);
+            d3Path = d3Path.split("{d3version}").join(d3version);
+            dimplePath = dimplePath.split("{distFolder}").join(distPath);
+            dimplePath = dimplePath.split("{version}").join(version);
+
+            grunt.log.writeln("\nUsing d3: " + d3Path + " with " + d3version);
+            grunt.log.writeln("\nUsing dimple: " + dimplePath + " with " + version + "\n");
+
+            return createScriptElement(d3Path) + "\n" + tab + createScriptElement(dimplePath);
+        }
+
         var options = this.options(),
-            outPath = options.dest,
-            tag = options.tag,
-            version = options.version,
-            header = options.header;
-        grunt.log.writeln("");
-        grunt.log.writeln("Replacing " + tag + " with " + version);
-        grunt.log.writeln("------------------------------------------------------");
-        this.files.forEach(function(f) {
-            f.src.filter(function(filepath) {
+            outPath = options.exampleOutputPath,
+            header = options.header,
+            scriptTag = options.scriptTag,
+            scripts = generateScriptElements(options);
+
+        this.files.forEach(function (f) {
+            f.src.filter(function (filepath) {
                 var result = true;
                 if (!grunt.file.exists(filepath)) {
                     grunt.log.warn('File "' + filepath + '" not found.');
                     result = false;
                 }
                 return result;
-            }).map(function(filepath) {
+            }).map(function (filepath) {
                 // Read file source.
                 var src = grunt.file.read(filepath);
-                // Replace the version
-                src = src.split(tag).join(version);
+
+                // Replace the script placeholder tag with script html elements
+                src = src.split(scriptTag).join(scripts);
+
                 // Write the new file
                 grunt.log.writeln("Creating " + outPath + filepath.substring(filepath.lastIndexOf("/") + 1));
                 grunt.file.write(outPath + filepath.substring(filepath.lastIndexOf("/") + 1), header + src);

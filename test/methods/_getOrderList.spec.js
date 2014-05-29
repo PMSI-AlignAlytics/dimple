@@ -1,12 +1,13 @@
 /*global expect, describe, it, beforeEach */
-(function () {
+
+define(["dimple"], function (dimple) {
     "use strict";
 
-    describe("_getOrderedList", function() {
+    xdescribe("_getOrderedList", function () {
         var data,
             getResults;
 
-        beforeEach(function() {
+        beforeEach(function () {
             data = [
                 { "Int": 1, "Float": 234, "Text": "XFBGR", "Date": "12/5/99", "Group": "A"},
                 { "Int": 2, "Float": 54.35, "Text": "YTREB", "Date": "1/1/00", "Group": "A"},
@@ -18,7 +19,7 @@
                 { "Int": 1, "Float": 5436546, "Text": "GFDGFDHG", "Date": "10/10/2000", "Group": "E"}
             ];
 
-            getResults = function(data, field, levelDefinitions) {
+            getResults = function (data, field, levelDefinitions) {
                 var ordered = dimple._getOrderedList(data, field, levelDefinitions),
                     retString = "";
                 ordered.forEach(function (d, i) {
@@ -28,7 +29,7 @@
             };
         });
 
-        it("Implicitly orders by a single dimension", function() {
+        it("Implicitly orders by a single dimension", function () {
             expect(getResults(data, "Int"))
                 .toEqual("1, 2, 3, 4, 5, 6, 7");
             expect(getResults(data, "Float"))
@@ -39,7 +40,7 @@
                 .toEqual("12/5/99, 1/1/00, 2000-03-01, 10/9/2000, 10/10/2000, 11/10/2000, 2 February 2007");
         });
 
-        it("Explicitly orders by a single dimension", function() {
+        it("Explicitly orders by a single dimension", function () {
             expect(getResults(data, "Int", { ordering : "Int" }))
                 .toEqual("1, 2, 3, 4, 5, 6, 7");
             expect(getResults(data, "Float", { ordering : "Float" }))
@@ -50,7 +51,7 @@
                 .toEqual("12/5/99, 1/1/00, 2000-03-01, 10/9/2000, 10/10/2000, 11/10/2000, 2 February 2007");
         });
 
-        it("Orders descending by a single dimension", function() {
+        it("Orders descending by a single dimension", function () {
             expect(getResults(data, "Int", { ordering : "Int", desc : true }))
                 .toEqual("7, 6, 5, 4, 3, 2, 1");
             expect(getResults(data, "Float", { ordering : "Float", desc : true }))
@@ -61,7 +62,7 @@
                 .toEqual("2 February 2007, 11/10/2000, 10/10/2000, 10/9/2000, 2000-03-01, 1/1/00, 12/5/99");
         });
 
-        it("Orders by a passed array", function() {
+        it("Orders by a passed array", function () {
             expect(getResults(data, "Int", { ordering : [3, 7, 4, 5, 2, 1, 6] }))
                 .toEqual("3, 7, 4, 5, 2, 1, 6");
             expect(getResults(data, "Int", { ordering : [3, 7, 4, 5, 2, 1, 6], desc : true }))
@@ -80,14 +81,14 @@
                 .toEqual("4, 7, 3, 1, 2, 5, 6");
         });
 
-        it("Orders by a custom function", function() {
+        it("Orders by a custom function", function () {
             expect(getResults(data, "Text", { ordering : function (a, b) { return a.Text.length - b.Text.length; }}))
                 .toEqual("TRET, GFDHN, XFBGR, XGFDE, XGFDY, YTREB, GFDGFDHG");
             expect(getResults(data, "Text", { ordering : function (a, b) { return a.Text.length - b.Text.length; }, desc : true }))
                 .toEqual("GFDGFDHG, GFDHN, XFBGR, XGFDE, XGFDY, YTREB, TRET");
         });
 
-        it("Orders by a second category", function() {
+        it("Orders by a second category", function () {
             expect(getResults(data, "Int", { ordering : "Text" }))
                 .toEqual("6, 7, 1, 4, 3, 2, 5");
             expect(getResults(data, "Int", { ordering : "Text", desc : true }))
@@ -98,7 +99,7 @@
                 .toEqual("E, B, C, A, D");
         });
 
-        it("Orders by a third category", function() {
+        it("Orders by a third category", function () {
             expect(getResults(data, "Int", [{ ordering : "Group" }, { ordering : "Float" }]))
                 .toEqual("2, 1, 3, 4, 6, 5, 7");
             expect(getResults(data, "Int", [{ ordering : "Group", desc : true}, { ordering : "Float" }]))
@@ -109,5 +110,4 @@
                 .toEqual("7, 5, 6, 4, 3, 1, 2");
         });
     });
-
-}());
+});
