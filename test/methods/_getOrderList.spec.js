@@ -3,7 +3,7 @@
 define(["dimple"], function (dimple) {
     "use strict";
 
-    xdescribe("_getOrderedList", function () {
+    describe("_getOrderedList", function () {
         var data,
             getResults;
 

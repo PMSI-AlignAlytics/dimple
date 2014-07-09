@@ -8,6 +8,7 @@
             mainArray = [].concat(mainField),
             fields = [].concat(mainField),
             defs = [];
+
         // Force the level definitions into an array
         if (levelDefinitions !== null && levelDefinitions !== undefined) {
             defs = defs.concat(levelDefinitions);
@@ -16,7 +17,9 @@
         defs = defs.concat({ ordering: mainArray, desc: false });
         // Exclude fields if this does not contain a function
         defs.forEach(function (def) {
-            var field;
+            var field,
+                values = [],
+                tempFields = [];
             if (typeof def.ordering === "function") {
                 for (field in data[0]) {
                     if (data[0].hasOwnProperty(field) && fields.indexOf(field) === -1) {
@@ -25,6 +28,21 @@
                 }
             } else if (!(def.ordering instanceof Array)) {
                 fields.push(def.ordering);
+            } else {
+                // We now receive fields as an array or values as an array which is a bit of an oversight in the API
+                // We will therefore check the values of the array against the fields in the data
+                for (field = 0; field < def.ordering.length; field += 1) {
+                    if (data[0].hasOwnProperty(def.ordering[field])) {
+                        tempFields.push(def.ordering[field]);
+                    }
+                    values.push(def.ordering[field]);
+                }
+                // If more than half of the values are fields we will assume that these are fields and not dimension values
+                if (tempFields.length > values.length / 2) {
+                    fields.concat(tempFields);
+                } else {
+                    def.values = values;
+                }
             }
         }, this);
         rollupData = dimple._rollUp(data, mainArray, fields);
@@ -37,7 +55,6 @@
                 var desc = (def.desc === null || def.desc === undefined ? false : def.desc),
                     ordering = def.ordering,
                     orderArray = [],
-                    field = (typeof ordering === "string" ? ordering : null),
                     sum = function (array) {
                         var total = 0,
                             i;
@@ -72,12 +89,12 @@
                     sortStack.push(function (a, b) {
                         return (desc ? -1 : 1) * ordering(a, b);
                     });
-                } else if (ordering instanceof Array) {
+                } else if (def.values && def.values.length > 0) {
                     // The order list may be an array of arrays
                     // combine the values with pipe delimiters.
                     // The delimiter is irrelevant as long as it is consistent
                     // with the sort predicate below
-                    ordering.forEach(function (d) {
+                    def.values.forEach(function (d) {
                         orderArray.push(([].concat(d)).join("|"));
                     }, this);
                     // Sort according to the axis position
@@ -104,16 +121,18 @@
                         return (desc ? -1 : 1) * (aIx - bIx);
                     });
                 } else {
-                    // Sort the data
-                    sortStack.push(function (a, b) {
-                        // The result value
-                        var result = 0;
-                        // Find the field
-                        if (a[field] !== undefined && b[field] !== undefined) {
-                            // Compare just the first mapped value
-                            result = compare([].concat(a[field]), [].concat(b[field]));
-                        }
-                        return (desc ? -1 : 1) * result;
+                    ([].concat(def.ordering)).forEach(function (field) {
+                        // Sort the data
+                        sortStack.push(function (a, b) {
+                            // The result value
+                            var result = 0;
+                            // Find the field
+                            if (a[field] !== undefined && b[field] !== undefined) {
+                                // Compare just the first mapped value
+                                result = compare([].concat(a[field]), [].concat(b[field]));
+                            }
+                            return (desc ? -1 : 1) * result;
+                        });
                     });
                 }
             });

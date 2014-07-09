@@ -2,7 +2,7 @@
 define(["dimple"], function (dimple) {
     "use strict";
 
-    xdescribe("_rollUp", function () {
+    describe("_rollUp", function () {
         var data,
             getResults;
 
