@@ -12,7 +12,7 @@ define(["dimple"], function (dimple) {
                 { "Int": 1, "Float": 234, "Text": "XFBGR", "Date": "12/5/99", "Group": "A"},
                 { "Int": 2, "Float": 54.35, "Text": "YTREB", "Date": "1/1/00", "Group": "A"},
                 { "Int": 3, "Float": -453, "Text": "XGFDY", "Date": "2 February 2007", "Group": "B"},
-                { "Int": 4, "Float": 5436546, "Text": "XGFDE", "Date": "2000-03-01", "Group": "B"},
+                { "Int": 0, "Float": 5436546, "Text": "XGFDE", "Date": "2000-03-01", "Group": "B"},
                 { "Int": 5, "Float": 4323, "Text": "YTREB", "Date": "10/10/2000", "Group": "C"},
                 { "Int": 6, "Float": 0, "Text": "GFDHN", "Date": "11/10/2000", "Group": "C"},
                 { "Int": 7, "Float": -453, "Text": "TRET", "Date": "10/9/2000", "Group": "D"},
@@ -31,7 +31,7 @@ define(["dimple"], function (dimple) {
 
         it("Implicitly orders by a single dimension", function () {
             expect(getResults(data, "Int"))
-                .toEqual("1, 2, 3, 4, 5, 6, 7");
+                .toEqual("0, 1, 2, 3, 5, 6, 7");
             expect(getResults(data, "Float"))
                 .toEqual("-453, 0, 54.35, 234, 4323, 5436546");
             expect(getResults(data, "Text"))
@@ -42,7 +42,7 @@ define(["dimple"], function (dimple) {
 
         it("Explicitly orders by a single dimension", function () {
             expect(getResults(data, "Int", { ordering : "Int" }))
-                .toEqual("1, 2, 3, 4, 5, 6, 7");
+                .toEqual("0, 1, 2, 3, 5, 6, 7");
             expect(getResults(data, "Float", { ordering : "Float" }))
                 .toEqual("-453, 0, 54.35, 234, 4323, 5436546");
             expect(getResults(data, "Text", { ordering : "Text" }))
@@ -53,7 +53,7 @@ define(["dimple"], function (dimple) {
 
         it("Orders descending by a single dimension", function () {
             expect(getResults(data, "Int", { ordering : "Int", desc : true }))
-                .toEqual("7, 6, 5, 4, 3, 2, 1");
+                .toEqual("7, 6, 5, 3, 2, 1, 0");
             expect(getResults(data, "Float", { ordering : "Float", desc : true }))
                 .toEqual("5436546, 4323, 234, 54.35, 0, -453");
             expect(getResults(data, "Text", { ordering : "Text", desc : true }))
@@ -63,22 +63,22 @@ define(["dimple"], function (dimple) {
         });
 
         it("Orders by a passed array", function () {
-            expect(getResults(data, "Int", { ordering : [3, 7, 4, 5, 2, 1, 6] }))
-                .toEqual("3, 7, 4, 5, 2, 1, 6");
-            expect(getResults(data, "Int", { ordering : [3, 7, 4, 5, 2, 1, 6], desc : true }))
-                .toEqual("6, 1, 2, 5, 4, 7, 3");
-            expect(getResults(data, "Int", { ordering : [3, 7, 4] }))
-                .toEqual("3, 7, 4, 1, 2, 5, 6");
-            expect(getResults(data, "Int", { ordering : [3, 7, 4], desc : true }))
-                .toEqual("4, 7, 3, 1, 2, 5, 6");
-            expect(getResults(data, "Int", { ordering : ["3", "7", "4", "5", "2", "1", "6"] }))
-                .toEqual("3, 7, 4, 5, 2, 1, 6");
-            expect(getResults(data, "Int", { ordering : ["3", "7", "4", "5", "2", "1", "6"], desc : true }))
-                .toEqual("6, 1, 2, 5, 4, 7, 3");
-            expect(getResults(data, "Int", { ordering : ["3", "7", "4"] }))
-                .toEqual("3, 7, 4, 1, 2, 5, 6");
-            expect(getResults(data, "Int", { ordering : ["3", "7", "4"], desc : true }))
-                .toEqual("4, 7, 3, 1, 2, 5, 6");
+            expect(getResults(data, "Int", { ordering : [3, 7, 0, 5, 2, 1, 6] }))
+                .toEqual("3, 7, 0, 5, 2, 1, 6");
+            expect(getResults(data, "Int", { ordering : [3, 7, 0, 5, 2, 1, 6], desc : true }))
+                .toEqual("6, 1, 2, 5, 0, 7, 3");
+            expect(getResults(data, "Int", { ordering : [3, 7, 0] }))
+                .toEqual("3, 7, 0, 1, 2, 5, 6");
+            expect(getResults(data, "Int", { ordering : [3, 7, 0], desc : true }))
+                .toEqual("0, 7, 3, 1, 2, 5, 6");
+            expect(getResults(data, "Int", { ordering : ["3", "7", "0", "5", "2", "1", "6"] }))
+                .toEqual("3, 7, 0, 5, 2, 1, 6");
+            expect(getResults(data, "Int", { ordering : ["3", "7", "0", "5", "2", "1", "6"], desc : true }))
+                .toEqual("6, 1, 2, 5, 0, 7, 3");
+            expect(getResults(data, "Int", { ordering : ["3", "7", "0"] }))
+                .toEqual("3, 7, 0, 1, 2, 5, 6");
+            expect(getResults(data, "Int", { ordering : ["3", "7", "0"], desc : true }))
+                .toEqual("0, 7, 3, 1, 2, 5, 6");
         });
 
         it("Orders by a custom function", function () {
@@ -90,9 +90,9 @@ define(["dimple"], function (dimple) {
 
         it("Orders by a second category", function () {
             expect(getResults(data, "Int", { ordering : "Text" }))
-                .toEqual("6, 7, 1, 4, 3, 2, 5");
+                .toEqual("6, 7, 1, 0, 3, 2, 5");
             expect(getResults(data, "Int", { ordering : "Text", desc : true }))
-                .toEqual("2, 5, 3, 4, 1, 7, 6");
+                .toEqual("2, 5, 3, 0, 1, 7, 6");
             expect(getResults(data, "Group", { ordering : "Float" }))
                 .toEqual("D, A, C, B, E");
             expect(getResults(data, "Group", { ordering : "Float", desc : true }))
@@ -101,13 +101,13 @@ define(["dimple"], function (dimple) {
 
         it("Orders by a third category", function () {
             expect(getResults(data, "Int", [{ ordering : "Group" }, { ordering : "Float" }]))
-                .toEqual("2, 1, 3, 4, 6, 5, 7");
+                .toEqual("2, 1, 3, 0, 6, 5, 7");
             expect(getResults(data, "Int", [{ ordering : "Group", desc : true}, { ordering : "Float" }]))
-                .toEqual("7, 6, 5, 3, 4, 2, 1");
+                .toEqual("7, 6, 5, 3, 0, 2, 1");
             expect(getResults(data, "Int", [{ ordering : "Group"}, { ordering : "Float", desc : true }]))
-                .toEqual("1, 2, 4, 3, 5, 6, 7");
+                .toEqual("1, 2, 0, 3, 5, 6, 7");
             expect(getResults(data, "Int", [{ ordering : "Group", desc : true}, { ordering : "Float", desc : true }]))
-                .toEqual("7, 5, 6, 4, 3, 1, 2");
+                .toEqual("7, 5, 6, 0, 3, 1, 2");
         });
     });
 });

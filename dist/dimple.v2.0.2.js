@@ -3991,7 +3991,7 @@
                             i;
                         for (i = 0; i < array.length; i += 1) {
                             if (isNaN(array[i])) {
-                                total = 0;
+                                total = undefined;
                                 break;
                             } else {
                                 total += parseFloat(array[i]);
@@ -4003,7 +4003,7 @@
                         var result = 0,
                             sumA = sum(a),
                             sumB = sum(b);
-                        if (!isNaN(sumA) && sumA !== 0 && !isNaN(sumB) && sumB !== 0) {
+                        if (!isNaN(sumA) && !isNaN(sumB)) {
                             result = parseFloat(sumA) - parseFloat(sumB);
                         } else if (!isNaN(Date.parse(a[0])) && !isNaN(Date.parse(b[0]))) {
                             result = Date.parse(a[0]) - Date.parse(b[0]);

@@ -1,0 +1,25 @@
+<div id="chartContainer">
+    <script src="/lib/d3.v3.4.8.min.js"></script>
+    <script src="/dist/dimple.v2.0.2.js"></script>
+    <script type="text/javascript">
+        var data = [
+            { xAxis: "59", yAxis: 10460, stack: "b" },
+            { xAxis: "1014", yAxis: 5400, stack: "a" },
+            { xAxis: "15.19", yAxis: 11809, stack: "a" },
+            { xAxis: "15.19", yAxis: 11809, stack: "b" },
+            { xAxis: "00002024", yAxis: 11048, stack: "a" },
+            { xAxis: "0.0", yAxis: 10599, stack: "a" },
+            { xAxis: "00002024", yAxis: 11048, stack: "b" },
+            { xAxis: "2.529", yAxis: 14248, stack: "b" },
+            { xAxis: "3034", yAxis: 10435, stack: "a" },
+            { xAxis: "353.9", yAxis: 9880, stack: "b" }
+        ];
+        var svg = dimple.newSvg("#chartContainer", 800, 600);
+        var chart = new dimple.chart(svg, data);
+        var x = chart.addCategoryAxis("x", "xAxis");
+        x.addOrderRule("xAxis");
+        var y = chart.addMeasureAxis("y", "yAxis");
+        var s = chart.addSeries("stack", dimple.plot.bar);
+        chart.draw();
+    </script>
+</div>
