@@ -1144,16 +1144,8 @@
         this._registerEventHandlers = function (series) {
             if (series._eventHandlers !== null && series._eventHandlers.length > 0) {
                 series._eventHandlers.forEach(function (thisHandler) {
-                    var shapes = null;
-                    if (thisHandler.handler !== null && typeof (thisHandler.handler) === "function") {
-                        // Some classes work from markers rather than the shapes (line and area for example)
-                        // in these cases the events should be applied to the markers instead.  Issue #15
-                        if (series._markers !== null && series._markers !== undefined) {
-                            shapes = series._markers;
-                        } else {
-                            shapes = series.shapes;
-                        }
-                        shapes.on(thisHandler.event, function (d) {
+                    var name,
+                        handler = function (d) {
                             var e = new dimple.eventArgs();
                             if (series.chart.storyboard !== null) {
                                 e.frameValue = series.chart.storyboard.getFrameValue();
@@ -1166,7 +1158,19 @@
                             e.seriesShapes = series.shapes;
                             e.selectedShape = d3.select(this);
                             thisHandler.handler(e);
-                        });
+                        };
+                    if (thisHandler.handler !== null && typeof (thisHandler.handler) === "function") {
+                        // Some classes work from markers rather than the shapes (line and area for example)
+                        // in these cases the events should be applied to the markers instead.  Issue #15
+                        if (series._markers !== null && series._markers !== undefined) {
+                            for (name in series._markers) {
+                                if (series._markers.hasOwnProperty(name)) {
+                                    series._markers[name].on(thisHandler.event, handler);
+                                }
+                            }
+                        } else {
+                            series.shapes.on(thisHandler.event, handler);
+                        }
                     }
                 }, this);
             }
