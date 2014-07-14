@@ -400,7 +400,8 @@
             if (this.position === "x" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
-                        .rangeRound([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
+                        // Previously used rangeRound which causes problems with the area chart (Issue #79)
+                        .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain([this._min, this._max])
                         .clamp(this.clamp);
                 } else if (this.useLog) {
@@ -457,7 +458,8 @@
             } else if (this.position === "y" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
-                        .rangeRound([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
+                        // Previously used rangeRound which causes problems with the area chart (Issue #79)
+                        .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([this._min, this._max])
                         .clamp(this.clamp);
                 } else if (this.useLog) {
@@ -2863,8 +2865,9 @@
                         val = dimple._helpers["c" + position](datum, chart, series);
                     }
                     // Remove long decimals from the coordinates as this fills the dom up with noise and makes matching below less likely to work.  It
-                    // shouldn't really matter but positioning to < 0.1 pixel is pretty pointless anyway.
-                    return parseFloat(val.toFixed(1));
+                    // shouldn't really matter but positioning to < 0.1 pixel is pretty pointless anyway.  UPDATE: Turns out it isn't, see Issue #79.  points > pixels
+                    // causes multiple points to fall on the same co-ordinate which results in drawing problems.
+                    return parseFloat(val);
                 },
                 getArea = function (inter, originProperty) {
                     return d3.svg.line()

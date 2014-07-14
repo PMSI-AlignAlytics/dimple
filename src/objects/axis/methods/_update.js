@@ -52,7 +52,8 @@
             if (this.position === "x" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
-                        .rangeRound([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
+                        // Previously used rangeRound which causes problems with the area chart (Issue #79)
+                        .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain([this._min, this._max])
                         .clamp(this.clamp);
                 } else if (this.useLog) {
@@ -109,7 +110,8 @@
             } else if (this.position === "y" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
                     this._scale = d3.time.scale()
-                        .rangeRound([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
+                        // Previously used rangeRound which causes problems with the area chart (Issue #79)
+                        .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([this._min, this._max])
                         .clamp(this.clamp);
                 } else if (this.useLog) {

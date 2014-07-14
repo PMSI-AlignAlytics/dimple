@@ -72,8 +72,9 @@
                         val = dimple._helpers["c" + position](datum, chart, series);
                     }
                     // Remove long decimals from the coordinates as this fills the dom up with noise and makes matching below less likely to work.  It
-                    // shouldn't really matter but positioning to < 0.1 pixel is pretty pointless anyway.
-                    return parseFloat(val.toFixed(1));
+                    // shouldn't really matter but positioning to < 0.1 pixel is pretty pointless anyway.  UPDATE: Turns out it isn't, see Issue #79.  points > pixels
+                    // causes multiple points to fall on the same co-ordinate which results in drawing problems.
+                    return parseFloat(val);
                 },
                 getArea = function (inter, originProperty) {
                     return d3.svg.line()
