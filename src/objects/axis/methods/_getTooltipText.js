@@ -22,11 +22,11 @@
                 case "y":
                     rows.push(this.measure + ": " + this._getFormat()(d.height));
                     break;
-                case "z":
-                    rows.push(this.measure + ": " + this._getFormat()(d.zValue));
+                case "p":
+                    rows.push(this.measure + ": " + this._getFormat()(d.angle));
                     break;
-                case "c":
-                    rows.push(this.measure + ": " + this._getFormat()(d.cValue));
+                default:
+                    rows.push(this.measure + ": " + this._getFormat()(d[this.position + "Value"]));
                     break;
                 }
             }

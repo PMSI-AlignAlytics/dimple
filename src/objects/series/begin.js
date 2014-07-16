@@ -2,7 +2,7 @@
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/series/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series
-    dimple.series = function (chart, categoryFields, xAxis, yAxis, zAxis, colorAxis, plotFunction, aggregateFunction, stacked) {
+    dimple.series = function (chart, categoryFields, xAxis, yAxis, zAxis, colorAxis, pieAxis, plotFunction, aggregateFunction, stacked) {
 
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-chart
         this.chart = chart;
@@ -14,6 +14,8 @@
         this.z = zAxis;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-c
         this.c = colorAxis;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-p
+        this.p = pieAxis;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-plot
         this.plot = plotFunction;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-categoryFields

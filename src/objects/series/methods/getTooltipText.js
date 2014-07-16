@@ -19,6 +19,9 @@
             if (this.y) {
                 this.y._getTooltipText(rows, e);
             }
+            if (this.p) {
+                this.p._getTooltipText(rows, e);
+            }
             if (this.z) {
                 this.z._getTooltipText(rows, e);
             }

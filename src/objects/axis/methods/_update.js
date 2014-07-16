@@ -181,6 +181,22 @@
                         .domain([this._min, this._max])
                         .clamp(this.clamp);
                 }
+            } else if (this.position.length > 0 && this.position[0] === "p" && this._scale === null) {
+                if (this.useLog) {
+                    this._scale = d3.scale.log()
+                        .range([0, 360])
+                        .domain([
+                            (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
+                            (this._max === 0 ? -1 * Math.pow(this.logBase, -1) : this._max)
+                        ])
+                        .clamp(this.clamp)
+                        .base(this.logBase);
+                } else {
+                    this._scale = d3.scale.linear()
+                        .range([0, 360])
+                        .domain([this._min, this._max])
+                        .clamp(this.clamp);
+                }
             } else if (this.position.length > 0 && this.position[0] === "c" && this._scale === null) {
                 this._scale = d3.scale.linear()
                     .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])

@@ -11,10 +11,11 @@
             animDuration = 750,
             // Collect some facts about the highlighted bar
             selectedShape = d3.select(shape),
-            x = parseFloat(selectedShape.attr("x")),
-            y = parseFloat(selectedShape.attr("y")),
-            width = parseFloat(selectedShape.attr("width")),
-            height = parseFloat(selectedShape.attr("height")),
+            x = selectedShape.node().getBBox().x,
+            y = selectedShape.node().getBBox().y,
+            width = selectedShape.node().getBBox().width,
+            height = selectedShape.node().getBBox().height,
+            transform = selectedShape.attr("transform"),
             opacity = selectedShape.attr("opacity"),
             fill = selectedShape.attr("fill"),
             dropDest = series._dropLineOrigin(),
@@ -48,52 +49,58 @@
         }
         chart._tooltipGroup = chart.svg.append("g");
 
-        offset = (series._isStacked() ? 1 : width / 2);
+        if (transform) {
+            chart._tooltipGroup.attr("transform", transform);
+        } else {
 
-        // Add a drop line to the x axis
-        if (!series.x._hasCategories() && dropDest.y !== null) {
-            chart._tooltipGroup.append("line")
-                .attr("x1", (x < series.x._origin ? x + offset : x + width - offset))
-                .attr("y1", (y < dropDest.y ? y + height : y))
-                .attr("x2", (x < series.x._origin ? x + offset : x + width - offset))
-                .attr("y2", (y < dropDest.y ? y + height : y))
-                .style("fill", "none")
-                .style("stroke", fill)
-                .style("stroke-width", 2)
-                .style("stroke-dasharray", ("3, 3"))
-                .style("opacity", opacity)
-                .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                // Added 1px offset to cater for svg issue where a transparent
-                // group overlapping a line can sometimes hide it in some browsers
-                // Issue #10
-                .attr("y2", (y < dropDest.y ? dropDest.y - 1 : dropDest.y + 1));
-        }
+            offset = (series._isStacked() ? 1 : width / 2);
 
-        offset = (series._isStacked() ? 1 : height / 2);
+            // Add a drop line to the x axis
+            if (!series.x._hasCategories() && dropDest.y !== null) {
+                chart._tooltipGroup.append("line")
+                    .attr("x1", (x < series.x._origin ? x + offset : x + width - offset))
+                    .attr("y1", (y < dropDest.y ? y + height : y))
+                    .attr("x2", (x < series.x._origin ? x + offset : x + width - offset))
+                    .attr("y2", (y < dropDest.y ? y + height : y))
+                    .style("fill", "none")
+                    .style("stroke", fill)
+                    .style("stroke-width", 2)
+                    .style("stroke-dasharray", ("3, 3"))
+                    .style("opacity", opacity)
+                    .transition()
+                    .delay(animDuration / 2)
+                    .duration(animDuration / 2)
+                    .ease("linear")
+                    // Added 1px offset to cater for svg issue where a transparent
+                    // group overlapping a line can sometimes hide it in some browsers
+                    // Issue #10
+                    .attr("y2", (y < dropDest.y ? dropDest.y - 1 : dropDest.y + 1));
+            }
 
-        // Add a drop line to the y axis
-        if (!series.y._hasCategories() && dropDest.x !== null) {
-            chart._tooltipGroup.append("line")
-                .attr("x1", (x < dropDest.x ? x + width : x))
-                .attr("y1", (y < series.y._origin ? y + offset : y + height - offset))
-                .attr("x2", (x < dropDest.x ? x + width : x))
-                .attr("y2", (y < series.y._origin ? y + offset : y + height - offset))
-                .style("fill", "none")
-                .style("stroke", fill)
-                .style("stroke-width", 2)
-                .style("stroke-dasharray", ("3, 3"))
-                .style("opacity", opacity)
-                .transition()
-                .delay(animDuration / 2)
-                .duration(animDuration / 2)
-                .ease("linear")
-                // Added 1px offset to cater for svg issue where a transparent
-                // group overlapping a line can sometimes hide it in some browsers
-                // Issue #10
-                .attr("x2", (x < dropDest.x ? dropDest.x - 1 : dropDest.x + 1));
+            offset = (series._isStacked() ? 1 : height / 2);
+
+            // Add a drop line to the y axis
+            if (!series.y._hasCategories() && dropDest.x !== null) {
+                chart._tooltipGroup.append("line")
+                    .attr("x1", (x < dropDest.x ? x + width : x))
+                    .attr("y1", (y < series.y._origin ? y + offset : y + height - offset))
+                    .attr("x2", (x < dropDest.x ? x + width : x))
+                    .attr("y2", (y < series.y._origin ? y + offset : y + height - offset))
+                    .style("fill", "none")
+                    .style("stroke", fill)
+                    .style("stroke-width", 2)
+                    .style("stroke-dasharray", ("3, 3"))
+                    .style("opacity", opacity)
+                    .transition()
+                    .delay(animDuration / 2)
+                    .duration(animDuration / 2)
+                    .ease("linear")
+                    // Added 1px offset to cater for svg issue where a transparent
+                    // group overlapping a line can sometimes hide it in some browsers
+                    // Issue #10
+                    .attr("x2", (x < dropDest.x ? dropDest.x - 1 : dropDest.x + 1));
+            }
+
         }
 
         // Add a group for text

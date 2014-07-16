@@ -15,6 +15,7 @@
                             e.xValue = d.x;
                             e.yValue = d.y;
                             e.zValue = d.z;
+                            e.pValue = d.p;
                             e.colorValue = d.cValue;
                             e.seriesShapes = series.shapes;
                             e.selectedShape = d3.select(this);

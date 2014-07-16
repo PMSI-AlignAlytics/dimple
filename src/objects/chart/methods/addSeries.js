@@ -12,6 +12,7 @@
                 yAxis = null,
                 zAxis = null,
                 colorAxis = null,
+                pieAxis = null,
                 series;
             // Iterate the array and pull out the relevant axes
             axes.forEach(function (axis) {
@@ -24,6 +25,8 @@
                         zAxis = axis;
                     } else if (colorAxis === null && axis.position[0] === "c") {
                         colorAxis = axis;
+                    } else if (colorAxis === null && axis.position[0] === "p") {
+                        pieAxis = axis;
                     }
                 }
             }, this);
@@ -39,6 +42,7 @@
                 yAxis,
                 zAxis,
                 colorAxis,
+                pieAxis,
                 plotFunction,
                 dimple.aggregateMethod.sum,
                 plotFunction.stacked

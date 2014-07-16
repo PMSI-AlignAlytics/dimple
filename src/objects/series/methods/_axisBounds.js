@@ -25,6 +25,8 @@
                 secondaryAxis = this.x;
             } else if (position === "z") {
                 primaryAxis = this.z;
+            } else if (position === "p") {
+                primaryAxis = this.p;
             } else if (position === "c") {
                 primaryAxis = this.c;
             }
