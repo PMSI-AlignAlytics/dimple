@@ -15,7 +15,7 @@
             y = selectedShape.node().getBBox().y,
             width = selectedShape.node().getBBox().width,
             height = selectedShape.node().getBBox().height,
-            transform = selectedShape.attr("transform"),
+            //transform = selectedShape.attr("transform"),
             opacity = selectedShape.attr("opacity"),
             fill = selectedShape.attr("fill"),
             dropDest = series._dropLineOrigin(),
@@ -42,16 +42,22 @@
             // Values to shift the popup
             translateX,
             translateY,
-            offset;
+            transformer,
+            offset,
+            transformPoint = function (x, y) {
+                var matrix = selectedShape.node().getCTM(),
+                    position = chart.svg.node().createSVGPoint();
+                position.x = x || 0;
+                position.y = y || 0;
+                return position.matrixTransform(matrix);
+            };
 
         if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
             chart._tooltipGroup.remove();
         }
         chart._tooltipGroup = chart.svg.append("g");
 
-        if (transform) {
-            chart._tooltipGroup.attr("transform", transform);
-        } else {
+        if (!series.p) {
 
             offset = (series._isStacked() ? 1 : width / 2);
 
@@ -147,15 +153,15 @@
             .style("opacity", 0.95);
 
         // Shift the popup around to avoid overlapping the svg edge
-        if (x + width + textMargin + popupMargin + w < parseFloat(chart.svg.node().getBBox().width)) {
+        if (transformPoint(x + width + textMargin + popupMargin + w).x < parseFloat(chart.svg.node().getBBox().width)) {
             // Draw centre right
             translateX = (x + width + textMargin + popupMargin);
             translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
-        } else if (x - (textMargin + popupMargin + w) > 0) {
+        } else if (transformPoint(x - (textMargin + popupMargin + w)).x > 0) {
             // Draw centre left
             translateX = (x - (textMargin + popupMargin + w));
             translateY = (y + (height / 2) - ((yRunning - (h - textMargin)) / 2));
-        } else if (y + height + yRunning + popupMargin + textMargin < parseFloat(chart.svg.node().getBBox().height)) {
+        } else if (transformPoint(0, y + height + yRunning + popupMargin + textMargin).y < parseFloat(chart.svg.node().getBBox().height)) {
             // Draw centre below
             translateX = (x + (width / 2) - (2 * textMargin + w) / 2);
             translateX = (translateX > 0 ? translateX : popupMargin);
@@ -168,5 +174,6 @@
             translateX = (translateX + w < parseFloat(chart.svg.node().getBBox().width) ? translateX : parseFloat(chart.svg.node().getBBox().width) - w - popupMargin);
             translateY = (y - yRunning - (h - textMargin));
         }
-        t.attr("transform", "translate(" + translateX + " , " + translateY + ")");
+        transformer = transformPoint(translateX, translateY);
+        t.attr("transform", "translate(" + transformer.x + " , " + transformer.y + ")");
     };

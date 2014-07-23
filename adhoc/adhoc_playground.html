@@ -7,19 +7,27 @@
 </head>
 <body>
 <div id="chartContainer">
+    <script type="text/javascript">
+        var svg = dimple.newSvg("#chartContainer", 590, 400);
+        d3.tsv("/data/example_data.tsv", function (data) {
+            var myChart = new dimple.chart(svg, data);
+            myChart.setBounds(50, 40, 500, 310)
+            //var x = myChart.addMeasureAxis("x", "Distribution");
+            //var y = myChart.addCategoryAxis("y", "Price Tier");
+            var p = myChart.addMeasureAxis("p", "Unit Sales");
+            var z = myChart.addMeasureAxis("z", "Sales Value");
+            var s = myChart.addSeries(["Channel"], dimple.plot.pie);
+            var s2 = myChart.addSeries(["Price Tier"], dimple.plot.pie);
+            var s3 = myChart.addSeries(["Pack Size"], dimple.plot.pie);
+            s.innerRadius = "75%";
+            s2.outerRadius = "70%";
+            s2.innerRadius = "45%";
+            s3.outerRadius = "40%";
+            myChart.addLegend(30, 10, 500, 35, "right");
+            myChart.setStoryboard("Date");
+            myChart.draw(2000);
+        });
+    </script>
 </div>
-<script>
-    d3.tsv("/data/example_data.tsv", function (data) {
-        var svg = dimple.newSvg("#chartContainer", 800, 600),
-            chart = new dimple.chart(svg, data);
-        chart.setMargins(100, 100, 100, 100);
-        chart.addMeasureAxis("x", "Sales Value");
-        chart.addCategoryAxis("y", "Brand");
-        chart.addMeasureAxis("p", "Unit Sales");
-        chart.addSeries(["Channel"], dimple.series.pie);
-        chart.addLegend(-100, 100, 100, 600, "left");
-        chart.draw();
-    });
-</script>
 </body>
 </html>

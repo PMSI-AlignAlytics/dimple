@@ -12,6 +12,7 @@
             this._xPixels = function () {
                 return dimple._parseXPosition(this.x, this.svg.node());
             };
+            this.draw(0, true);
             // Access the pixel value of the y coordinate
             this._yPixels = function () {
                 return dimple._parseYPosition(this.y, this.svg.node());
@@ -25,7 +26,6 @@
                 return dimple._parseYPosition(this.height, this.svg.node());
             };
             // Refresh the axes to redraw them against the new bounds
-            this.draw(0, true);
             // return the chart object for method chaining
             return this;
         };
