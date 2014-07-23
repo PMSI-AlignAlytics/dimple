@@ -1162,7 +1162,7 @@
 
                     // The data for this series
                     var data = series.data || this.data || [],
-                        cats = [].concat(series.categoryFields),
+                        cats = [].concat(series.categoryFields || "All"),
                         returnData = this._getData(data, cats, series.aggregate, series._orderRules, series._isStacked(), series.x, series.y, series.z, series.p, series.c),
                         higherLevelData = [],
                         i,
@@ -1527,7 +1527,7 @@
                 }
             }, this);
             // Put single values into single value arrays
-            if (categoryFields !== null && categoryFields !== undefined) {
+            if (categoryFields) {
                 categoryFields = [].concat(categoryFields);
             }
             // Create a series object

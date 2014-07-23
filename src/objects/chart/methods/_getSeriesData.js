@@ -12,7 +12,7 @@
 
                     // The data for this series
                     var data = series.data || this.data || [],
-                        cats = [].concat(series.categoryFields),
+                        cats = [].concat(series.categoryFields || "All"),
                         returnData = this._getData(data, cats, series.aggregate, series._orderRules, series._isStacked(), series.x, series.y, series.z, series.p, series.c),
                         higherLevelData = [],
                         i,

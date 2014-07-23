@@ -10,24 +10,13 @@
     <script type="text/javascript">
         var svg = dimple.newSvg("#chartContainer", 590, 400);
         d3.tsv("/data/example_data.tsv", function (data) {
+            data = dimple.filterData(data, "Owner", ["Aperture", "Black Mesa"])
             var myChart = new dimple.chart(svg, data);
-            myChart.setBounds(60, 30, 470, 300)
-            var x = myChart.addMeasureAxis("x", "Distribution");
-            var y = myChart.addMeasureAxis("y", "Price");
-            var p = myChart.addMeasureAxis("p", "Unit Sales");
-            var z = myChart.addMeasureAxis("z", "Sales Value");
-            var s = myChart.addSeries(["Price Tier", "Channel"], dimple.plot.pie);
-            var s2 = myChart.addSeries(["Price Tier", "Owner"], dimple.plot.pie);
-            x.overrideMin = 40;
-            x.overrideMax = 70;
-            y.overrideMax = 150;
-            s.radius = 75;
-            s.innerRadius = "-10px";
-            s.aggregate = dimple.aggregateMethod.avg;
-            s2.radius = 75;
-            s2.outerRadius = "-15px";
-            s2.aggregate = dimple.aggregateMethod.avg;
-            myChart.setStoryboard("Date");
+            myChart.setBounds(60, 30, 505, 305);
+            var x = myChart.addCategoryAxis("x", "Month");
+            x.addOrderRule("Date");
+            myChart.addMeasureAxis("y", "Unit Sales");
+            var s = myChart.addSeries(null, dimple.plot.area);
             myChart.draw();
         });
     </script>

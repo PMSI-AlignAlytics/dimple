@@ -31,7 +31,7 @@
                 }
             }, this);
             // Put single values into single value arrays
-            if (categoryFields !== null && categoryFields !== undefined) {
+            if (categoryFields) {
                 categoryFields = [].concat(categoryFields);
             }
             // Create a series object
