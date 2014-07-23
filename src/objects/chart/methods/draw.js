@@ -4,7 +4,7 @@
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-draw
         this.draw = function (duration, noDataChange) {
             // Deal with optional parameter
-            duration = (duration === null || duration === undefined ? 0 : duration);
+            duration = duration || 0;
             // Catch the first x and y
             var firstX = null,
                 firstY = null,
@@ -398,11 +398,11 @@
 
             // Iterate the legends
             this.legends.forEach(function (legend) {
-                legend._draw(duration);
+                legend._draw();
             }, this);
 
             // If the chart has a storyboard
-            if (this.storyboard !== null && this.storyboard !== undefined) {
+            if (this.storyboard) {
                 this.storyboard._drawText();
                 if (this.storyboard.autoplay) {
                     this.storyboard.startAnimation();

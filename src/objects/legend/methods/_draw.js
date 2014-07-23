@@ -2,7 +2,7 @@
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_draw.js
         // Render the legend
-        this._draw = function (duration) {
+        this._draw = function () {
 
             // Create an array of distinct color elements from the series
             var legendArray = this._getEntries(),
@@ -15,13 +15,9 @@
                 self = this,
                 theseShapes;
 
-            // If there is already a legend, fade to transparent and remove
-            if (this.shapes !== null && this.shapes !== undefined) {
-                this.shapes
-                    .transition()
-                    .duration(duration * 0.2)
-                    .attr("opacity", 0)
-                    .remove();
+            // If there is already a legend remove it
+            if (this.shapes) {
+                this.shapes.remove();
             }
 
             // Create an empty hidden group for every legend entry
@@ -35,7 +31,7 @@
                 .attr("class", function (d) {
                     return "dimple-legend " + dimple._createClass(d.aggField);
                 })
-                .attr("opacity", 0);
+                .attr("opacity", 1);
 
             // Add text into the group
             theseShapes.append("text")
@@ -109,13 +105,6 @@
                         runningX += maxWidth;
                     }
                 });
-
-            // Fade in the shapes if this is transitioning
-            theseShapes
-                .transition()
-                .delay(duration * 0.2)
-                .duration(duration * 0.8)
-                .attr("opacity", 1);
 
             // Assign them to the public property for modification by the user.
             this.shapes = theseShapes;
