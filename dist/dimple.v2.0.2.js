@@ -277,7 +277,7 @@
                     rows.push(this.measure + ": " + this._getFormat()(d.height));
                     break;
                 case "p":
-                    rows.push(this.measure + ": " + this._getFormat()(d.angle));
+                    rows.push(this.measure + ": " + this._getFormat()(d.angle) + " (" + (d3.format("%")(d.piePct)) + ")");
                     break;
                 default:
                     rows.push(this.measure + ": " + this._getFormat()(d[this.position + "Value"]));
@@ -1171,7 +1171,14 @@
                         aCatString,
                         bCats,
                         bCatString,
-                        pieDictionary = {};
+                        pieDictionary = {},
+                        startAngle = (series.startAngle * (Math.PI / 180) || 0),
+                        endAngle = (series.endAngle || 360) * (Math.PI / 180);
+
+                    // If the startAngle is after the endAngle (e.g. 270deg -> 90deg becomes -90deg -> 90deg.
+                    if (startAngle > endAngle) {
+                        startAngle -= 2 * Math.PI;
+                    }
 
                     // If there is a pie axis we need to run a second dataset because the x and y will be
                     // at a higher level of aggregation than the rows, we want all the segments for a pie chart to
@@ -1234,7 +1241,7 @@
                                         if (!pieDictionary[higherLevelData[j].key]) {
                                             pieDictionary[higherLevelData[j].key] = {
                                                 total: 0,
-                                                angle: 0
+                                                angle: startAngle
                                             };
                                         }
                                         pieDictionary[higherLevelData[j].key].total += returnData[i].pValue;
@@ -1254,7 +1261,7 @@
                                 if (!pieDictionary[returnData[i].pieKey]) {
                                     pieDictionary[returnData[i].pieKey] = {
                                         total: 0,
-                                        angle: 0
+                                        angle: startAngle
                                     };
                                 }
                                 pieDictionary[returnData[i].pieKey].total += returnData[i].pValue;
@@ -1263,8 +1270,9 @@
 
                         // Loop again to calculate shares
                         for (i = 0; i < returnData.length; i += 1) {
+                            returnData[i].piePct = (returnData[i].pValue / pieDictionary[returnData[i].pieKey].total);
                             returnData[i].startAngle = pieDictionary[returnData[i].pieKey].angle;
-                            returnData[i].endAngle = returnData[i].startAngle + (returnData[i].pValue / pieDictionary[returnData[i].pieKey].total) * (2 * Math.PI);
+                            returnData[i].endAngle = returnData[i].startAngle + returnData[i].piePct * (endAngle - startAngle);
                             pieDictionary[returnData[i].pieKey].angle = returnData[i].endAngle;
                         }
                     }
@@ -1588,7 +1596,7 @@
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-draw
         this.draw = function (duration, noDataChange) {
             // Deal with optional parameter
-            duration = (duration === null || duration === undefined ? 0 : duration);
+            duration = duration || 0;
             // Catch the first x and y
             var firstX = null,
                 firstY = null,
@@ -1982,11 +1990,11 @@
 
             // Iterate the legends
             this.legends.forEach(function (legend) {
-                legend._draw(duration);
+                legend._draw();
             }, this);
 
             // If the chart has a storyboard
-            if (this.storyboard !== null && this.storyboard !== undefined) {
+            if (this.storyboard) {
                 this.storyboard._drawText();
                 if (this.storyboard.autoplay) {
                     this.storyboard.startAnimation();
@@ -2175,7 +2183,7 @@
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_draw.js
         // Render the legend
-        this._draw = function (duration) {
+        this._draw = function () {
 
             // Create an array of distinct color elements from the series
             var legendArray = this._getEntries(),
@@ -2188,13 +2196,9 @@
                 self = this,
                 theseShapes;
 
-            // If there is already a legend, fade to transparent and remove
-            if (this.shapes !== null && this.shapes !== undefined) {
-                this.shapes
-                    .transition()
-                    .duration(duration * 0.2)
-                    .attr("opacity", 0)
-                    .remove();
+            // If there is already a legend remove it
+            if (this.shapes) {
+                this.shapes.remove();
             }
 
             // Create an empty hidden group for every legend entry
@@ -2208,7 +2212,7 @@
                 .attr("class", function (d) {
                     return "dimple-legend " + dimple._createClass(d.aggField);
                 })
-                .attr("opacity", 0);
+                .attr("opacity", 1);
 
             // Add text into the group
             theseShapes.append("text")
@@ -2282,13 +2286,6 @@
                         runningX += maxWidth;
                     }
                 });
-
-            // Fade in the shapes if this is transitioning
-            theseShapes
-                .transition()
-                .delay(duration * 0.2)
-                .duration(duration * 0.8)
-                .attr("opacity", 1);
 
             // Assign them to the public property for modification by the user.
             this.shapes = theseShapes;
@@ -2689,17 +2686,28 @@
                 }, this);
             }
 
-            if (this.x) {
-                this.x._getTooltipText(rows, e);
-            }
-            if (this.y) {
-                this.y._getTooltipText(rows, e);
-            }
-            if (this.p) {
+
+            if (!this.p) {
+                if (this.x) {
+                    this.x._getTooltipText(rows, e);
+                }
+                if (this.y) {
+                    this.y._getTooltipText(rows, e);
+                }
+                if (this.z) {
+                    this.z._getTooltipText(rows, e);
+                }
+            } else {
+                if (this.x && this.x._hasCategories()) {
+                    this.x._getTooltipText(rows, e);
+                }
+                if (this.y && this.y._hasCategories()) {
+                    this.y._getTooltipText(rows, e);
+                }
+                if (this.z && this.z._hasCategories()) {
+                    this.z._getTooltipText(rows, e);
+                }
                 this.p._getTooltipText(rows, e);
-            }
-            if (this.z) {
-                this.z._getTooltipText(rows, e);
             }
             if (this.c) {
                 this.c._getTooltipText(rows, e);
@@ -2753,8 +2761,8 @@
         // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/drawText.js
-        this._drawText = function (duration) {
-            if (this.storyLabel === null || this.storyLabel === undefined) {
+        this._drawText = function () {
+            if (!this.storyLabel) {
                 var chart = this.chart,
                     self = this,
                     xCount = 0;
@@ -2765,6 +2773,8 @@
                     }
                 }, this);
                 this.storyLabel = this.chart._group.append("text")
+                    .attr("class", "dimple-storyboard-label")
+                    .attr("opacity", 1)
                     .attr("x", this.chart._xPixels() + this.chart._widthPixels() * 0.01)
                     .attr("y", this.chart._yPixels() + (this.chart._heightPixels() / 35 > 10 ? this.chart._heightPixels() / 35 : 10) * (xCount > 1 ? 1.25 : -1))
                     .call(function () {
@@ -2775,16 +2785,7 @@
                     });
             }
             this.storyLabel
-                .transition().duration(duration * 0.2)
-                .ease(this.chart.ease)
-                .attr("opacity", 0);
-            this.storyLabel
-                .transition().delay(duration * 0.2)
-                .ease(this.chart.ease)
-                .attr("class", "dimple-storyboard-label")
-                .text(this.categoryFields.join("\\") + ": " + this.getFrameValue())
-                .transition().duration(duration * 0.8)
-                .attr("opacity", 1);
+                .text(this.categoryFields.join("\\") + ": " + this.getFrameValue());
         };
 
 
@@ -3848,10 +3849,7 @@
                 classes = ["dimple-series-" + chart.series.indexOf(series), "dimple-pie"],
                 updated,
                 removed,
-                //pieDictionary,
-                startAngle = (series.startAngle * (Math.PI / 180) || 0),
-                endAngle = (series.endAngle || 360) * (Math.PI / 180),
-                getOuterRadius = function (d) {
+                getOuterBase = function (d) {
                     var oR;
                     if (series.x && series.y) {
                         oR = dimple._helpers.r(d, chart, series);
@@ -3860,20 +3858,32 @@
                     }
                     return oR;
                 },
+                getOuterRadius = function (d) {
+                    var oR = getOuterBase(d);
+                    if (series.outerRadius) {
+                        oR = dimple._parsePosition(series.outerRadius, oR);
+                    }
+                    return Math.max(oR, 0);
+                },
+                getInnerRadius = function (d) {
+                    var iR = 0;
+                    if (series.innerRadius) {
+                        iR = dimple._parsePosition(series.innerRadius, getOuterBase(d));
+                    }
+                    return Math.max(iR, 0);
+                },
                 getArc = function (d) {
                     // Calculate the radii of the circles
-                    var innerRadius = 0,
-                        outerRadius = getOuterRadius(d),
-                        arc;
+                    var arc;
                     // The actual arc
                     arc = d3.svg.arc()
-                        .innerRadius(innerRadius)
-                        .outerRadius(outerRadius);
+                        .innerRadius(getInnerRadius(d))
+                        .outerRadius(getOuterRadius(d));
                     // Return the value
                     return arc(d);
                 },
                 arcTween = function (a) {
-                    a.innerRadius = 0;
+                    a.innerRadius = getInnerRadius(a);
                     a.outerRadius = getOuterRadius(a);
                     var i = d3.interpolate(this._current, a),
                         arc;
@@ -3914,11 +3924,6 @@
                 chart._tooltipGroup.remove();
             }
 
-            // If the startAngle is after the endAngle (e.g. 270deg -> 90deg becomes -90deg -> 90deg.
-            if (startAngle > endAngle) {
-                startAngle -= 2 * Math.PI;
-            }
-
             if (series.shapes === null || series.shapes === undefined) {
                 theseShapes =  chart._group.selectAll("." + classes.join(".")).data(chartData);
             } else {
@@ -3949,7 +3954,7 @@
                 .attr("transform", getTransform(true))
                 .each(function (d) {
                     this._current = d;
-                    d.innerRadius = 0;
+                    d.innerRadius = getInnerRadius(d);
                     d.outerRadius = getOuterRadius(d);
                 });
 
@@ -4677,7 +4682,7 @@
         // This one seems to work in Chrome - good old Chrome!
         var returnValue = parent.offsetWidth;
         // This does it for IE
-        if (returnValue <= 0 || returnValue === null || returnValue === undefined) {
+        if (!returnValue || returnValue < 0) {
             returnValue = parent.clientWidth;
         }
         // FireFox is the hard one this time.  See this bug report:
@@ -4685,8 +4690,8 @@
         // It's dealt with by trying to recurse up the dom until we find something
         // we can get a size for.  Usually the parent of the SVG.  It's a bit costly
         // but I don't know of any other way.
-        if (returnValue <= 0 || returnValue === null || returnValue === undefined) {
-            if (parent.parentNode === null || parent.parentNode === undefined) {
+        if (!returnValue || returnValue < 0) {
+            if (!parent.parentNode) {
                 // Give up - Recursion Exit Point
                 returnValue = 0;
             } else {
@@ -4699,18 +4704,18 @@
 
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-    // Source: /src/methods/_parseXPosition.js
-    dimple._parseXPosition = function (value, parent) {
+    // Source: /src/methods/_parsePosition.js
+    dimple._parsePosition = function (value, maxValue) {
         var returnValue = 0,
             values;
-        if (value !== null && value !== undefined) {
+        if (value) {
             values = value.toString().split(",");
             values.forEach(function (v) {
-                if (v !== undefined && v !== null) {
+                if (v) {
                     if (!isNaN(v)) {
                         returnValue += parseFloat(v);
                     } else if (v.slice(-1) === "%") {
-                        returnValue += dimple._parentWidth(parent) * (parseFloat(v.slice(0, v.length - 1)) / 100);
+                        returnValue += maxValue * (parseFloat(v.slice(0, v.length - 1)) / 100);
                     } else if (v.slice(-2) === "px") {
                         returnValue += parseFloat(v.slice(0, v.length - 2));
                     } else {
@@ -4721,38 +4726,23 @@
         }
         // Take the position from the extremity if the value is negative
         if (returnValue < 0) {
-            returnValue = dimple._parentWidth(parent) + returnValue;
+            returnValue = maxValue + returnValue;
         }
         return returnValue;
     };
 
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/methods/_parseXPosition.js
+    dimple._parseXPosition = function (value, parent) {
+        return dimple._parsePosition(value, dimple._parentWidth(parent));
+    };
+
+    // Copyright: 2014 PMSI-AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_parseYPosition.js
     dimple._parseYPosition = function (value, parent) {
-        var returnValue = 0,
-            values;
-        if (value !== null && value !== undefined) {
-            values = value.toString().split(",");
-            values.forEach(function (v) {
-                if (v !== undefined && v !== null) {
-                    if (!isNaN(v)) {
-                        returnValue += parseFloat(v);
-                    } else if (v.slice(-1) === "%") {
-                        returnValue += dimple._parentHeight(parent) * (parseFloat(v.slice(0, v.length - 1)) / 100);
-                    } else if (v.slice(-2) === "px") {
-                        returnValue += parseFloat(v.slice(0, v.length - 2));
-                    } else {
-                        returnValue = value;
-                    }
-                }
-            }, this);
-        }
-        // Take the position from the extremity if the value is negative
-        if (returnValue < 0) {
-            returnValue = dimple._parentHeight(parent) + returnValue;
-        }
-        return returnValue;
+        return dimple._parsePosition(value, dimple._parentHeight(parent));
     };
 
     // Copyright: 2014 PMSI-AlignAlytics

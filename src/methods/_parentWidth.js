@@ -5,7 +5,7 @@
         // This one seems to work in Chrome - good old Chrome!
         var returnValue = parent.offsetWidth;
         // This does it for IE
-        if (returnValue <= 0 || returnValue === null || returnValue === undefined) {
+        if (!returnValue || returnValue < 0) {
             returnValue = parent.clientWidth;
         }
         // FireFox is the hard one this time.  See this bug report:
@@ -13,8 +13,8 @@
         // It's dealt with by trying to recurse up the dom until we find something
         // we can get a size for.  Usually the parent of the SVG.  It's a bit costly
         // but I don't know of any other way.
-        if (returnValue <= 0 || returnValue === null || returnValue === undefined) {
-            if (parent.parentNode === null || parent.parentNode === undefined) {
+        if (!returnValue || returnValue < 0) {
+            if (!parent.parentNode) {
                 // Give up - Recursion Exit Point
                 returnValue = 0;
             } else {

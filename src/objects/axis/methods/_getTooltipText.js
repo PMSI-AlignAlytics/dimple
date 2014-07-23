@@ -23,7 +23,7 @@
                     rows.push(this.measure + ": " + this._getFormat()(d.height));
                     break;
                 case "p":
-                    rows.push(this.measure + ": " + this._getFormat()(d.angle));
+                    rows.push(this.measure + ": " + this._getFormat()(d.angle) + " (" + (d3.format("%")(d.piePct)) + ")");
                     break;
                 default:
                     rows.push(this.measure + ": " + this._getFormat()(d[this.position + "Value"]));

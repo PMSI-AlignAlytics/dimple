@@ -13,17 +13,28 @@
                 }, this);
             }
 
-            if (this.x) {
-                this.x._getTooltipText(rows, e);
-            }
-            if (this.y) {
-                this.y._getTooltipText(rows, e);
-            }
-            if (this.p) {
+
+            if (!this.p) {
+                if (this.x) {
+                    this.x._getTooltipText(rows, e);
+                }
+                if (this.y) {
+                    this.y._getTooltipText(rows, e);
+                }
+                if (this.z) {
+                    this.z._getTooltipText(rows, e);
+                }
+            } else {
+                if (this.x && this.x._hasCategories()) {
+                    this.x._getTooltipText(rows, e);
+                }
+                if (this.y && this.y._hasCategories()) {
+                    this.y._getTooltipText(rows, e);
+                }
+                if (this.z && this.z._hasCategories()) {
+                    this.z._getTooltipText(rows, e);
+                }
                 this.p._getTooltipText(rows, e);
-            }
-            if (this.z) {
-                this.z._getTooltipText(rows, e);
             }
             if (this.c) {
                 this.c._getTooltipText(rows, e);

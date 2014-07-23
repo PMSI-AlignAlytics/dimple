@@ -14,8 +14,6 @@
                 classes = ["dimple-series-" + chart.series.indexOf(series), "dimple-pie"],
                 updated,
                 removed,
-                startAngle = (series.startAngle * (Math.PI / 180) || 0),
-                endAngle = (series.endAngle || 360) * (Math.PI / 180),
                 getOuterBase = function (d) {
                     var oR;
                     if (series.x && series.y) {
@@ -30,14 +28,14 @@
                     if (series.outerRadius) {
                         oR = dimple._parsePosition(series.outerRadius, oR);
                     }
-                    return oR;
+                    return Math.max(oR, 0);
                 },
                 getInnerRadius = function (d) {
                     var iR = 0;
                     if (series.innerRadius) {
                         iR = dimple._parsePosition(series.innerRadius, getOuterBase(d));
                     }
-                    return iR;
+                    return Math.max(iR, 0);
                 },
                 getArc = function (d) {
                     // Calculate the radii of the circles
@@ -89,11 +87,6 @@
             // Clear tool tips
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
                 chart._tooltipGroup.remove();
-            }
-
-            // If the startAngle is after the endAngle (e.g. 270deg -> 90deg becomes -90deg -> 90deg.
-            if (startAngle > endAngle) {
-                startAngle -= 2 * Math.PI;
             }
 
             if (series.shapes === null || series.shapes === undefined) {

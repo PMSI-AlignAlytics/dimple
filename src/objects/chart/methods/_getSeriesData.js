@@ -21,7 +21,14 @@
                         aCatString,
                         bCats,
                         bCatString,
-                        pieDictionary = {};
+                        pieDictionary = {},
+                        startAngle = (series.startAngle * (Math.PI / 180) || 0),
+                        endAngle = (series.endAngle || 360) * (Math.PI / 180);
+
+                    // If the startAngle is after the endAngle (e.g. 270deg -> 90deg becomes -90deg -> 90deg.
+                    if (startAngle > endAngle) {
+                        startAngle -= 2 * Math.PI;
+                    }
 
                     // If there is a pie axis we need to run a second dataset because the x and y will be
                     // at a higher level of aggregation than the rows, we want all the segments for a pie chart to
@@ -84,7 +91,7 @@
                                         if (!pieDictionary[higherLevelData[j].key]) {
                                             pieDictionary[higherLevelData[j].key] = {
                                                 total: 0,
-                                                angle: 0
+                                                angle: startAngle
                                             };
                                         }
                                         pieDictionary[higherLevelData[j].key].total += returnData[i].pValue;
@@ -104,7 +111,7 @@
                                 if (!pieDictionary[returnData[i].pieKey]) {
                                     pieDictionary[returnData[i].pieKey] = {
                                         total: 0,
-                                        angle: 0
+                                        angle: startAngle
                                     };
                                 }
                                 pieDictionary[returnData[i].pieKey].total += returnData[i].pValue;
@@ -113,8 +120,9 @@
 
                         // Loop again to calculate shares
                         for (i = 0; i < returnData.length; i += 1) {
+                            returnData[i].piePct = (returnData[i].pValue / pieDictionary[returnData[i].pieKey].total);
                             returnData[i].startAngle = pieDictionary[returnData[i].pieKey].angle;
-                            returnData[i].endAngle = returnData[i].startAngle + (returnData[i].pValue / pieDictionary[returnData[i].pieKey].total) * (2 * Math.PI);
+                            returnData[i].endAngle = returnData[i].startAngle + returnData[i].piePct * (endAngle - startAngle);
                             pieDictionary[returnData[i].pieKey].angle = returnData[i].endAngle;
                         }
                     }
