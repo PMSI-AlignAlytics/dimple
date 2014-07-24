@@ -126,6 +126,62 @@
         "desc":"A dual measure bar chart"
     },
     {
+        "id":"pie_standard",
+        "title":"Pie Chart",
+        "shortTitle":"Pie Chart",
+        "group":"Pie Charts",
+        "desc":"A simple pie chart"
+    },
+    {
+        "id":"pie_matrix",
+        "title":"Pie Matrix",
+        "shortTitle":"Pie Matrix",
+        "group":"Pie Charts",
+        "desc":"A pie matrix"
+    },
+    {
+        "id":"pie_vertical_lollipop",
+        "title":"Lollipop Pie",
+        "shortTitle":"Lolli Pie",
+        "group":"Pie Charts",
+        "desc":"A vertical lollipop pie"
+    },
+    {
+        "id":"pie_vertical_grouped",
+        "title":"Grouped Lollipop Pie",
+        "shortTitle":"Group Lolli Pie",
+        "group":"Pie Charts",
+        "desc":"A vertical grouped lollipop pie"
+    },
+    {
+        "id":"pie_horizontal_lollipop",
+        "title":"Horiz Lollipop Pie",
+        "shortTitle":"Lolli Pie",
+        "group":"Pie Charts",
+        "desc":"A horizontal lollipop pie"
+    },
+    {
+        "id":"pie_horizontal_grouped",
+        "title":"Horiz Grouped Lolli Pie",
+        "shortTitle":"Group Lolli Pie",
+        "group":"Pie Charts",
+        "desc":"A horizontal grouped lollipop pie"
+    },
+    {
+        "id":"pie_scatter",
+        "title":"Scatter Pie",
+        "shortTitle":"Scatter Pie",
+        "group":"Pie Charts",
+        "desc":"A scatter chart with pies"
+    },
+    {
+        "id":"pie_bubble",
+        "title":"Bubble Pie",
+        "shortTitle":"Bubble Pie",
+        "group":"Pie Charts",
+        "desc":"A bubble chart with pies"
+    },
+    {
         "id":"scatter_standard",
         "title":"Scatter",
         "shortTitle":"Scatter",
@@ -376,6 +432,69 @@
         "shortTitle":"Curvy Line",
         "group":"Line Charts",
         "desc":"An line chart cardinal interpolation"
+    },
+    {
+        "id":"ring_standard",
+        "title":"Ring Chart",
+        "shortTitle":"Ring Chart",
+        "group":"Ring Charts",
+        "desc":"A simple ring chart"
+    },
+    {
+        "id":"ring_multiple",
+        "title":"Concentric Ring Chart",
+        "shortTitle":"Multi Ring Chart",
+        "group":"Ring Charts",
+        "desc":"Many ring charts can be plotted concentrically"
+    },
+    {
+        "id":"ring_matrix",
+        "title":"Ring Matrix",
+        "shortTitle":"Ring Matrix",
+        "group":"Ring Charts",
+        "desc":"A ring matrix"
+    },
+    {
+        "id":"ring_vertical_lollipop",
+        "title":"Lollipop Ring",
+        "shortTitle":"Lolli Ring",
+        "group":"Ring Charts",
+        "desc":"A vertical lollipop ring chart"
+    },
+    {
+        "id":"ring_vertical_grouped",
+        "title":"Grouped Lollipop Ring",
+        "shortTitle":"Group Lolli Ring",
+        "group":"Ring Charts",
+        "desc":"A vertical grouped lollipop ring chart"
+    },
+    {
+        "id":"ring_horizontal_lollipop",
+        "title":"Horiz Lollipop Ring",
+        "shortTitle":"Lolli Ring",
+        "group":"Ring Charts",
+        "desc":"A horizontal lollipop ring chart"
+    },
+    {
+        "id":"ring_horizontal_grouped",
+        "title":"Horiz Grouped Lolli Ring",
+        "shortTitle":"Group Lolli Ring",
+        "group":"Ring Charts",
+        "desc":"A horizontal grouped lollipop ring chart"
+    },
+    {
+        "id":"ring_scatter",
+        "title":"Scatter Ring",
+        "shortTitle":"Scatter Ring",
+        "group":"Ring Charts",
+        "desc":"A scatter chart with rings"
+    },
+    {
+        "id":"ring_bubble",
+        "title":"Bubble Ring",
+        "shortTitle":"Bubble Ring",
+        "group":"Ring Charts",
+        "desc":"A bubble chart with rings"
     },
     {
         "id":"steps_horizontal",

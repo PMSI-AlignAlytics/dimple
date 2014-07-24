@@ -88,5 +88,11 @@
         "title":"Ghost Bubbles",
         "shortTitle":"Ghost Bubbles",
         "desc":"This demonstrates an approach for maintaining historic values in a storyboard chart.  A background chart is used to store old values when the storyboard on the main chart updates."
+    },
+    {
+        "id":"advanced_animated_multiple_pie_bubbles",
+        "title":"Animated Pie Bubbles",
+        "shortTitle":"Pie Bubbles",
+        "desc":"This demonstrates both combining pie and ring charts and using them with a storyboard to display seven different dimensions. REMEMBER: Just because you can, doesn't mean you should!"
     }
 ]
