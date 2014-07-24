@@ -55,6 +55,9 @@
         </p>
         <h3>Resources</h3>
         <p>
+          <a href="/index.html">
+              Home
+          </a><br/>
           <a href="/examples_index.html">
               Examples
           </a><br/>
@@ -106,44 +109,49 @@
       // Prompt if no query string is passed.  Mainly useful for debugging.
       if (id == undefined) { id = window.prompt("Please enter an example id","bars_vertical"); }
       $.getJSON("/advanced_examples_meta.json", function(data) {
+        var found = false;
         data.forEach(function (spec, i) {
           if (spec.id == id) {
+            found = true;
             // Set the text elements
             $("#title").text(spec.title);
             $("#heading").text(spec.title);
             $("#desc").text(spec.desc);
             // Set the code display
             $.get("examples/" + spec.id + ".html", function (page) {
-                $("#codeContainer").text(
-                        page.slice(page.indexOf("<div"))
-                                .replace("src=\"/dist/dimple.{version}.js\"", "src=\"http://dimplejs.org/dist/dimple.{version}.min.js\"")
-                                .replace("src=\"/lib/d3.v3.min.js\"", "src=\"http://d3js.org/d3.v3.min.js\"")
+              $("#codeContainer").text(
+                page.slice(page.indexOf("<div"))
+                  .replace("src=\"/dist/dimple.{version}.js\"", "src=\"http://dimplejs.org/dist/dimple.{version}.min.js\"")
+                  .replace("src=\"/lib/d3.v3.min.js\"", "src=\"http://d3js.org/d3.v3.min.js\"")
                 );
                 $("#chartBox").html(
-                        page.slice(page.indexOf("<div"))
-                                .replace("src=\"/dist/dimple.{version}.js\"", "")
-                                .replace("src=\"/lib/d3.v3.min.js\"", "")
+                  page.slice(page.indexOf("<div"))
+                    .replace("src=\"/dist/dimple.{version}.js\"", "")
+                    .replace("src=\"/lib/d3.v3.min.js\"", "")
                 );
-            });
-            // Set the previous links
-            if (i == 0) {
-              $("#prev").attr("href","/advanced_examples_index.html");
-              $("#prev").text("< Advanced Index");
-            }
-            else {
-              $("#prev").attr("href","/advanced_examples_viewer.html?id=" + data[i-1].id);
-              $("#prev").text("< " + data[i-1].shortTitle);
-            }
-            // Set the next links
-            if (i == data.length - 1) {
-              $("#next").remove();
-            }
-            else {
-              $("#next").attr("href","/advanced_examples_viewer.html?id=" + data[i+1].id);
-              $("#next").text(data[i+1].shortTitle + " >");
-            }
-           }
+              });
+              // Set the previous links
+              if (i == 0) {
+                  $("#prev").attr("href", "/advanced_examples_index.html");
+                  $("#prev").text("< Advanced Index");
+              }
+              else {
+                  $("#prev").attr("href", "/advanced_examples_viewer.html?id=" + data[i - 1].id);
+                  $("#prev").text("< " + data[i - 1].shortTitle);
+              }
+              // Set the next links
+              if (i == data.length - 1) {
+                  $("#next").remove();
+              }
+              else {
+                  $("#next").attr("href", "/advanced_examples_viewer.html?id=" + data[i + 1].id);
+                  $("#next").text(data[i + 1].shortTitle + " >");
+              }
+          }
         });
+        if (!found) {
+            window.location.replace("/advanced_examples_index.html");
+        }
       });
     </script>
     <script type="text/javascript">

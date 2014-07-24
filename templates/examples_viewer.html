@@ -55,6 +55,9 @@
         </p>
         <h3>Resources</h3>
         <p>
+          <a href="/index.html">
+              Home
+          </a><br/>
           <a href="/examples_index.html">
               Examples
           </a><br/>
@@ -106,8 +109,10 @@
       // Prompt if no query string is passed.  Mainly useful for debugging.
       if (id == undefined) { id = window.prompt("Please enter an example id","bars_vertical"); }
       $.getJSON("/examples_meta.json", function(data) {
+        var found = false;
         data.forEach(function (spec, i) {
           if (spec.id == id) {
+            found = true;
             // Set the text elements
             $("#title").text(spec.title);
             $("#heading").text(spec.title);
@@ -144,6 +149,9 @@
             }
            }
         });
+        if (!found) {
+          window.location.replace("/examples_index.html");
+        }
       });
     </script>
     <script type="text/javascript">
