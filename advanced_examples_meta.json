@@ -94,5 +94,11 @@
         "title":"Animated Pie Bubbles",
         "shortTitle":"Pie Bubbles",
         "desc":"This demonstrates both combining pie and ring charts and using them with a storyboard to display seven different dimensions. REMEMBER: Just because you can, doesn't mean you should!"
+    },
+    {
+        "id":"advanced_custom_styling",
+        "title":"Custom Styling",
+        "shortTitle":"Custom Styling",
+        "desc":"Many people associate dimple with its own look and feel, however it can also be used to deal with the chart functionality leaving you free to concentrate on design.  This is just a small example of possible techniques you could apply."
     }
 ]
