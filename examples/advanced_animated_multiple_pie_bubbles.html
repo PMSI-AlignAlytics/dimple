@@ -8,7 +8,7 @@
     var svg = dimple.newSvg("#chartContainer", 590, 400);
     d3.tsv("/data/example_data.tsv", function (data) {
       var myChart = new dimple.chart(svg, data);
-      myChart.setBounds(60, 30, 470, 300)
+      myChart.setBounds(60, 30, 495, 330);
 
       // Define all the axes
       var xAxis = myChart.addMeasureAxis("x", "Distribution");
