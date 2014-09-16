@@ -21,9 +21,11 @@
                 values = [],
                 tempFields = [];
             if (typeof def.ordering === "function") {
-                for (field in data[0]) {
-                    if (data[0].hasOwnProperty(field) && fields.indexOf(field) === -1) {
-                        fields.push(field);
+                if (data && data.length > 0) {
+                    for (field in data[0]) {
+                        if (data[0].hasOwnProperty(field) && fields.indexOf(field) === -1) {
+                            fields.push(field);
+                        }
                     }
                 }
             } else if (!(def.ordering instanceof Array)) {
@@ -31,8 +33,9 @@
             } else {
                 // We now receive fields as an array or values as an array which is a bit of an oversight in the API
                 // We will therefore check the values of the array against the fields in the data
+                // Added fix for #101
                 for (field = 0; field < def.ordering.length; field += 1) {
-                    if (data[0].hasOwnProperty(def.ordering[field])) {
+                    if (data && data.length > 0 && data[0].hasOwnProperty(def.ordering[field])) {
                         tempFields.push(def.ordering[field]);
                     }
                     values.push(def.ordering[field]);
