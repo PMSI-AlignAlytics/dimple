@@ -153,7 +153,7 @@
                         return returnObj;
                     },
                     transformLabels = function () {
-                        if (!axis.measure) {
+                        if (!axis.measure && axis._max > 0) {
                             if (axis.position === "x") {
                                 d3.select(this).selectAll("text").attr("x", (chartWidth / axis._max) / 2);
                             } else if (axis.position === "y") {

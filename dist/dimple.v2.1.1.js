@@ -1745,7 +1745,7 @@
                         return returnObj;
                     },
                     transformLabels = function () {
-                        if (!axis.measure) {
+                        if (!axis.measure && axis._max > 0) {
                             if (axis.position === "x") {
                                 d3.select(this).selectAll("text").attr("x", (chartWidth / axis._max) / 2);
                             } else if (axis.position === "y") {
@@ -4299,6 +4299,7 @@
             } else {
                 // We now receive fields as an array or values as an array which is a bit of an oversight in the API
                 // We will therefore check the values of the array against the fields in the data
+                // Added fix for #101
                 for (field = 0; field < def.ordering.length; field += 1) {
                     if (data && data.length > 0 && data[0].hasOwnProperty(def.ordering[field])) {
                         tempFields.push(def.ordering[field]);
