@@ -40,7 +40,7 @@
                         return (n === 0 ? 0 : d3.format(",." + dp + "f")(n / Math.pow(1000, chunks)) + suffix);
                     };
                 } else {
-                    dp = (len <= 1 ? 1 : 0);
+                    dp = -Math.floor(Math.log(this._tick_step) / Math.LN10);
                     returnFormat = d3.format(",." + dp + "f");
                 }
             } else {
