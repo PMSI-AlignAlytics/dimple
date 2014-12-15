@@ -244,13 +244,13 @@
                     }
                 }
                 // Set some initial css values
-                handleTrans(axis.shapes.selectAll("text")).call(function(){
+                handleTrans(axis.shapes.selectAll("text")).call(function() {
                     if (!chart.noFormats) {
                         this.style("font-family", axis.fontFamily)
                             .style("font-size", axis._getFontSize());
                     }
                 });
-                handleTrans(axis.shapes.selectAll("path, line")).call(function(){
+                handleTrans(axis.shapes.selectAll("path, line")).call(function() {
                     if (!chart.noFormats) {
                         this.style("fill", "none")
                             .style("stroke", "black")
@@ -258,8 +258,8 @@
                     }
                 });
                 if (axis.gridlineShapes !== null) {
-                    handleTrans(axis.gridlineShapes.selectAll("line")).call(function(){
-                        if(!chart.noFormats) {
+                    handleTrans(axis.gridlineShapes.selectAll("line")).call(function() {
+                        if (!chart.noFormats) {
                             this.style("fill", "none")
                                 .style("stroke", "lightgray")
                                 .style("opacity", 0.8);
