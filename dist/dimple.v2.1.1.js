@@ -210,7 +210,7 @@
                         return (n === 0 ? 0 : d3.format(",." + dp + "f")(n / Math.pow(1000, chunks)) + suffix);
                     };
                 } else {
-                    dp = (len <= 1 ? 1 : 0);
+                    dp = -Math.floor(Math.log(this._tick_step) / Math.LN10);
                     returnFormat = d3.format(",." + dp + "f");
                 }
             } else {
@@ -566,6 +566,8 @@
                 step = ticks[1] - ticks[0];
                 // Get the remainder
                 remainder = ((this._max - this._min) % step).toFixed(0);
+                // Store the tick step if needed to calculate _getFormat.
+                this._tick_step = step;
 
                 // If the remainder is not zero
                 if (remainder !== 0) {
@@ -1836,20 +1838,27 @@
                     }
                 }
                 // Set some initial css values
-                if (!this.noFormats) {
-                    handleTrans(axis.shapes.selectAll("text"))
-                        .style("font-family", axis.fontFamily)
-                        .style("font-size", axis._getFontSize());
-                    handleTrans(axis.shapes.selectAll("path, line"))
-                        .style("fill", "none")
-                        .style("stroke", "black")
-                        .style("shape-rendering", "crispEdges");
-                    if (axis.gridlineShapes !== null) {
-                        handleTrans(axis.gridlineShapes.selectAll("line"))
-                            .style("fill", "none")
-                            .style("stroke", "lightgray")
-                            .style("opacity", 0.8);
+                handleTrans(axis.shapes.selectAll("text")).call(function() {
+                    if (!chart.noFormats) {
+                        this.style("font-family", axis.fontFamily)
+                            .style("font-size", axis._getFontSize());
                     }
+                });
+                handleTrans(axis.shapes.selectAll("path, line")).call(function() {
+                    if (!chart.noFormats) {
+                        this.style("fill", "none")
+                            .style("stroke", "black")
+                            .style("shape-rendering", "crispEdges");
+                    }
+                });
+                if (axis.gridlineShapes !== null) {
+                    handleTrans(axis.gridlineShapes.selectAll("line")).call(function() {
+                        if (!chart.noFormats) {
+                            this.style("fill", "none")
+                                .style("stroke", "lightgray")
+                                .style("opacity", 0.8);
+                        }
+                    });
                 }
                 // Rotate labels, this can only be done once the formats are set
                 if (axis.measure === null || axis.measure === undefined) {
@@ -2279,10 +2288,14 @@
                             .attr("y", self._yPixels() + runningY)
                             .attr("height", keyHeight)
                             .attr("width",  keyWidth)
-                            .style("fill", d.fill)
-                            .style("stroke", d.stroke)
-                            .style("opacity", d.opacity)
-                            .style("shape-rendering", "crispEdges");
+                            .call(function() {
+                                if (!self.chart.noFormats) {
+                                    this.style("fill", d.fill)
+                                        .style("stroke", d.stroke)
+                                        .style("opacity", d.opacity)
+                                        .style("shape-rendering", "crispEdges");
+                                }
+                            });
                         runningX += maxWidth;
                     }
                 });
@@ -4233,6 +4246,7 @@
             .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
             .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
             .attr("r", 2 + series.lineWeight)
+            .attr("opacity", (series.lineMarkers || lineDataRow.data.length < 2 ? lineDataRow.color.opacity : 0))
             .call(function () {
                 if (!chart.noFormats) {
                     this.attr("fill", "white")

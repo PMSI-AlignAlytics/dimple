@@ -98,10 +98,14 @@
                             .attr("y", self._yPixels() + runningY)
                             .attr("height", keyHeight)
                             .attr("width",  keyWidth)
-                            .style("fill", d.fill)
-                            .style("stroke", d.stroke)
-                            .style("opacity", d.opacity)
-                            .style("shape-rendering", "crispEdges");
+                            .call(function() {
+                                if (!self.chart.noFormats) {
+                                    this.style("fill", d.fill)
+                                        .style("stroke", d.stroke)
+                                        .style("opacity", d.opacity)
+                                        .style("shape-rendering", "crispEdges");
+                                }
+                            });
                         runningX += maxWidth;
                     }
                 });
