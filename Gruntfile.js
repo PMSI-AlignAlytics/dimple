@@ -136,6 +136,16 @@ module.exports = function(grunt) {
                 ],
                 tasks: ['karma:continuous:run']
             }
+        },
+        copy: {
+            dev: {
+                src: "dist/<%= pkg.name %>.v<%= pkg.version %>.js",
+                dest: "dist/dimple.js"
+            },
+            prod: {
+                src: "dist/<%= pkg.name %>.v<%= pkg.version %>.min.js",
+                dest: "dist/dimple.min.js"
+            }
         }
     });
 
@@ -144,6 +154,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-jslint');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-karma');
 
@@ -210,7 +221,7 @@ module.exports = function(grunt) {
     });
 
     // Default tasks
-    grunt.registerTask('default', ['concat', 'jslint', 'uglify', 'connect', 'prop']);
+    grunt.registerTask('default', ['concat', 'jslint', 'uglify', 'connect', 'prop', 'copy']);
     grunt.registerTask('test:unit', ['concat:test', 'karma:unit']);
     grunt.registerTask('test', ['karma:continuous:start', 'watch']);
 
