@@ -8,14 +8,6 @@
       "url": "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     }
   ],
-  "dependencies": {
-    "express": "3.x",
-    "grunt": "~0.4.4",
-    "grunt-jslint": "~0.2.6",
-    "grunt-contrib-concat": "~0.2.0",
-    "grunt-contrib-uglify": "~0.2.0",
-    "grunt-contrib-connect": "~0.3.0"
-  },
   "devDependencies": {
     "karma-script-launcher": "~0.1.0",
     "karma-chrome-launcher": "~0.1.2",
@@ -28,7 +20,14 @@
     "karma-phantomjs-launcher": "~0.1.1",
     "karma": "~0.10.9",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-karma": "~0.6.2"
+    "grunt-karma": "~0.6.2",
+    "express": "3.x",
+    "grunt": "~0.4.4",
+    "grunt-jslint": "~0.2.6",
+    "grunt-contrib-concat": "~0.2.0",
+    "grunt-contrib-uglify": "~0.2.0",
+    "grunt-contrib-connect": "~0.3.0",
+    "grunt-contrib-copy": "~0.7.0"
   },
   "buildDependencies": {
       "d3": "3.4.8"
