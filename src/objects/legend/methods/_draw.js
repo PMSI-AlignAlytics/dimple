@@ -36,7 +36,7 @@
             // Add text into the group
             theseShapes.append("text")
                 .attr("class", function (d) {
-                    return "dimple-legend dimple-legend-text " + dimple._createClass(d.aggField);
+                    return "dimple-legend dimple-legend-text " + dimple._createClass(d.aggField) + " " + self.chart.customClassList.legendLabel;
                 })
                 .text(function(d) {
                     return d.key;
@@ -92,7 +92,7 @@
                             .attr("height", self._heightPixels());
                         d3.select(this).select("rect")
                             .attr("class", function (d) {
-                                return "dimple-legend dimple-legend-key " + dimple._createClass(d.aggField);
+                                return "dimple-legend dimple-legend-key " + dimple._createClass(d.aggField) + " " + self.chart.customClassList.legendKey;
                             })
                             .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth)))
                             .attr("y", self._yPixels() + runningY)

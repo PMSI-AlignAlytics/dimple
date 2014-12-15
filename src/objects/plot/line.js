@@ -180,7 +180,7 @@
                 .append("path")
                 .attr("id", function (d) { return d.key; })
                 .attr("class", function (d) {
-                    return className + " dimple-line " + d.keyString;
+                    return className + " dimple-line " + d.keyString + " " + chart.customClassList.lineSeries;
                 })
                 .attr("d", function (d) {
                     return d.entry;

@@ -32,7 +32,7 @@
                 if (series.y._hasCategories()) {
                     fields = fields.concat(d.yField);
                 }
-                return dimple._createClass(fields) + " " + markerClasses.join(" ");
+                return dimple._createClass(fields) + " " + markerClasses.join(" ") + " " + chart.customClassList.lineMarker;
             })
             .on("mouseover", function (e) {
                 enterEventHandler(e, this, chart, series);

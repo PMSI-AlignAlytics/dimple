@@ -342,7 +342,7 @@
                 .enter()
                 .append("path")
                 .attr("id", function (d) { return d.key; })
-                .attr("class", function (d) { return className + " dimple-line " + d.keyString; })
+                .attr("class", function (d) { return className + " dimple-line " + d.keyString + " " + chart.customClassList.areaSeries; })
                 .attr("d", function (d) { return d.entry; })
                 .call(function () {
                     // Apply formats optionally

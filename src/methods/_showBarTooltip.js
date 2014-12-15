@@ -113,12 +113,12 @@
         t = chart._tooltipGroup.append("g");
         // Create a box for the popup in the text group
         box = t.append("rect")
-            .attr("class", "dimple-tooltip");
+            .attr("class", "dimple-tooltip " + chart.customClassList.tooltipBox);
 
         // Create a text object for every row in the popup
         t.selectAll(".dimple-dont-select-any").data(tipText).enter()
             .append("text")
-            .attr("class", "dimple-tooltip")
+            .attr("class", "dimple-tooltip " + chart.customClassList.tooltipLabel)
             .text(function (d) { return d; })
             .style("font-family", series.tooltipFontFamily)
             .style("font-size", series._getTooltipFontSize());
