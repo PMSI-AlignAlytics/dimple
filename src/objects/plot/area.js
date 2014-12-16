@@ -324,7 +324,7 @@
                 // Add the color in this loop, it can't be done during initialisation of the row because
                 // the areas should be ordered first (to ensure standard distribution of colors
                 areaData[i].color = chart.getColor(areaData[i].key.length > 0 ? areaData[i].key[areaData[i].key.length - 1] : "All");
-
+                areaData[i].css = chart.getClass(areaData[i].key.length > 0 ? areaData[i].key[areaData[i].key.length - 1] : "All");
             }
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
@@ -342,7 +342,7 @@
                 .enter()
                 .append("path")
                 .attr("id", function (d) { return d.key; })
-                .attr("class", function (d) { return className + " dimple-line " + d.keyString + " " + chart.customClassList.areaSeries; })
+                .attr("class", function (d) { return className + " dimple-line " + d.keyString + " " + chart.customClassList.areaSeries + " " + d.css; })
                 .attr("d", function (d) { return d.entry; })
                 .call(function () {
                     // Apply formats optionally

@@ -104,7 +104,7 @@
                     var c = [];
                     c = c.concat(d.aggField);
                     c = c.concat(d.pField);
-                    return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.pieSeries;
+                    return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.pieSeries + " " + dimple._helpers.css(d, chart);
                 })
                 .attr("d", getArc)
                 .attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })

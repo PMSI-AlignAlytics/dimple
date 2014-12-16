@@ -162,6 +162,7 @@
                 // Add the color in this loop, it can't be done during initialisation of the row because
                 // the lines should be ordered first (to ensure standard distribution of colors
                 lineData[i].color = chart.getColor(lineData[i].key.length > 0 ? lineData[i].key[lineData[i].key.length - 1] : "All");
+                lineData[i].css = chart.getClass(lineData[i].key.length > 0 ? lineData[i].key[lineData[i].key.length - 1] : "All");
             }
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
@@ -180,7 +181,7 @@
                 .append("path")
                 .attr("id", function (d) { return d.key; })
                 .attr("class", function (d) {
-                    return className + " dimple-line " + d.keyString + " " + chart.customClassList.lineSeries;
+                    return className + " dimple-line " + d.keyString + " " + chart.customClassList.lineSeries + " " + d.css;
                 })
                 .attr("d", function (d) {
                     return d.entry;

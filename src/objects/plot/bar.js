@@ -52,7 +52,7 @@
                     c = c.concat(d.aggField);
                     c = c.concat(d.xField);
                     c = c.concat(d.yField);
-                    return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.barSeries;
+                    return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.barSeries + " " + dimple._helpers.css(d, chart);
                 })
                 .attr("x", function (d) {
                     var returnValue = series.x._previousOrigin;

@@ -167,7 +167,13 @@
                 stroke = chart.getColor(d.aggField.slice(-1)[0]).stroke;
             }
             return stroke;
+        },
+
+        // Calculate the class for the series
+        css: function (d, chart) {
+            return chart.getClass(d.aggField.slice(-1)[0]);
         }
+
 
     };
 

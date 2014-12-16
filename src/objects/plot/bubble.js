@@ -46,7 +46,7 @@
                     c = c.concat(d.xField);
                     c = c.concat(d.yField);
                     c = c.concat(d.zField);
-                    return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.bubbleSeries;
+                    return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.bubbleSeries + " " + dimple._helpers.css(d, chart);
                 })
                 .attr("cx", function (d) {
                     return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin);

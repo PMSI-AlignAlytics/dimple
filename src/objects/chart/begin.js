@@ -34,23 +34,6 @@
         this.ease = "cubic-in-out";
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-staggerDraw
         this.staggerDraw = false;
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-classList
-        this.customClassList = {
-            axisLine: 'dimple-custom-axis-line',
-            axisLabel: 'dimple-custom-axis-label',
-            axisTitle: 'dimple-custom-axis-title',
-            tooltipBox: 'dimple-custom-tooltip-box',
-            tooltipLabel: 'dimple-custom-tooltip-label',
-            lineMarker: 'dimple-custom-line-marker',
-            legendLabel: 'dimple-custom-legend-label',
-            legendKey: 'dimple-custom-legend-key',
-            areaSeries: 'dimple-custom-series-area',
-            barSeries: 'dimple-custom-series-bar',
-            bubbleSeries: 'dimple-custom-series-bubble',
-            lineSeries: 'dimple-custom-series-line',
-            pieSeries: 'dimple-custom-series-pie',
-            gridline: 'dimple-custom-gridline'
-        };
 
         // The group within which to put all of this chart's objects
         this._group = svg.append("g");
@@ -60,5 +43,9 @@
         this._tooltipGroup = null;
         // Colors assigned to chart contents.  E.g. a series value.
         this._assignedColors = {};
+        // Classes assigned to series values
+        this._assignedClasses = {};
         // The next colour index to use, this value is cycled around for all default colours
         this._nextColor = 0;
+        // The next series class index to use, this value is cycled around for all default classes
+        this._nextClass = 0;

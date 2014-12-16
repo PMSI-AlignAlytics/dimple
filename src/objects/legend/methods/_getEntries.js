@@ -31,6 +31,7 @@
                                 fill: series.chart._assignedColors[field].fill,
                                 stroke: series.chart._assignedColors[field].stroke,
                                 opacity: series.chart._assignedColors[field].opacity,
+                                css: series.chart._assignedClasses[field],
                                 series: series,
                                 aggField: row.aggField
                             });

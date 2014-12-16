@@ -152,15 +152,6 @@
                         }
                         return returnObj;
                     },
-                    addClass = function (obj, css) {
-                        var c;
-                        if (obj) {
-                            c = obj.attr("class") || "";
-                            if (c.indexOf(chart.customClassList.axisLabel) === -1) {
-                                obj.attr("class", (c + " " + css).trim());
-                            }
-                        }
-                    },
                     transformLabels = function () {
                         var t = d3.select(this).selectAll("text");
                         if (!axis.measure && axis._max > 0) {
@@ -180,8 +171,16 @@
                                 t.attr("x", -1 * (firstX._scale(0) - chartX) - 9);
                             }
                         }
-                        addClass(t, chart.customClassList.axisLabel);
-                        addClass(d3.select(this).selectAll("path,line"), chart.customClassList.axisLine);
+                        return this;
+                    },
+                    appendClass = function (css) {
+                        return function () {
+                            var currentCss = d3.select(this).attr("class") || "";
+                            if (currentCss.indexOf(css) === -1) {
+                                currentCss += " " + css;
+                            }
+                            return currentCss.trim();
+                        };
                     };
 
                 if (axis.gridlineShapes === null) {
@@ -231,7 +230,6 @@
                     gridSize = -chartWidth;
                 }
                 if (transform !== null && axis._draw !== null) {
-
                     // Add a tick format
                     if (axis._hasTimeField()) {
                         handleTrans(axis.shapes)
@@ -252,34 +250,37 @@
                     if (axis.gridlineShapes !== null) {
                         handleTrans(axis.gridlineShapes)
                             .call(axis._draw.tickSize(gridSize, 0, 0).tickFormat(""))
-                            .attr("transform", gridTransform)
-                            .each(function () {
-                                addClass(d3.select(this).selectAll("line"), chart.customClassList.gridline);
-                            });
+                            .attr("transform", gridTransform);
                     }
                 }
                 // Set some initial css values
-                handleTrans(axis.shapes.selectAll("text")).call(function() {
-                    if (!chart.noFormats) {
-                        this.style("font-family", axis.fontFamily)
-                            .style("font-size", axis._getFontSize());
-                    }
-                });
-                handleTrans(axis.shapes.selectAll("path, line")).call(function() {
-                    if (!chart.noFormats) {
-                        this.style("fill", "none")
-                            .style("stroke", "black")
-                            .style("shape-rendering", "crispEdges");
-                    }
-                });
-                if (axis.gridlineShapes !== null) {
-                    handleTrans(axis.gridlineShapes.selectAll("line")).call(function() {
+                handleTrans(axis.shapes.selectAll("text"))
+                    .attr("class", appendClass(chart.customClassList.axisLabel))
+                    .call(function() {
                         if (!chart.noFormats) {
-                            this.style("fill", "none")
-                                .style("stroke", "lightgray")
-                                .style("opacity", 0.8);
+                            this.style("font-family", axis.fontFamily)
+                                .style("font-size", axis._getFontSize());
                         }
                     });
+                handleTrans(axis.shapes.selectAll("path, line"))
+                    .attr("class", appendClass(chart.customClassList.axisLine))
+                    .call(function() {
+                        if (!chart.noFormats) {
+                            this.style("fill", "none")
+                                .style("stroke", "black")
+                                .style("shape-rendering", "crispEdges");
+                        }
+                    });
+                if (axis.gridlineShapes !== null) {
+                    handleTrans(axis.gridlineShapes.selectAll("line"))
+                        .attr("class", appendClass(chart.customClassList.gridline))
+                        .call(function() {
+                            if (!chart.noFormats) {
+                                this.style("fill", "none")
+                                    .style("stroke", "lightgray")
+                                    .style("opacity", 0.8);
+                            }
+                        });
                 }
                 // Rotate labels, this can only be done once the formats are set
                 if (axis.measure === null || axis.measure === undefined) {
@@ -382,7 +383,8 @@
                 // Add a title for the axis - NB check for null here, by default the title is undefined, in which case
                 // use the dimension name
                 if (!axis.hidden && (axis.position === "x" || axis.position === "y") && axis.title !== null) {
-                    axis.titleShape = this._group.append("text").attr("class", "dimple-axis dimple-title");
+                    axis.titleShape = this._group.append("text")
+                        .attr("class", "dimple-axis dimple-title " + chart.customClassList.axisTitle + "dimple-axis-" + axis.position);
                     axis.titleShape
                         .attr("x", titleX)
                         .attr("y", titleY)

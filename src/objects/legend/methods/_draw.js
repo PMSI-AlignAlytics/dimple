@@ -92,7 +92,7 @@
                             .attr("height", self._heightPixels());
                         d3.select(this).select("rect")
                             .attr("class", function (d) {
-                                return "dimple-legend dimple-legend-key " + dimple._createClass(d.aggField) + " " + self.chart.customClassList.legendKey;
+                                return "dimple-legend dimple-legend-key " + dimple._createClass(d.aggField) + " " + self.chart.customClassList.legendKey + " " + d.css;
                             })
                             .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth)))
                             .attr("y", self._yPixels() + runningY)
