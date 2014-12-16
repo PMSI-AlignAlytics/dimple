@@ -107,13 +107,13 @@
                     return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.pieSeries + " " + dimple._helpers.css(d, chart);
                 })
                 .attr("d", getArc)
-                .attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
                 .on("mouseover", function (e) { dimple._showBarTooltip(e, this, chart, series); })
                 .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
                 .call(function () {
                     if (!chart.noFormats) {
-                        this.attr("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
-                            .attr("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
+                        this.attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
+                            .style("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
+                            .style("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
                     }
                 })
                 .attr("transform", getTransform(true))

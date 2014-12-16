@@ -74,13 +74,13 @@
                 })
                 .attr("width", function (d) { return (cat === "x" ?  dimple._helpers.width(d, chart, series) : 0); })
                 .attr("height", function (d) { return (cat === "y" ?  dimple._helpers.height(d, chart, series) : 0); })
-                .attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
                 .on("mouseover", function (e) { dimple._showBarTooltip(e, this, chart, series); })
                 .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
                 .call(function () {
                     if (!chart.noFormats) {
-                        this.attr("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
-                            .attr("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
+                        this.attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
+                            .style("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
+                            .style("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
                     }
                 });
 

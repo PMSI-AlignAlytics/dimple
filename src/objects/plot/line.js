@@ -190,9 +190,9 @@
                     // Apply formats optionally
                     if (!chart.noFormats) {
                         this.attr("opacity", function (d) { return (graded ? 1 : d.color.opacity); })
-                            .attr("fill", "none")
-                            .attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.keyString + ")" : d.color.stroke); })
-                            .attr("stroke-width", series.lineWeight);
+                            .style("fill", "none")
+                            .style("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.keyString + ")" : d.color.stroke); })
+                            .style("stroke-width", series.lineWeight);
                     }
                 })
                 .each(function (d) {

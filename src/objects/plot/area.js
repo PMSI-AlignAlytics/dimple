@@ -348,9 +348,9 @@
                     // Apply formats optionally
                     if (!chart.noFormats) {
                         this.attr("opacity", function (d) { return (graded ? 1 : d.color.opacity); })
-                            .attr("fill", function (d) { return (graded ? "url(#fill-area-gradient-" + d.keyString + ")" : d.color.fill); })
-                            .attr("stroke", function (d) { return (graded ? "url(#stroke-area-gradient-" + d.keyString + ")" : d.color.stroke); })
-                            .attr("stroke-width", series.lineWeight);
+                            .style("fill", function (d) { return (graded ? "url(#fill-area-gradient-" + d.keyString + ")" : d.color.fill); })
+                            .style("stroke", function (d) { return (graded ? "url(#stroke-area-gradient-" + d.keyString + ")" : d.color.stroke); })
+                            .style("stroke-width", series.lineWeight);
                     }
                 })
                 .each(function (d) {
