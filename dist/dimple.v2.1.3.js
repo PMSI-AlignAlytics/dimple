@@ -1843,7 +1843,7 @@
                 if (axis.shapes === null) {
                     // Add a group for the axes to allow css formatting
                     axis.shapes = this._group.append("g")
-                        .attr("class", "dimple-axis " + "dimple-axis-" + axis.position)
+                        .attr("class", "dimple-axis dimple-axis-" + axis.position)
                         .each(function () {
                             if (!chart.noFormats) {
                                 d3.select(this)
@@ -2024,7 +2024,7 @@
                 // use the dimension name
                 if (!axis.hidden && (axis.position === "x" || axis.position === "y") && axis.title !== null) {
                     axis.titleShape = this._group.append("text")
-                        .attr("class", "dimple-axis dimple-title " + chart.customClassList.axisTitle + "dimple-axis-" + axis.position);
+                        .attr("class", "dimple-axis dimple-title " + chart.customClassList.axisTitle + " dimple-axis-" + axis.position);
                     axis.titleShape
                         .attr("x", titleX)
                         .attr("y", titleY)
