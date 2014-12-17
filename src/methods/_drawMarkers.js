@@ -25,14 +25,15 @@
                 return d.key;
             })
             .attr("class", function (d) {
-                var fields = [];
+                var fields = [],
+                    css = chart.getClass(d.aggField.length > 0 ? d.aggField[d.aggField.length - 1] : "All");
                 if (series.x._hasCategories()) {
                     fields = fields.concat(d.xField);
                 }
                 if (series.y._hasCategories()) {
                     fields = fields.concat(d.yField);
                 }
-                return dimple._createClass(fields) + " " + markerClasses.join(" ") + " " + chart.customClassList.lineMarker;
+                return dimple._createClass(fields) + " " + markerClasses.join(" ") + " " + chart.customClassList.lineMarker + " " + css;
             })
             .on("mouseover", function (e) {
                 enterEventHandler(e, this, chart, series);
