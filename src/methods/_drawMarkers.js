@@ -23,7 +23,7 @@
         }
         shapes
             .attr("id", function (d) {
-                return d.key + "Marker";
+                return dimple._createClass([d.key + " Marker"]);
             })
             .attr("class", function (d) {
                 var fields = [],

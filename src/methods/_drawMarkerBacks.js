@@ -20,7 +20,7 @@
                 shapes = markerBacks.enter().append("circle");
             }
             shapes
-                .attr("id", function (d) { return d.key + "MarkerBack"; })
+                .attr("id", function (d) { return dimple._createClass([d.key + " Marker Back"]); })
                 .attr("class", function (d) {
                     var fields = [];
                     if (series.x._hasCategories()) {

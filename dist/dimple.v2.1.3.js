@@ -3403,7 +3403,7 @@
             theseShapes
                 .enter()
                 .append("path")
-                .attr("id", function (d) { return d.key; })
+                .attr("id", function (d) { return dimple._createClass([d.key]); })
                 .attr("class", function (d) { return className + " dimple-line " + d.keyString + " " + chart.customClassList.areaSeries + " " + d.css; })
                 .attr("d", function (d) { return d.entry; })
                 .call(function () {
@@ -3497,7 +3497,7 @@
             theseShapes
                 .enter()
                 .append("rect")
-                .attr("id", function (d) { return d.key; })
+                .attr("id", function (d) { return dimple._createClass([d.key]); })
                 .attr("class", function (d) {
                     var c = [];
                     c = c.concat(d.aggField);
@@ -3618,7 +3618,7 @@
             theseShapes
                 .enter()
                 .append("circle")
-                .attr("id", function (d) { return d.key; })
+                .attr("id", function (d) { return dimple._createClass([d.key]); })
                 .attr("class", function (d) {
                     var c = [];
                     c = c.concat(d.aggField);
@@ -3846,7 +3846,7 @@
             theseShapes
                 .enter()
                 .append("path")
-                .attr("id", function (d) { return d.key; })
+                .attr("id", function (d) { return dimple._createClass([d.key]); })
                 .attr("class", function (d) {
                     return className + " dimple-line " + d.keyString + " " + chart.customClassList.lineSeries + " " + d.css;
                 })
@@ -3997,7 +3997,7 @@
             theseShapes
                 .enter()
                 .append("path")
-                .attr("id", function (d) { return d.key; })
+                .attr("id", function (d) { return dimple._createClass([d.key]); })
                 .attr("class", function (d) {
                     var c = [];
                     c = c.concat(d.aggField);
@@ -4070,7 +4070,7 @@
         if (grad.node() === null) {
             transition = false;
             grad = chart._group.append("linearGradient")
-                .attr("id", id)
+                .attr("id", dimple._createClass([id]))
                 .attr("gradientUnits", "userSpaceOnUse")
                 .attr("x1", (categoryAxis.position === "x" ? categoryAxis._scale(cats[0]) + ((chart._widthPixels() / cats.length) / 2) : 0))
                 .attr("y1", (categoryAxis.position === "y" ? categoryAxis._scale(cats[0]) - ((chart._heightPixels() / cats.length) / 2) : 0))
@@ -4191,7 +4191,7 @@
                 shapes = markerBacks.enter().append("circle");
             }
             shapes
-                .attr("id", function (d) { return d.key + "MarkerBack"; })
+                .attr("id", function (d) { return dimple._createClass([d.key + " Marker Back"]); })
                 .attr("class", function (d) {
                     var fields = [];
                     if (series.x._hasCategories()) {
@@ -4261,7 +4261,7 @@
         }
         shapes
             .attr("id", function (d) {
-                return d.key + "Marker";
+                return dimple._createClass([d.key + " Marker"]);
             })
             .attr("class", function (d) {
                 var fields = [],

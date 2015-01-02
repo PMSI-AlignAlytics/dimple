@@ -341,7 +341,7 @@
             theseShapes
                 .enter()
                 .append("path")
-                .attr("id", function (d) { return d.key; })
+                .attr("id", function (d) { return dimple._createClass([d.key]); })
                 .attr("class", function (d) { return className + " dimple-line " + d.keyString + " " + chart.customClassList.areaSeries + " " + d.css; })
                 .attr("d", function (d) { return d.entry; })
                 .call(function () {

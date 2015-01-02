@@ -21,7 +21,7 @@
         if (grad.node() === null) {
             transition = false;
             grad = chart._group.append("linearGradient")
-                .attr("id", id)
+                .attr("id", dimple._createClass([id]))
                 .attr("gradientUnits", "userSpaceOnUse")
                 .attr("x1", (categoryAxis.position === "x" ? categoryAxis._scale(cats[0]) + ((chart._widthPixels() / cats.length) / 2) : 0))
                 .attr("y1", (categoryAxis.position === "y" ? categoryAxis._scale(cats[0]) - ((chart._heightPixels() / cats.length) / 2) : 0))

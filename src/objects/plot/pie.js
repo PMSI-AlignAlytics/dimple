@@ -99,7 +99,7 @@
             theseShapes
                 .enter()
                 .append("path")
-                .attr("id", function (d) { return d.key; })
+                .attr("id", function (d) { return dimple._createClass([d.key]); })
                 .attr("class", function (d) {
                     var c = [];
                     c = c.concat(d.aggField);
