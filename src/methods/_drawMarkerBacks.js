@@ -1,21 +1,26 @@
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_drawMarkerBacks.js
-    dimple._drawMarkerBacks = function (lineDataRow, chart, series, duration, className) {
+    dimple._drawMarkerBacks = function (lineDataRow, chart, series, duration, className, lineShape) {
         var markerBacks,
             markerBackClasses = ["dimple-marker-back", className, lineDataRow.keyString],
-            rem;
+            rem,
+            shapes;
         if (series.lineMarkers) {
             if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
                 markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.markerData);
             } else {
                 markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.markerData, function (d) { return d.key; });
             }
+
             // Add
-            markerBacks
-                .enter()
-                .append("circle")
-                .attr("id", function (d) { return d.key; })
+            if (lineShape.nextSibling && lineShape.nextSibling.id) {
+                shapes = markerBacks.enter().insert("circle", '#' + lineShape.nextSibling.id);
+            } else {
+                shapes = markerBacks.enter().append("circle");
+            }
+            shapes
+                .attr("id", function (d) { return d.key + "MarkerBack"; })
                 .attr("class", function (d) {
                     var fields = [];
                     if (series.x._hasCategories()) {

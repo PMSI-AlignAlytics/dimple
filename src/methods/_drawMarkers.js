@@ -1,13 +1,11 @@
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_drawMarkers.js
-    dimple._drawMarkers = function (lineDataRow, chart, series, duration, className, useGradient, enterEventHandler, leaveEventHandler) {
+    dimple._drawMarkers = function (lineDataRow, chart, series, duration, className, useGradient, enterEventHandler, leaveEventHandler, lineShape) {
         var markers,
             markerClasses = ["dimple-marker", className, lineDataRow.keyString],
-            rem;
-
-        // Begin by drawing the backings
-        dimple._drawMarkerBacks(lineDataRow, chart, series, duration, className);
+            rem,
+            shapes;
 
         // Deal with markers in the same way as main series to fix #28
         if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
@@ -18,11 +16,14 @@
             });
         }
         // Add
-        markers
-            .enter()
-            .append("circle")
+        if (lineShape.nextSibling && lineShape.nextSibling.id) {
+            shapes = markers.enter().insert("circle", '#' + lineShape.nextSibling.id);
+        } else {
+            shapes = markers.enter().append("circle");
+        }
+        shapes
             .attr("id", function (d) {
-                return d.key;
+                return d.key + "Marker";
             })
             .attr("class", function (d) {
                 var fields = [],
@@ -94,4 +95,8 @@
             series._markers = {};
         }
         series._markers[lineDataRow.keyString] = markers;
+
+        // Insert the backings before the markers
+        dimple._drawMarkerBacks(lineDataRow, chart, series, duration, className, lineShape);
+
     };

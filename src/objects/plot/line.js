@@ -43,8 +43,8 @@
                         dimple._removeTooltip(e, shape, chart, series);
                     };
                 },
-                drawMarkers = function (d) {
-                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d));
+                drawMarkers = function (d, context) {
+                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d), context);
                 },
                 coord = function (position, datum) {
                     var val;
@@ -198,7 +198,7 @@
                 .each(function (d) {
                     // Pass line data to markers
                     d.markerData = d.data;
-                    drawMarkers(d);
+                    drawMarkers(d, this);
                 });
 
             // Update
@@ -207,7 +207,7 @@
                 .each(function (d) {
                     // Pass line data to markers
                     d.markerData = d.data;
-                    drawMarkers(d);
+                    drawMarkers(d, this);
                 });
 
             // Remove
@@ -217,7 +217,7 @@
                     // Using all data for the markers fails because there are no exits in the markers
                     // only the whole line, therefore we need to clear the points here
                     d.markerData = [];
-                    drawMarkers(d);
+                    drawMarkers(d, this);
                 });
 
             dimple._postDrawHandling(series, updated, removed, duration);

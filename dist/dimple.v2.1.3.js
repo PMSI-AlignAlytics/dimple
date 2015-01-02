@@ -3120,8 +3120,8 @@
                         dimple._removeTooltip(e, shape, chart, series);
                     };
                 },
-                drawMarkers = function (d) {
-                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d));
+                drawMarkers = function (d, context) {
+                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d), context);
                 },
                 coord = function (position, datum) {
                     var val;
@@ -3418,7 +3418,7 @@
                 .each(function (d) {
                     // Pass line data to markers
                     d.markerData = d.data;
-                    drawMarkers(d);
+                    drawMarkers(d, this);
                 });
 
             // Update
@@ -3427,7 +3427,7 @@
                 .each(function (d) {
                     // Pass line data to markers
                     d.markerData = d.data;
-                    drawMarkers(d);
+                    drawMarkers(d, this);
                 });
 
             // Remove
@@ -3437,7 +3437,7 @@
                     // Using all data for the markers fails because there are no exits in the markers
                     // only the whole line, therefore we need to clear the points here
                     d.markerData = [];
-                    drawMarkers(d);
+                    drawMarkers(d, this);
                 });
 
             dimple._postDrawHandling(series, updated, removed, duration);
@@ -3710,8 +3710,8 @@
                         dimple._removeTooltip(e, shape, chart, series);
                     };
                 },
-                drawMarkers = function (d) {
-                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d));
+                drawMarkers = function (d, context) {
+                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d), context);
                 },
                 coord = function (position, datum) {
                     var val;
@@ -3865,7 +3865,7 @@
                 .each(function (d) {
                     // Pass line data to markers
                     d.markerData = d.data;
-                    drawMarkers(d);
+                    drawMarkers(d, this);
                 });
 
             // Update
@@ -3874,7 +3874,7 @@
                 .each(function (d) {
                     // Pass line data to markers
                     d.markerData = d.data;
-                    drawMarkers(d);
+                    drawMarkers(d, this);
                 });
 
             // Remove
@@ -3884,7 +3884,7 @@
                     // Using all data for the markers fails because there are no exits in the markers
                     // only the whole line, therefore we need to clear the points here
                     d.markerData = [];
-                    drawMarkers(d);
+                    drawMarkers(d, this);
                 });
 
             dimple._postDrawHandling(series, updated, removed, duration);
@@ -4172,21 +4172,26 @@
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_drawMarkerBacks.js
-    dimple._drawMarkerBacks = function (lineDataRow, chart, series, duration, className) {
+    dimple._drawMarkerBacks = function (lineDataRow, chart, series, duration, className, lineShape) {
         var markerBacks,
             markerBackClasses = ["dimple-marker-back", className, lineDataRow.keyString],
-            rem;
+            rem,
+            shapes;
         if (series.lineMarkers) {
             if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
                 markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.markerData);
             } else {
                 markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.markerData, function (d) { return d.key; });
             }
+
             // Add
-            markerBacks
-                .enter()
-                .append("circle")
-                .attr("id", function (d) { return d.key; })
+            if (lineShape.nextSibling && lineShape.nextSibling.id) {
+                shapes = markerBacks.enter().insert("circle", '#' + lineShape.nextSibling.id);
+            } else {
+                shapes = markerBacks.enter().append("circle");
+            }
+            shapes
+                .attr("id", function (d) { return d.key + "MarkerBack"; })
                 .attr("class", function (d) {
                     var fields = [];
                     if (series.x._hasCategories()) {
@@ -4234,13 +4239,11 @@
     // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_drawMarkers.js
-    dimple._drawMarkers = function (lineDataRow, chart, series, duration, className, useGradient, enterEventHandler, leaveEventHandler) {
+    dimple._drawMarkers = function (lineDataRow, chart, series, duration, className, useGradient, enterEventHandler, leaveEventHandler, lineShape) {
         var markers,
             markerClasses = ["dimple-marker", className, lineDataRow.keyString],
-            rem;
-
-        // Begin by drawing the backings
-        dimple._drawMarkerBacks(lineDataRow, chart, series, duration, className);
+            rem,
+            shapes;
 
         // Deal with markers in the same way as main series to fix #28
         if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
@@ -4251,11 +4254,14 @@
             });
         }
         // Add
-        markers
-            .enter()
-            .append("circle")
+        if (lineShape.nextSibling && lineShape.nextSibling.id) {
+            shapes = markers.enter().insert("circle", '#' + lineShape.nextSibling.id);
+        } else {
+            shapes = markers.enter().append("circle");
+        }
+        shapes
             .attr("id", function (d) {
-                return d.key;
+                return d.key + "Marker";
             })
             .attr("class", function (d) {
                 var fields = [],
@@ -4327,6 +4333,10 @@
             series._markers = {};
         }
         series._markers[lineDataRow.keyString] = markers;
+
+        // Insert the backings before the markers
+        dimple._drawMarkerBacks(lineDataRow, chart, series, duration, className, lineShape);
+
     };
 
     // Copyright: 2014 PMSI-AlignAlytics
