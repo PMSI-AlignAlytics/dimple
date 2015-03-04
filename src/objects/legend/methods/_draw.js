@@ -68,8 +68,8 @@
 
             // Expand the bounds of the largest shape slightly.  This will be the size allocated to
             // all elements
-            maxHeight = (maxHeight < keyHeight ? keyHeight : maxHeight) + 2;
-            maxWidth += keyWidth + 20;
+            maxHeight = (maxHeight < keyHeight ? keyHeight : maxHeight) + self._getVerticalPadding();
+            maxWidth += keyWidth + self._getHorizontalPadding();
 
             // Iterate the shapes and position them based on the alignment and size of the legend
             theseShapes
