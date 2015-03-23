@@ -1,0 +1,13 @@
+{
+    "name": "dimple",
+    "description": "An object-oriented charting API for d3",
+    "private": false,
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/PMSI-AlignAlytics/dimple.git"
+    },
+    "dependencies": {
+        "d3": ">=3.5.2"
+    }
+}

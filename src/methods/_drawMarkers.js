@@ -1,4 +1,4 @@
-    // Copyright: 2014 PMSI-AlignAlytics
+    // Copyright: 2015 AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_drawMarkers.js
     dimple._drawMarkers = function (lineDataRow, chart, series, duration, className, useGradient, enterEventHandler, leaveEventHandler, lineShape) {

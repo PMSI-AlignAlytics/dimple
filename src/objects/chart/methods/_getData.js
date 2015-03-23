@@ -1,4 +1,4 @@
-        // Copyright: 2014 PMSI-AlignAlytics
+        // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_getData.js
         // Create a dataset containing positioning information for every series

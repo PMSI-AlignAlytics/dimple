@@ -1,4 +1,4 @@
-    // Copyright: 2014 PMSI-AlignAlytics
+    // Copyright: 2015 AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/aggregateMethod/max.js
     dimple.aggregateMethod.max = function (lhs, rhs) {

@@ -1,3 +1,6 @@
+    // Copyright: 2015 AlignAlytics
+    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
+    // Source: /src/objects/plot/pie.js
     dimple.plot.pie = {
         // By default the bar series is stacked if there are series categories
         stacked: false,

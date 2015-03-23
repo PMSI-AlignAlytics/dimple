@@ -1,4 +1,4 @@
-          // Copyright: 2014 PMSI-AlignAlytics
+          // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/chart/methods/_handleTransition.js
         this._handleTransition = function (input, duration, chart, series) {

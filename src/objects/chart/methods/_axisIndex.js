@@ -1,4 +1,4 @@
-        // Copyright: 2014 PMSI-AlignAlytics
+        // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_axisIndex.js
         // Return the ordinal value of the passed axis.  If an orientation is passed, return the order for the 
