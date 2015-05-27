@@ -2,7 +2,7 @@
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/axis/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis
-    dimple.axis = function (chart, position, categoryFields, measure, timeField) {
+    dimple.axis = function (chart, position, categoryFields, measure, timeField, autoRotateLabel) {
 
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-chart
         this.chart = chart;
@@ -56,6 +56,8 @@
         this.fontSize = "10px";
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontFamily
         this.fontFamily = "sans-serif";
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-autoRotateLabel
+        this.autoRotateLabel = (autoRotateLabel === null || autoRotateLabel === undefined ? true : autoRotateLabel);
 
         // If this is a composite axis, store links to all slaves
         this._slaves = [];
