@@ -12,6 +12,7 @@
                 runningY = 0,
                 keyWidth = 15,
                 keyHeight = 9,
+                distanceBetweenKeyAndText = 5,
                 self = this,
                 theseShapes;
 
@@ -68,8 +69,8 @@
 
             // Expand the bounds of the largest shape slightly.  This will be the size allocated to
             // all elements
-            maxHeight = (maxHeight < keyHeight ? keyHeight : maxHeight) + 2;
-            maxWidth += keyWidth + 20;
+            maxHeight = (maxHeight < keyHeight ? keyHeight : maxHeight) + self._getVerticalPadding();
+            maxWidth += keyWidth + self._getHorizontalPadding();
 
             // Iterate the shapes and position them based on the alignment and size of the legend
             theseShapes
@@ -82,7 +83,7 @@
                         d3.select(this).remove();
                     } else {
                         d3.select(this).select("text")
-                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + keyWidth + 5 + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth) + keyWidth + 5))
+                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + keyWidth + distanceBetweenKeyAndText + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth) + keyWidth + distanceBetweenKeyAndText))
                             .attr("y", function () {
                                 // This was previously done with dominant-baseline but this is used
                                 // instead due to browser inconsistency.
