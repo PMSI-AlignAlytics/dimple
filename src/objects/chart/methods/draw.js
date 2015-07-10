@@ -283,7 +283,7 @@
                         });
                 }
                 // Rotate labels, this can only be done once the formats are set
-                if (axis.measure === null || axis.measure === undefined) {
+                if (axis.autoRotateLabel && (axis.measure === null || axis.measure === undefined)) {
                     if (axis === firstX) {
                         // If the gaps are narrower than the widest label display all labels horizontally
                         widest = 0;
@@ -332,6 +332,11 @@
                                 .attr("transform", "");
                         }
                     }
+                } else {
+                    rotated = false;
+                    axis.shapes.selectAll("text")
+                        .style("text-anchor", "middle")
+                        .attr("transform", "");
                 }
                 if (axis.titleShape !== null && axis.titleShape !== undefined) {
                     axis.titleShape.remove();
