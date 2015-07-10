@@ -9,12 +9,12 @@
     "dependencies": {
         "d3": ">=3.5.2"
     },
-    "version": "2.1.2",
+    "version": "2.1.4",
     "homepage": "dimplejs.org",
     "authors": [
         "johnkiernander <jkiernander@pmsi-consulting.com>"
     ],
-    "main": "dist/dimple.v2.1.2.min.js",
+    "main": "dist/dimple.v2.1.4.min.js",
     "moduleType": [
         "amd"
     ],
