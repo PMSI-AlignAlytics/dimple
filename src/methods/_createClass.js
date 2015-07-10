@@ -13,11 +13,14 @@
                 }
                 return returnString;
             };
-        if (stringArray.length > 0) {
+        if (stringArray && (stringArray.length > 0)) {
             for (i = 0; i < stringArray.length; i += 1) {
-                /*jslint regexp: true */
-                returnArray.push("dimple-" + stringArray[i].toString().replace(/[^a-z0-9]/g, replacer));
-                /*jslint regexp: false */
+                // Ignore invalid items
+                if (stringArray[i]) {
+                    /*jslint regexp: true */
+                    returnArray.push("dimple-" + stringArray[i].toString().replace(/[^a-z0-9]/g, replacer));
+                    /*jslint regexp: false */
+                }
             }
         } else {
             returnArray = ["dimple-all"];
