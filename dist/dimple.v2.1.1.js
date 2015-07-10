@@ -1,4 +1,4 @@
-// Copyright: 2015 AlignAlytics
+// Copyright: 2014 PMSI-AlignAlytics
 // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
 // Source: /src/objects/begin.js
 
@@ -38,15 +38,15 @@
 
     // Create the stub object
     var dimple = {
-        version: "2.1.4",
+        version: "2.1.1",
         plot: {},
         aggregateMethod: {}
     };
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/axis/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis
-    dimple.axis = function (chart, position, categoryFields, measure, timeField, autoRotateLabel) {
+    dimple.axis = function (chart, position, categoryFields, measure, timeField) {
 
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-chart
         this.chart = chart;
@@ -100,8 +100,6 @@
         this.fontSize = "10px";
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontFamily
         this.fontFamily = "sans-serif";
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-autoRotateLabel
-        this.autoRotateLabel = (autoRotateLabel === null || autoRotateLabel === undefined ? true : autoRotateLabel);
 
         // If this is a composite axis, store links to all slaves
         this._slaves = [];
@@ -120,13 +118,13 @@
         this._groupOrderRules = [];
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_draw.js
         this._draw = null;
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_getAxisData.js
         // Get all the datasets which may affect this axis
@@ -155,7 +153,7 @@
             return returnData;
         };
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_getFontSize.js
         this._getFontSize = function () {
@@ -170,7 +168,7 @@
             return fontSize;
         };
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_getFormat.js
         this._getFormat = function () {
@@ -221,7 +219,7 @@
             return returnFormat;
         };
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_getTimePeriod.js
         this._getTimePeriod = function () {
@@ -254,7 +252,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/getTooltipText.js
         this._getTooltipText = function (rows, d) {
@@ -287,7 +285,7 @@
                 }
             }
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_getTopMaster.js
         this._getTopMaster = function () {
@@ -299,7 +297,7 @@
             return topMaster;
         };
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_hasCategories.js
         this._hasCategories = function () {
@@ -307,7 +305,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_hasMeasure.js
         this._hasMeasure = function () {
@@ -315,7 +313,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_hasTimeField.js
         this._hasTimeField = function () {
@@ -323,7 +321,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_parseDate.js
         this._parseDate = function (inDate) {
@@ -348,7 +346,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_update.js
         this._update = function (refactor) {
@@ -604,14 +602,14 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/addGroupOrderRule.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-addGroupOrderRule
         this.addGroupOrderRule = function (ordering, desc) {
             this._groupOrderRules.push({ ordering : ordering, desc : desc });
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/addOrderRule.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-addOrderRule
@@ -622,7 +620,7 @@
     // End dimple.axis
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/chart/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart
@@ -667,14 +665,10 @@
         this._tooltipGroup = null;
         // Colors assigned to chart contents.  E.g. a series value.
         this._assignedColors = {};
-        // Classes assigned to series values
-        this._assignedClasses = {};
         // The next colour index to use, this value is cycled around for all default colours
         this._nextColor = 0;
-        // The next series class index to use, this value is cycled around for all default classes
-        this._nextClass = 0;
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_axisIndex.js
         // Return the ordinal value of the passed axis.  If an orientation is passed, return the order for the 
@@ -700,7 +694,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_getAllData.js
         // Mash together all of the datasets
@@ -724,7 +718,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_getData.js
         // Create a dataset containing positioning information for every series
@@ -1138,7 +1132,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_getDelay.js
         this._getDelay = function (duration, chart, series) {
@@ -1156,7 +1150,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_getSeriesData.js
         // Create a dataset containing positioning information for every series
@@ -1293,7 +1287,7 @@
         };
 
 
-          // Copyright: 2015 AlignAlytics
+          // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/chart/methods/_handleTransition.js
         this._handleTransition = function (input, duration, chart, series) {
@@ -1309,7 +1303,7 @@
             return returnShape;
         };
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_heightPixels.js
         // Access the pixel value of the height of the plot area
@@ -1317,7 +1311,7 @@
             return dimple._parseYPosition(this.height, this.svg.node());
         };
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_registerEventHandlers.js
         // Register events, handle standard d3 shape events
@@ -1358,28 +1352,28 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_widthPixels.js
         // Access the pixel value of the width of the plot area
         this._widthPixels = function () {
             return dimple._parseXPosition(this.width, this.svg.node());
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_xPixels.js
         // Access the pixel position of the x co-ordinate of the plot area
         this._xPixels = function () {
             return dimple._parseXPosition(this.x, this.svg.node());
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_yPixels.js
         // Access the pixel position of the y co-ordinate of the plot area
         this._yPixels = function () {
             return dimple._parseYPosition(this.y, this.svg.node());
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addAxis
@@ -1432,7 +1426,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addCategoryAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addCategoryAxis
@@ -1441,7 +1435,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addColorAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addColorAxis
@@ -1465,7 +1459,7 @@
             // Return the legend object
             return legend;
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addLogAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addLogAxis
@@ -1477,7 +1471,7 @@
             axis.useLog = true;
             return axis;
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addMeasureAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addMeasureAxis
@@ -1486,7 +1480,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addPctAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addPctAxis
@@ -1502,7 +1496,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addSeries.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addSeries
@@ -1558,7 +1552,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addTimeAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addTimeAxis
@@ -1570,17 +1564,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/assignClass.js
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-assignClass
-        this.assignClass = function (tag, css) {
-            this._assignedClasses[tag] = css;
-            return this._assignedClasses[tag];
-        };
-
-
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/assignColor.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-assignColor
@@ -1590,39 +1574,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/customClassList.js
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-customClassList
-        this.customClassList = {
-            axisLine: 'dimple-custom-axis-line',
-            axisLabel: 'dimple-custom-axis-label',
-            axisTitle: 'dimple-custom-axis-title',
-            tooltipBox: 'dimple-custom-tooltip-box',
-            tooltipLabel: 'dimple-custom-tooltip-label',
-            lineMarker: 'dimple-custom-line-marker',
-            legendLabel: 'dimple-custom-legend-label',
-            legendKey: 'dimple-custom-legend-key',
-            areaSeries: 'dimple-custom-series-area',
-            barSeries: 'dimple-custom-series-bar',
-            bubbleSeries: 'dimple-custom-series-bubble',
-            lineSeries: 'dimple-custom-series-line',
-            pieSeries: 'dimple-custom-series-pie',
-            gridline: 'dimple-custom-gridline',
-            colorClasses: [
-                'dimple-custom-format-1',
-                'dimple-custom-format-2',
-                'dimple-custom-format-3',
-                'dimple-custom-format-4',
-                'dimple-custom-format-5',
-                'dimple-custom-format-6',
-                'dimple-custom-format-7',
-                'dimple-custom-format-8',
-                'dimple-custom-format-9',
-                'dimple-custom-format-10'
-            ]
-        };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/defaultColors.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-defaultColors
@@ -1640,7 +1592,7 @@
             new dimple.color("#FCCDE5"), // Pink
             new dimple.color("#D9D9D9")  // Grey
         ];
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/draw.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-draw
@@ -1795,34 +1747,23 @@
                         return returnObj;
                     },
                     transformLabels = function () {
-                        var t = d3.select(this).selectAll("text");
                         if (!axis.measure && axis._max > 0) {
                             if (axis.position === "x") {
-                                t.attr("x", (chartWidth / axis._max) / 2);
+                                d3.select(this).selectAll("text").attr("x", (chartWidth / axis._max) / 2);
                             } else if (axis.position === "y") {
-                                t.attr("y", -1 * (chartHeight / axis._max) / 2);
+                                d3.select(this).selectAll("text").attr("y", -1 * (chartHeight / axis._max) / 2);
                             }
                         }
                         if (axis.categoryFields && axis.categoryFields.length > 0) {
                             // Off set the labels to counter the transform.  This will put the labels along the outside of the chart so they
                             // don't interfere with the chart contents
                             if (axis === firstX && (firstY.categoryFields === null || firstY.categoryFields.length === 0)) {
-                                t.attr("y", chartY + chartHeight - firstY._scale(0) + 9);
+                                d3.select(this).selectAll("text").attr("y", chartY + chartHeight - firstY._scale(0) + 9);
                             }
                             if (axis === firstY && (firstX.categoryFields === null || firstX.categoryFields.length === 0)) {
-                                t.attr("x", -1 * (firstX._scale(0) - chartX) - 9);
+                                d3.select(this).selectAll("text").attr("x", -1 * (firstX._scale(0) - chartX) - 9);
                             }
                         }
-                        return this;
-                    },
-                    appendClass = function (css) {
-                        return function () {
-                            var currentCss = d3.select(this).attr("class") || "";
-                            if (currentCss.indexOf(css) === -1) {
-                                currentCss += " " + css;
-                            }
-                            return currentCss.trim();
-                        };
                     };
 
                 if (axis.gridlineShapes === null) {
@@ -1845,7 +1786,7 @@
                 if (axis.shapes === null) {
                     // Add a group for the axes to allow css formatting
                     axis.shapes = this._group.append("g")
-                        .attr("class", "dimple-axis dimple-axis-" + axis.position)
+                        .attr("class", "dimple-axis")
                         .each(function () {
                             if (!chart.noFormats) {
                                 d3.select(this)
@@ -1872,6 +1813,7 @@
                     gridSize = -chartWidth;
                 }
                 if (transform !== null && axis._draw !== null) {
+
                     // Add a tick format
                     if (axis._hasTimeField()) {
                         handleTrans(axis.shapes)
@@ -1896,36 +1838,30 @@
                     }
                 }
                 // Set some initial css values
-                handleTrans(axis.shapes.selectAll("text"))
-                    .attr("class", appendClass(chart.customClassList.axisLabel))
-                    .call(function() {
-                        if (!chart.noFormats) {
-                            this.style("font-family", axis.fontFamily)
-                                .style("font-size", axis._getFontSize());
-                        }
-                    });
-                handleTrans(axis.shapes.selectAll("path, line"))
-                    .attr("class", appendClass(chart.customClassList.axisLine))
-                    .call(function() {
+                handleTrans(axis.shapes.selectAll("text")).call(function() {
+                    if (!chart.noFormats) {
+                        this.style("font-family", axis.fontFamily)
+                            .style("font-size", axis._getFontSize());
+                    }
+                });
+                handleTrans(axis.shapes.selectAll("path, line")).call(function() {
+                    if (!chart.noFormats) {
+                        this.style("fill", "none")
+                            .style("stroke", "black")
+                            .style("shape-rendering", "crispEdges");
+                    }
+                });
+                if (axis.gridlineShapes !== null) {
+                    handleTrans(axis.gridlineShapes.selectAll("line")).call(function() {
                         if (!chart.noFormats) {
                             this.style("fill", "none")
-                                .style("stroke", "black")
-                                .style("shape-rendering", "crispEdges");
+                                .style("stroke", "lightgray")
+                                .style("opacity", 0.8);
                         }
                     });
-                if (axis.gridlineShapes !== null) {
-                    handleTrans(axis.gridlineShapes.selectAll("line"))
-                        .attr("class", appendClass(chart.customClassList.gridline))
-                        .call(function() {
-                            if (!chart.noFormats) {
-                                this.style("fill", "none")
-                                    .style("stroke", "lightgray")
-                                    .style("opacity", 0.8);
-                            }
-                        });
                 }
                 // Rotate labels, this can only be done once the formats are set
-                if (axis.autoRotateLabel && (axis.measure === null || axis.measure === undefined)) {
+                if (axis.measure === null || axis.measure === undefined) {
                     if (axis === firstX) {
                         // If the gaps are narrower than the widest label display all labels horizontally
                         widest = 0;
@@ -1974,11 +1910,6 @@
                                 .attr("transform", "");
                         }
                     }
-                } else {
-                    rotated = false;
-                    axis.shapes.selectAll("text")
-                        .style("text-anchor", "middle")
-                        .attr("transform", "");
                 }
                 if (axis.titleShape !== null && axis.titleShape !== undefined) {
                     axis.titleShape.remove();
@@ -2030,8 +1961,7 @@
                 // Add a title for the axis - NB check for null here, by default the title is undefined, in which case
                 // use the dimension name
                 if (!axis.hidden && (axis.position === "x" || axis.position === "y") && axis.title !== null) {
-                    axis.titleShape = this._group.append("text")
-                        .attr("class", "dimple-axis dimple-title " + chart.customClassList.axisTitle + " dimple-axis-" + axis.position);
+                    axis.titleShape = this._group.append("text").attr("class", "dimple-axis dimple-title");
                     axis.titleShape
                         .attr("x", titleX)
                         .attr("y", titleY)
@@ -2085,22 +2015,7 @@
 
         };
 
-        // Copyright: 2015 AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/chart/methods/getClass.js
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-getClass
-        this.getClass = function (tag) {
-            // If no class is assigned, do so here
-            if (!this._assignedClasses[tag]) {
-                this._assignedClasses[tag] = this.customClassList.colorClasses[this._nextClass];
-                this._nextClass = (this._nextClass + 1) % this.customClassList.colorClasses.length;
-            }
-            // Return the class
-            return this._assignedClasses[tag];
-        };
-
-
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/getColor.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-getColor
@@ -2115,7 +2030,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/setBounds.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-setBounds
@@ -2148,7 +2063,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/setMargins.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-setMargins
@@ -2181,7 +2096,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/setStoryboard.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-setStoryboard
@@ -2200,7 +2115,7 @@
     // End dimple.chart
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/color/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.color
@@ -2217,7 +2132,7 @@
     // End dimple.color
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/eventArgs/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.eventArgs
@@ -2246,7 +2161,7 @@
     // End dimple.eventArgs
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/legend/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend
@@ -2273,7 +2188,7 @@
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.legend#wiki-fontFamily
         this.fontFamily = "sans-serif";
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_draw.js
         // Render the legend
@@ -2287,7 +2202,6 @@
                 runningY = 0,
                 keyWidth = 15,
                 keyHeight = 9,
-                distanceBetweenKeyAndText = 5,
                 self = this,
                 theseShapes;
 
@@ -2312,7 +2226,7 @@
             // Add text into the group
             theseShapes.append("text")
                 .attr("class", function (d) {
-                    return "dimple-legend dimple-legend-text " + dimple._createClass(d.aggField) + " " + self.chart.customClassList.legendLabel;
+                    return "dimple-legend dimple-legend-text " + dimple._createClass(d.aggField);
                 })
                 .text(function(d) {
                     return d.key;
@@ -2344,8 +2258,8 @@
 
             // Expand the bounds of the largest shape slightly.  This will be the size allocated to
             // all elements
-            maxHeight = (maxHeight < keyHeight ? keyHeight : maxHeight) + self._getVerticalPadding();
-            maxWidth += keyWidth + self._getHorizontalPadding();
+            maxHeight = (maxHeight < keyHeight ? keyHeight : maxHeight) + 2;
+            maxWidth += keyWidth + 20;
 
             // Iterate the shapes and position them based on the alignment and size of the legend
             theseShapes
@@ -2358,7 +2272,7 @@
                         d3.select(this).remove();
                     } else {
                         d3.select(this).select("text")
-                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + keyWidth + distanceBetweenKeyAndText + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth) + keyWidth + distanceBetweenKeyAndText))
+                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + keyWidth + 5 + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth) + keyWidth + 5))
                             .attr("y", function () {
                                 // This was previously done with dominant-baseline but this is used
                                 // instead due to browser inconsistency.
@@ -2368,7 +2282,7 @@
                             .attr("height", self._heightPixels());
                         d3.select(this).select("rect")
                             .attr("class", function (d) {
-                                return "dimple-legend dimple-legend-key " + dimple._createClass(d.aggField) + " " + self.chart.customClassList.legendKey + " " + d.css;
+                                return "dimple-legend dimple-legend-key " + dimple._createClass(d.aggField);
                             })
                             .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth)))
                             .attr("y", self._yPixels() + runningY)
@@ -2390,7 +2304,7 @@
             this.shapes = theseShapes;
         };
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_getEntries.js
         // Get an array of elements to be displayed in the legend
@@ -2423,7 +2337,6 @@
                                 fill: series.chart._assignedColors[field].fill,
                                 stroke: series.chart._assignedColors[field].stroke,
                                 opacity: series.chart._assignedColors[field].opacity,
-                                css: series.chart._assignedClasses[field],
                                 series: series,
                                 aggField: row.aggField
                             });
@@ -2435,7 +2348,7 @@
             return entries;
         };
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_getFontSize.js
         this._getFontSize = function () {
@@ -2450,33 +2363,7 @@
             return fontSize;
         };
 
-        // Copyright: 2015 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/legend/methods/_getHorizontalPadding.js
-        this._getHorizontalPadding = function () {
-            var horizontalPadding;
-            if (isNaN(this.horizontalPadding)) {
-                horizontalPadding = 20;
-            } else {
-                horizontalPadding = this.horizontalPadding;
-            }
-            return horizontalPadding;
-        };
-
-        // Copyright: 2015 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/legend/methods/_getVerticalPadding.js
-        this._getVerticalPadding = function () {
-            var verticalPadding;
-            if (isNaN(this.verticalPadding)) {
-                verticalPadding = 2;
-            } else {
-                verticalPadding = this.verticalPadding;
-            }
-            return verticalPadding;
-        };
-
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_heightPixels.js
         // Access the pixel value of the height of the legend area
@@ -2484,21 +2371,21 @@
             return dimple._parseYPosition(this.height, this.chart.svg.node());
         };
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_widthPixels.js
         // Access the pixel value of the width of the legend area
         this._widthPixels = function () {
             return dimple._parseXPosition(this.width, this.chart.svg.node());
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_xPixels.js
         // Access the pixel position of the x co-ordinate of the legend area
         this._xPixels = function () {
             return dimple._parseXPosition(this.x, this.chart.svg.node());
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/legend/methods/_yPixels.js
         // Access the pixel position of the y co-ordinate of the legend area
@@ -2509,7 +2396,7 @@
     // End dimple.legend
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/series/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series
@@ -2561,7 +2448,7 @@
         // The order definition array
         this._orderRules = [];
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/series/methods/_axisBounds.js
         this._axisBounds = function (position) {
@@ -2679,7 +2566,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/series/methods/_deepMatch.js
         this._deepMatch = function (axis) {
@@ -2696,7 +2583,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/series/methods/_dropLineOrigin.js
         this._dropLineOrigin = function() {
@@ -2760,7 +2647,7 @@
             // Return the co-ordinate
             return coord;
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/series/methods/_getTooltipFontSize.js
         this._getTooltipFontSize = function () {
@@ -2775,13 +2662,13 @@
             return fontSize;
         };
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/series/methods/_isStacked.js
         this._isStacked = function() {
             return this.stacked && (this.x._hasCategories() || this.y._hasCategories());
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/series/methods/addEventHandler.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-addEventHandler
@@ -2790,14 +2677,14 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/series/methods/addOrderRule.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.series#wiki-addOrderRule
         this.addOrderRule = function (ordering, desc) {
             this._orderRules.push({ ordering : ordering, desc : desc });
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/series/methods/getTooltipText.js
         this.getTooltipText = function (e) {
@@ -2845,7 +2732,7 @@
     // End dimple.series
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/storyboard/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard
@@ -2884,7 +2771,7 @@
         // The rules for ordering the storyboard
         this._orderRules = [];
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/drawText.js
         this._drawText = function () {
@@ -2915,7 +2802,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/_getCategories.js
         this._getCategories = function() {
@@ -2948,7 +2835,7 @@
             // Return the array
             return this._categories;
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/_getFontSize.js
         this._getFontSize = function () {
@@ -2963,7 +2850,7 @@
             return fontSize;
         };
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/_goToFrameIndex.js
         this._goToFrameIndex = function (index) {
@@ -2973,14 +2860,14 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/addOrderRule.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.storyboard#wiki-addOrderRule
         this.addOrderRule = function (ordering, desc) {
             this._orderRules.push({ ordering : ordering, desc : desc });
         };
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/getFrameValue.js
         this.getFrameValue = function () {
@@ -2992,7 +2879,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/goToFrame.js
         this.goToFrame = function (frameText) {
@@ -3003,7 +2890,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/pauseAnimation.js
         this.pauseAnimation = function () {
@@ -3014,7 +2901,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/startAnimation.js
         this.startAnimation = function () {
@@ -3033,7 +2920,7 @@
         };
 
 
-        // Copyright: 2015 AlignAlytics
+        // Copyright: 2014 PMSI-AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/stopAnimation.js
         this.stopAnimation = function () {
@@ -3049,7 +2936,7 @@
     // End dimple.storyboard
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/aggregateMethod/avg.js
     dimple.aggregateMethod.avg = function (lhs, rhs) {
@@ -3060,7 +2947,7 @@
         return ((lhs.value * lhs.count) + (rhs.value * rhs.count)) / (lhs.count + rhs.count);
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/aggregateMethod/count.js
     dimple.aggregateMethod.count = function (lhs, rhs) {
@@ -3069,7 +2956,7 @@
         return lhs.count + rhs.count;
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/aggregateMethod/max.js
     dimple.aggregateMethod.max = function (lhs, rhs) {
@@ -3078,14 +2965,14 @@
         return lhs.value > rhs.value ? lhs.value : rhs.value;
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/aggregateMethod/min.js
     dimple.aggregateMethod.min = function (lhs, rhs) {
         return (lhs.value === null ? parseFloat(rhs.value) : (parseFloat(lhs.value) < parseFloat(rhs.value) ? parseFloat(lhs.value) : parseFloat(rhs.value)));
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/aggregateMethod/sum.js
     dimple.aggregateMethod.sum = function (lhs, rhs) {
@@ -3094,7 +2981,7 @@
         return lhs.value + rhs.value;
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/plot/area.js
     dimple.plot.area = {
@@ -3154,8 +3041,8 @@
                         dimple._removeTooltip(e, shape, chart, series);
                     };
                 },
-                drawMarkers = function (d, context) {
-                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d), context);
+                drawMarkers = function (d) {
+                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d));
                 },
                 coord = function (position, datum) {
                     var val;
@@ -3420,7 +3307,7 @@
                 // Add the color in this loop, it can't be done during initialisation of the row because
                 // the areas should be ordered first (to ensure standard distribution of colors
                 areaData[i].color = chart.getColor(areaData[i].key.length > 0 ? areaData[i].key[areaData[i].key.length - 1] : "All");
-                areaData[i].css = chart.getClass(areaData[i].key.length > 0 ? areaData[i].key[areaData[i].key.length - 1] : "All");
+
             }
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
@@ -3437,22 +3324,22 @@
             theseShapes
                 .enter()
                 .append("path")
-                .attr("id", function (d) { return dimple._createClass([d.key]); })
-                .attr("class", function (d) { return className + " dimple-line " + d.keyString + " " + chart.customClassList.areaSeries + " " + d.css; })
+                .attr("id", function (d) { return d.key; })
+                .attr("class", function (d) { return className + " dimple-line " + d.keyString; })
                 .attr("d", function (d) { return d.entry; })
                 .call(function () {
                     // Apply formats optionally
                     if (!chart.noFormats) {
                         this.attr("opacity", function (d) { return (graded ? 1 : d.color.opacity); })
-                            .style("fill", function (d) { return (graded ? "url(#fill-area-gradient-" + d.keyString + ")" : d.color.fill); })
-                            .style("stroke", function (d) { return (graded ? "url(#stroke-area-gradient-" + d.keyString + ")" : d.color.stroke); })
-                            .style("stroke-width", series.lineWeight);
+                            .attr("fill", function (d) { return (graded ? "url(#fill-area-gradient-" + d.keyString + ")" : d.color.fill); })
+                            .attr("stroke", function (d) { return (graded ? "url(#stroke-area-gradient-" + d.keyString + ")" : d.color.stroke); })
+                            .attr("stroke-width", series.lineWeight);
                     }
                 })
                 .each(function (d) {
                     // Pass line data to markers
                     d.markerData = d.data;
-                    drawMarkers(d, this);
+                    drawMarkers(d);
                 });
 
             // Update
@@ -3461,7 +3348,7 @@
                 .each(function (d) {
                     // Pass line data to markers
                     d.markerData = d.data;
-                    drawMarkers(d, this);
+                    drawMarkers(d);
                 });
 
             // Remove
@@ -3471,7 +3358,7 @@
                     // Using all data for the markers fails because there are no exits in the markers
                     // only the whole line, therefore we need to clear the points here
                     d.markerData = [];
-                    drawMarkers(d, this);
+                    drawMarkers(d);
                 });
 
             dimple._postDrawHandling(series, updated, removed, duration);
@@ -3483,7 +3370,7 @@
     };
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/plot/bar.js
     dimple.plot.bar = {
@@ -3531,13 +3418,13 @@
             theseShapes
                 .enter()
                 .append("rect")
-                .attr("id", function (d) { return dimple._createClass([d.key]); })
+                .attr("id", function (d) { return d.key; })
                 .attr("class", function (d) {
                     var c = [];
                     c = c.concat(d.aggField);
                     c = c.concat(d.xField);
                     c = c.concat(d.yField);
-                    return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.barSeries + " " + dimple._helpers.css(d, chart);
+                    return classes.join(" ") + " " + dimple._createClass(c);
                 })
                 .attr("x", function (d) {
                     var returnValue = series.x._previousOrigin;
@@ -3559,13 +3446,13 @@
                 })
                 .attr("width", function (d) { return (cat === "x" ?  dimple._helpers.width(d, chart, series) : 0); })
                 .attr("height", function (d) { return (cat === "y" ?  dimple._helpers.height(d, chart, series) : 0); })
+                .attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
                 .on("mouseover", function (e) { dimple._showBarTooltip(e, this, chart, series); })
                 .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
                 .call(function () {
                     if (!chart.noFormats) {
-                        this.attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
-                            .style("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
-                            .style("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
+                        this.attr("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
+                            .attr("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
                     }
                 });
 
@@ -3613,7 +3500,7 @@
     };
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/plot/bubble.js
     dimple.plot.bubble = {
@@ -3652,45 +3539,75 @@
             theseShapes
                 .enter()
                 .append("circle")
-                .attr("id", function (d) { return dimple._createClass([d.key]); })
+                .attr("id", function (d) {
+                    return d.key;
+                })
                 .attr("class", function (d) {
                     var c = [];
                     c = c.concat(d.aggField);
                     c = c.concat(d.xField);
                     c = c.concat(d.yField);
                     c = c.concat(d.zField);
-                    return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.bubbleSeries + " " + dimple._helpers.css(d, chart);
+                    return classes.join(" ") + " " + dimple._createClass(c);
                 })
-                .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin); })
-                .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin); })
+                .attr("cx", function (d) {
+                    return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin);
+                })
+                .attr("cy", function (d) {
+                    return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin);
+                })
                 .attr("r", 0)
-                .on("mouseover", function (e) { dimple._showPointTooltip(e, this, chart, series); })
-                .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
+                .attr("opacity", function (d) {
+                    return dimple._helpers.opacity(d, chart, series);
+                })
+                .on("mouseover", function (e) {
+                    dimple._showPointTooltip(e, this, chart, series);
+                })
+                .on("mouseleave", function (e) {
+                    dimple._removeTooltip(e, this, chart, series);
+                })
                 .call(function () {
                     if (!chart.noFormats) {
-                        this.attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
-                            .style("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
-                            .style("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
+                        this.attr("fill", function (d) {
+                            return dimple._helpers.fill(d, chart, series);
+                        })
+                            .attr("stroke", function (d) {
+                                return dimple._helpers.stroke(d, chart, series);
+                            });
                     }
                 });
 
             // Update
             updated = chart._handleTransition(theseShapes, duration, chart, series)
-                .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
-                .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
-                .attr("r", function (d) { return dimple._helpers.r(d, chart, series); })
+                .attr("cx", function (d) {
+                    return dimple._helpers.cx(d, chart, series);
+                })
+                .attr("cy", function (d) {
+                    return dimple._helpers.cy(d, chart, series);
+                })
+                .attr("r", function (d) {
+                    return dimple._helpers.r(d, chart, series);
+                })
                 .call(function () {
                     if (!chart.noFormats) {
-                        this.attr("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
-                            .attr("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
+                        this.attr("fill", function (d) {
+                            return dimple._helpers.fill(d, chart, series);
+                        })
+                            .attr("stroke", function (d) {
+                                return dimple._helpers.stroke(d, chart, series);
+                            });
                     }
                 });
 
             // Remove
             removed = chart._handleTransition(theseShapes.exit(), duration, chart, series)
                 .attr("r", 0)
-                .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin); })
-                .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin); });
+                .attr("cx", function (d) {
+                    return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._origin);
+                })
+                .attr("cy", function (d) {
+                    return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._origin);
+                });
 
             dimple._postDrawHandling(series, updated, removed, duration);
 
@@ -3699,7 +3616,7 @@
         }
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/plot/line.js
     dimple.plot.line = {
@@ -3744,8 +3661,8 @@
                         dimple._removeTooltip(e, shape, chart, series);
                     };
                 },
-                drawMarkers = function (d, context) {
-                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d), context);
+                drawMarkers = function (d) {
+                    dimple._drawMarkers(d, chart, series, duration, className, graded, onEnter(d), onLeave(d));
                 },
                 coord = function (position, datum) {
                     var val;
@@ -3863,7 +3780,6 @@
                 // Add the color in this loop, it can't be done during initialisation of the row because
                 // the lines should be ordered first (to ensure standard distribution of colors
                 lineData[i].color = chart.getColor(lineData[i].key.length > 0 ? lineData[i].key[lineData[i].key.length - 1] : "All");
-                lineData[i].css = chart.getClass(lineData[i].key.length > 0 ? lineData[i].key[lineData[i].key.length - 1] : "All");
             }
 
             if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
@@ -3880,9 +3796,9 @@
             theseShapes
                 .enter()
                 .append("path")
-                .attr("id", function (d) { return dimple._createClass([d.key]); })
+                .attr("id", function (d) { return d.key; })
                 .attr("class", function (d) {
-                    return className + " dimple-line " + d.keyString + " " + chart.customClassList.lineSeries + " " + d.css;
+                    return className + " dimple-line " + d.keyString;
                 })
                 .attr("d", function (d) {
                     return d.entry;
@@ -3891,15 +3807,15 @@
                     // Apply formats optionally
                     if (!chart.noFormats) {
                         this.attr("opacity", function (d) { return (graded ? 1 : d.color.opacity); })
-                            .style("fill", "none")
-                            .style("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.keyString + ")" : d.color.stroke); })
-                            .style("stroke-width", series.lineWeight);
+                            .attr("fill", "none")
+                            .attr("stroke", function (d) { return (graded ? "url(#fill-line-gradient-" + d.keyString + ")" : d.color.stroke); })
+                            .attr("stroke-width", series.lineWeight);
                     }
                 })
                 .each(function (d) {
                     // Pass line data to markers
                     d.markerData = d.data;
-                    drawMarkers(d, this);
+                    drawMarkers(d);
                 });
 
             // Update
@@ -3908,7 +3824,7 @@
                 .each(function (d) {
                     // Pass line data to markers
                     d.markerData = d.data;
-                    drawMarkers(d, this);
+                    drawMarkers(d);
                 });
 
             // Remove
@@ -3918,7 +3834,7 @@
                     // Using all data for the markers fails because there are no exits in the markers
                     // only the whole line, therefore we need to clear the points here
                     d.markerData = [];
-                    drawMarkers(d, this);
+                    drawMarkers(d);
                 });
 
             dimple._postDrawHandling(series, updated, removed, duration);
@@ -3930,9 +3846,6 @@
     };
 
 
-    // Copyright: 2015 AlignAlytics
-    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-    // Source: /src/objects/plot/pie.js
     dimple.plot.pie = {
         // By default the bar series is stacked if there are series categories
         stacked: false,
@@ -4034,21 +3947,21 @@
             theseShapes
                 .enter()
                 .append("path")
-                .attr("id", function (d) { return dimple._createClass([d.key]); })
+                .attr("id", function (d) { return d.key; })
                 .attr("class", function (d) {
                     var c = [];
                     c = c.concat(d.aggField);
                     c = c.concat(d.pField);
-                    return classes.join(" ") + " " + dimple._createClass(c) + " " + chart.customClassList.pieSeries + " " + dimple._helpers.css(d, chart);
+                    return classes.join(" ") + " " + dimple._createClass(c);
                 })
                 .attr("d", getArc)
+                .attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
                 .on("mouseover", function (e) { dimple._showBarTooltip(e, this, chart, series); })
                 .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
                 .call(function () {
                     if (!chart.noFormats) {
-                        this.attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
-                            .style("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
-                            .style("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
+                        this.attr("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
+                            .attr("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
                     }
                 })
                 .attr("transform", getTransform(true))
@@ -4084,7 +3997,7 @@
             series.shapes = theseShapes;
         }
     };
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_addGradient.js
     dimple._addGradient = function (seriesValue, id, categoryAxis, data, chart, duration, colorProperty) {
@@ -4107,7 +4020,7 @@
         if (grad.node() === null) {
             transition = false;
             grad = chart._group.append("linearGradient")
-                .attr("id", dimple._createClass([id]))
+                .attr("id", id)
                 .attr("gradientUnits", "userSpaceOnUse")
                 .attr("x1", (categoryAxis.position === "x" ? categoryAxis._scale(cats[0]) + ((chart._widthPixels() / cats.length) / 2) : 0))
                 .attr("y1", (categoryAxis.position === "y" ? categoryAxis._scale(cats[0]) - ((chart._heightPixels() / cats.length) / 2) : 0))
@@ -4145,7 +4058,7 @@
     };
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_arrayIndexCompare.js
     dimple._arrayIndexCompare = function (array, a, b) {
@@ -4181,57 +4094,49 @@
     };
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_createClass.js
     dimple._createClass = function (stringArray) {
         var i,
             returnArray = [],
-            replacer;
-        replacer = function(s) {
-            var c = s.charCodeAt(0),
-                returnString = "-";
-            if (c >= 65 && c <= 90) {
-                returnString = s.toLowerCase();
-            }
-            return returnString;
-        };
+            replacer = function(s) {
+                var c = s.charCodeAt(0),
+                    returnString = "-";
+                if (c >= 65 && c <= 90) {
+                    returnString = s.toLowerCase();
+                }
+                return returnString;
+            };
         if (stringArray.length > 0) {
             for (i = 0; i < stringArray.length; i += 1) {
-                if (stringArray[i]) {
-                    /*jslint regexp: true */
-                    returnArray.push("dimple-" + stringArray[i].toString().replace(/[^a-z0-9]/g, replacer));
-                    /*jslint regexp: false */
-                }
+                /*jslint regexp: true */
+                returnArray.push("dimple-" + stringArray[i].toString().replace(/[^a-z0-9]/g, replacer));
+                /*jslint regexp: false */
             }
         } else {
             returnArray = ["dimple-all"];
         }
         return returnArray.join(" ");
     };
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_drawMarkerBacks.js
-    dimple._drawMarkerBacks = function (lineDataRow, chart, series, duration, className, lineShape) {
+    dimple._drawMarkerBacks = function (lineDataRow, chart, series, duration, className) {
         var markerBacks,
             markerBackClasses = ["dimple-marker-back", className, lineDataRow.keyString],
-            rem,
-            shapes;
+            rem;
         if (series.lineMarkers) {
             if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
                 markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.markerData);
             } else {
                 markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.markerData, function (d) { return d.key; });
             }
-
             // Add
-            if (lineShape.nextSibling && lineShape.nextSibling.id) {
-                shapes = markerBacks.enter().insert("circle", '#' + lineShape.nextSibling.id);
-            } else {
-                shapes = markerBacks.enter().append("circle");
-            }
-            shapes
-                .attr("id", function (d) { return dimple._createClass([d.key + " Marker Back"]); })
+            markerBacks
+                .enter()
+                .append("circle")
+                .attr("id", function (d) { return d.key; })
                 .attr("class", function (d) {
                     var fields = [];
                     if (series.x._hasCategories()) {
@@ -4276,14 +4181,16 @@
         }
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_drawMarkers.js
-    dimple._drawMarkers = function (lineDataRow, chart, series, duration, className, useGradient, enterEventHandler, leaveEventHandler, lineShape) {
+    dimple._drawMarkers = function (lineDataRow, chart, series, duration, className, useGradient, enterEventHandler, leaveEventHandler) {
         var markers,
             markerClasses = ["dimple-marker", className, lineDataRow.keyString],
-            rem,
-            shapes;
+            rem;
+
+        // Begin by drawing the backings
+        dimple._drawMarkerBacks(lineDataRow, chart, series, duration, className);
 
         // Deal with markers in the same way as main series to fix #28
         if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
@@ -4294,25 +4201,21 @@
             });
         }
         // Add
-        if (lineShape.nextSibling && lineShape.nextSibling.id) {
-            shapes = markers.enter().insert("circle", '#' + lineShape.nextSibling.id);
-        } else {
-            shapes = markers.enter().append("circle");
-        }
-        shapes
+        markers
+            .enter()
+            .append("circle")
             .attr("id", function (d) {
-                return dimple._createClass([d.key + " Marker"]);
+                return d.key;
             })
             .attr("class", function (d) {
-                var fields = [],
-                    css = chart.getClass(d.aggField.length > 0 ? d.aggField[d.aggField.length - 1] : "All");
+                var fields = [];
                 if (series.x._hasCategories()) {
                     fields = fields.concat(d.xField);
                 }
                 if (series.y._hasCategories()) {
                     fields = fields.concat(d.yField);
                 }
-                return dimple._createClass(fields) + " " + markerClasses.join(" ") + " " + chart.customClassList.lineMarker + " " + css;
+                return dimple._createClass(fields) + " " + markerClasses.join(" ");
             })
             .on("mouseover", function (e) {
                 enterEventHandler(e, this, chart, series);
@@ -4373,13 +4276,9 @@
             series._markers = {};
         }
         series._markers[lineDataRow.keyString] = markers;
-
-        // Insert the backings before the markers
-        dimple._drawMarkerBacks(lineDataRow, chart, series, duration, className, lineShape);
-
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/chart/methods/_getOrderedList.js
     dimple._getOrderedList = function (data, mainField, levelDefinitions) {
@@ -4549,7 +4448,7 @@
     };
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_getSeriesOrder.js
     dimple._getSeriesOrder = function (data, series) {
@@ -4571,7 +4470,7 @@
         return returnValue;
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_getSeriesSortPredicate.js
     dimple._getSeriesSortPredicate = function (chart, series, orderedArray) {
@@ -4592,7 +4491,7 @@
         };
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_helpers.js
     dimple._helpers = {
@@ -4761,18 +4660,12 @@
                 stroke = chart.getColor(d.aggField.slice(-1)[0]).stroke;
             }
             return stroke;
-        },
-
-        // Calculate the class for the series
-        css: function (d, chart) {
-            return chart.getClass(d.aggField.slice(-1)[0]);
         }
-
 
     };
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_parentHeight.js
     dimple._parentHeight = function (parent) {
@@ -4799,7 +4692,7 @@
         return returnValue;
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_parentWidth.js
     dimple._parentWidth = function (parent) {
@@ -4826,7 +4719,7 @@
         return returnValue;
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_parsePosition.js
     dimple._parsePosition = function (value, maxValue) {
@@ -4855,21 +4748,21 @@
         return returnValue;
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_parseXPosition.js
     dimple._parseXPosition = function (value, parent) {
         return dimple._parsePosition(value, dimple._parentWidth(parent));
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_parseYPosition.js
     dimple._parseYPosition = function (value, parent) {
         return dimple._parsePosition(value, dimple._parentHeight(parent));
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_drawMarkers.js
     dimple._postDrawHandling = function (series, updated, removed, duration) {
@@ -4892,7 +4785,7 @@
             });
         }
     };
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_removeTooltip.js
     /*jslint unparam: true */
@@ -4903,7 +4796,7 @@
     };
     /*jslint unparam: false */
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_rollUp.js
     dimple._rollUp = function (data, fields, includeFields) {
@@ -4963,7 +4856,7 @@
         return returnList;
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_showBarTooltip.js
     dimple._showBarTooltip = function (e, shape, chart, series) {
@@ -5078,12 +4971,12 @@
         t = chart._tooltipGroup.append("g");
         // Create a box for the popup in the text group
         box = t.append("rect")
-            .attr("class", "dimple-tooltip " + chart.customClassList.tooltipBox);
+            .attr("class", "dimple-tooltip");
 
         // Create a text object for every row in the popup
         t.selectAll(".dimple-dont-select-any").data(tipText).enter()
             .append("text")
-            .attr("class", "dimple-tooltip " + chart.customClassList.tooltipLabel)
+            .attr("class", "dimple-tooltip")
             .text(function (d) { return d; })
             .style("font-family", series.tooltipFontFamily)
             .style("font-size", series._getTooltipFontSize());
@@ -5142,7 +5035,7 @@
         transformer = transformPoint(translateX, translateY);
         t.attr("transform", "translate(" + transformer.x + " , " + transformer.y + ")");
     };
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_showPointTooltip.js
     dimple._showPointTooltip = function (e, shape, chart, series) {
@@ -5317,7 +5210,7 @@
         t.attr("transform", "translate(" + translateX + " , " + translateY + ")");
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/filterData.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple#wiki-filterData
@@ -5345,7 +5238,7 @@
     };
 
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/getUniqueValues.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple#wiki-getUniqueValues
@@ -5373,7 +5266,7 @@
         return returnlist;
     };
 
-    // Copyright: 2015 AlignAlytics
+    // Copyright: 2014 PMSI-AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/newSvg.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple#wiki-newSvg

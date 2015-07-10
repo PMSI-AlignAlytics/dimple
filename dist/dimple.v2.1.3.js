@@ -38,7 +38,7 @@
 
     // Create the stub object
     var dimple = {
-        version: "2.1.4",
+        version: "2.1.3",
         plot: {},
         aggregateMethod: {}
     };
@@ -46,7 +46,7 @@
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/axis/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis
-    dimple.axis = function (chart, position, categoryFields, measure, timeField, autoRotateLabel) {
+    dimple.axis = function (chart, position, categoryFields, measure, timeField) {
 
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-chart
         this.chart = chart;
@@ -100,8 +100,6 @@
         this.fontSize = "10px";
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontFamily
         this.fontFamily = "sans-serif";
-        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-autoRotateLabel
-        this.autoRotateLabel = (autoRotateLabel === null || autoRotateLabel === undefined ? true : autoRotateLabel);
 
         // If this is a composite axis, store links to all slaves
         this._slaves = [];
@@ -1925,7 +1923,7 @@
                         });
                 }
                 // Rotate labels, this can only be done once the formats are set
-                if (axis.autoRotateLabel && (axis.measure === null || axis.measure === undefined)) {
+                if (axis.measure === null || axis.measure === undefined) {
                     if (axis === firstX) {
                         // If the gaps are narrower than the widest label display all labels horizontally
                         widest = 0;
@@ -1974,11 +1972,6 @@
                                 .attr("transform", "");
                         }
                     }
-                } else {
-                    rotated = false;
-                    axis.shapes.selectAll("text")
-                        .style("text-anchor", "middle")
-                        .attr("transform", "");
                 }
                 if (axis.titleShape !== null && axis.titleShape !== undefined) {
                     axis.titleShape.remove();
@@ -2287,7 +2280,6 @@
                 runningY = 0,
                 keyWidth = 15,
                 keyHeight = 9,
-                distanceBetweenKeyAndText = 5,
                 self = this,
                 theseShapes;
 
@@ -2344,8 +2336,8 @@
 
             // Expand the bounds of the largest shape slightly.  This will be the size allocated to
             // all elements
-            maxHeight = (maxHeight < keyHeight ? keyHeight : maxHeight) + self._getVerticalPadding();
-            maxWidth += keyWidth + self._getHorizontalPadding();
+            maxHeight = (maxHeight < keyHeight ? keyHeight : maxHeight) + 2;
+            maxWidth += keyWidth + 20;
 
             // Iterate the shapes and position them based on the alignment and size of the legend
             theseShapes
@@ -2358,7 +2350,7 @@
                         d3.select(this).remove();
                     } else {
                         d3.select(this).select("text")
-                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + keyWidth + distanceBetweenKeyAndText + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth) + keyWidth + distanceBetweenKeyAndText))
+                            .attr("x", (self.horizontalAlign === "left" ? self._xPixels() + keyWidth + 5 + runningX : self._xPixels() + (self._widthPixels() - runningX - maxWidth) + keyWidth + 5))
                             .attr("y", function () {
                                 // This was previously done with dominant-baseline but this is used
                                 // instead due to browser inconsistency.
@@ -2448,32 +2440,6 @@
                 fontSize = this.fontSize;
             }
             return fontSize;
-        };
-
-        // Copyright: 2015 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/legend/methods/_getHorizontalPadding.js
-        this._getHorizontalPadding = function () {
-            var horizontalPadding;
-            if (isNaN(this.horizontalPadding)) {
-                horizontalPadding = 20;
-            } else {
-                horizontalPadding = this.horizontalPadding;
-            }
-            return horizontalPadding;
-        };
-
-        // Copyright: 2015 PMSI-AlignAlytics
-        // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-        // Source: /src/objects/legend/methods/_getVerticalPadding.js
-        this._getVerticalPadding = function () {
-            var verticalPadding;
-            if (isNaN(this.verticalPadding)) {
-                verticalPadding = 2;
-            } else {
-                verticalPadding = this.verticalPadding;
-            }
-            return verticalPadding;
         };
 
         // Copyright: 2015 AlignAlytics
@@ -3930,9 +3896,6 @@
     };
 
 
-    // Copyright: 2015 AlignAlytics
-    // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
-    // Source: /src/objects/plot/pie.js
     dimple.plot.pie = {
         // By default the bar series is stacked if there are series categories
         stacked: false,
@@ -4187,22 +4150,19 @@
     dimple._createClass = function (stringArray) {
         var i,
             returnArray = [],
-            replacer;
-        replacer = function(s) {
-            var c = s.charCodeAt(0),
-                returnString = "-";
-            if (c >= 65 && c <= 90) {
-                returnString = s.toLowerCase();
-            }
-            return returnString;
-        };
+            replacer = function(s) {
+                var c = s.charCodeAt(0),
+                    returnString = "-";
+                if (c >= 65 && c <= 90) {
+                    returnString = s.toLowerCase();
+                }
+                return returnString;
+            };
         if (stringArray.length > 0) {
             for (i = 0; i < stringArray.length; i += 1) {
-                if (stringArray[i]) {
-                    /*jslint regexp: true */
-                    returnArray.push("dimple-" + stringArray[i].toString().replace(/[^a-z0-9]/g, replacer));
-                    /*jslint regexp: false */
-                }
+                /*jslint regexp: true */
+                returnArray.push("dimple-" + stringArray[i].toString().replace(/[^a-z0-9]/g, replacer));
+                /*jslint regexp: false */
             }
         } else {
             returnArray = ["dimple-all"];

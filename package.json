@@ -1,7 +1,7 @@
 {
   "name": "dimple",
-  "version": "2.1.2",
-  "private": true,
+  "version": "2.1.4",
+  "private": false,
   "licenses": [
     {
       "type": "MIT",
