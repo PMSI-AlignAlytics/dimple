@@ -58,7 +58,7 @@
       var svg = dimple.newSvg("#chartContainer", 590, 400);
       d3.tsv("/data/example_data.tsv", function (data) {
         var myChart = new dimple.chart(svg, data);
-        myChart.setMargins(110, 60, 20, 70);
+        myChart.setMargins(110, 60, 20, 80);
         myChart.noFormats = true;
         var x = myChart.addCategoryAxis("x", "Price Tier");
         myChart.addMeasureAxis("y", "Unit Sales");
