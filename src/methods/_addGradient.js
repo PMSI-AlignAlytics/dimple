@@ -4,7 +4,7 @@
     dimple._addGradient = function (seriesValue, id, categoryAxis, data, chart, duration, colorProperty) {
 
         var sArray = [].concat(seriesValue),
-            grad = chart._group.select("#" + id),
+            grad = chart.svg.select("#" + dimple._createClass([id])),
             cats = [],
             field = categoryAxis.position + "Field",
             transition = true,
@@ -20,7 +20,7 @@
 
         if (grad.node() === null) {
             transition = false;
-            grad = chart._group.append("linearGradient")
+            grad = chart.svg.append("defs").append("linearGradient")
                 .attr("id", dimple._createClass([id]))
                 .attr("gradientUnits", "userSpaceOnUse")
                 .attr("x1", (categoryAxis.position === "x" ? categoryAxis._scale(cats[0]) + ((chart._widthPixels() / cats.length) / 2) : 0))
