@@ -5,6 +5,8 @@
 <meta charset="utf-8">
 <html>
 <head>
+  <script src="/lib/d3.v3.4.8.js"></script>
+  <script src="/dist/dimple.v2.1.5.js"></script>
   <!-- Props to Kimerly Geswein for her font Shadows Into Light */ -->
   <link href='http://fonts.googleapis.com/css?family=Shadows+Into+Light' rel='stylesheet' type='text/css'>
   <style>
@@ -52,13 +54,11 @@
         </pattern>
       </defs>
     </svg>
-    <script src="/lib/d3.v3.4.8.js"></script>
-  <script src="/dist/dimple.v2.1.5.js"></script>
     <script type="text/javascript">
       var svg = dimple.newSvg("#chartContainer", 590, 400);
       d3.tsv("/data/example_data.tsv", function (data) {
         var myChart = new dimple.chart(svg, data);
-        myChart.setMargins(110, 60, 20, 70);
+        myChart.setMargins(110, 60, 20, 80);
         myChart.noFormats = true;
         var x = myChart.addCategoryAxis("x", "Price Tier");
         myChart.addMeasureAxis("y", "Unit Sales");
