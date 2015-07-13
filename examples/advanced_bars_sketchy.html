@@ -1,0 +1,107 @@
+<!----------------------------------------------------------------->
+<!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT TEMPLATE INSTEAD -->
+<!----------------------------------------------------------------->
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+  <!-- Props to Kimerly Geswein for her font Shadows Into Light */ -->
+  <link href='http://fonts.googleapis.com/css?family=Shadows+Into+Light' rel='stylesheet' type='text/css'>
+  <style>
+    .line {
+      fill: none;
+    }
+    .box,.line {
+      stroke: black;
+      stroke-width: 2px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .writing {
+      font-family: 'Shadows Into Light', cursive;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .hatch-1 {
+      fill: url(#down-hatch);
+    }
+    .hatch-2 {
+      fill: url(#up-hatch);
+    }
+    .hatch-3 {
+      fill: url(#cross-hatch);
+    }
+  </style>
+</head>
+<body>
+  <div id="chartContainer">
+    <svg height="0" width="0">
+      <defs>
+        <pattern id="down-hatch" width="20" height="20" patternUnits="userSpaceOnUse">
+          <line x1="0" x2="20" y1="0" y2="20" class="line"/>
+          <line x1="-2" x2="2" y1="18" y2="22" class="line"/>
+          <line x1="18" x2="22" y1="-2" y2="2" class="line"/>
+        </pattern>
+        <pattern id="up-hatch" width="20" height="20" patternUnits="userSpaceOnUse">
+          <line x1="0" x2="20" y1="20" y2="0" class="line"/>
+          <line x1="-2" x2="2" y1="2" y2="-2" class="line"/>
+          <line x1="18" x2="22" y1="22" y2="18" class="line"/>
+        </pattern>
+        <pattern id="cross-hatch" width="14" height="20" patternUnits="userSpaceOnUse">
+          <line x1="2" x2="2" y1="0" y2="20" class="line"/>
+        </pattern>
+      </defs>
+    </svg>
+    <script src="/lib/d3.v3.4.8.js"></script>
+  <script src="/dist/dimple.v2.1.5.js"></script>
+    <script type="text/javascript">
+      var svg = dimple.newSvg("#chartContainer", 590, 400);
+      d3.tsv("/data/example_data.tsv", function (data) {
+        var myChart = new dimple.chart(svg, data);
+        myChart.setMargins(110, 60, 20, 70);
+        myChart.noFormats = true;
+        var x = myChart.addCategoryAxis("x", "Price Tier");
+        myChart.addMeasureAxis("y", "Unit Sales");
+        var mySeries = myChart.addSeries("Price Tier", dimple.plot.bar);
+        mySeries.barGap = 0.5;
+        myChart.customClassList = {
+          axisLine: 'line',
+          barSeries: 'box',
+          axisLabel: 'writing',
+          axisTitle: 'writing',
+          colorClasses: [
+            'hatch-1',
+            'hatch-2',
+            'hatch-3'
+          ]
+        };
+
+        // Override the standard tooltip behaviour
+        mySeries.addEventHandler("mouseover", function (e){
+          var labelX = parseFloat(e.selectedShape.attr("x")) + parseFloat(e.selectedShape.attr("width") / 2),
+                  labelY = parseFloat(e.selectedShape.attr("y")) - 70;
+          // Draw the text information in the top left corner
+          svg.append("text")
+                  .attr("class", "tooltip writing")
+                  .attr("x", labelX)
+                  .attr("y", labelY)
+                  .style("pointer-events", "none")
+                  .style("text-anchor", "middle")
+                  .text(e.xValue + " (" + d3.format(",.f")(e.yValue) + ")");
+          svg.append("path")
+                  .attr("class", "tooltip line")
+                  .attr("transform", "translate(" + labelX + "," + labelY + ")")
+                  .attr("d", "M 2 5 L 0 65 L -5 55 L 8 56 L 3 62")
+        });
+
+        // Clear the text on exit
+        mySeries.addEventHandler("mouseleave", function (e) {
+          svg.selectAll(".tooltip").remove();
+        });
+
+        myChart.draw();
+      });
+    </script>
+  </div>
+</body>
+</html>

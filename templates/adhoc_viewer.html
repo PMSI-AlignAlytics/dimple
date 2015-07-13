@@ -118,12 +118,12 @@
                 // Set the code display
                 $.get("adhoc/" + spec.id + ".html", function (page) {
                     $("#codeContainer").text(
-                            page.slice(page.indexOf("<div"))
+                            page.slice(page.indexOf("<html"))
                                     .replace("src=\"/dist/dimple.{version}.js\"", "src=\"http://dimplejs.org/dist/dimple.{version}.min.js\"")
                                     .replace("src=\"/lib/d3.v3.min.js\"", "src=\"http://d3js.org/d3.v3.min.js\"")
                     );
                     $("#chartBox").html(
-                            page.slice(page.indexOf("<div"))
+                            page.slice(page.indexOf("<html"))
                                     .replace("src=\"/dist/dimple.{version}.js\"", "")
                                     .replace("src=\"/lib/d3.v3.min.js\"", "")
                     );

@@ -100,5 +100,11 @@
         "title":"Custom Styling",
         "shortTitle":"Custom Styling",
         "desc":"Many people associate dimple with its own look and feel, however it can also be used to deal with the chart functionality leaving you free to concentrate on design.  This is just a small example of possible techniques you could apply."
+    },
+    {
+        "id":"advanced_bars_sketchy",
+        "title":"Custom Classes",
+        "shortTitle":"Custom Classes",
+        "desc":"Dimple allows you to assign your own classes to its objects for simple styling when chart.noFormats = true.  Here's how your chart might look if you drew it with a marker pen."
     }
 ]
