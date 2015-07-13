@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title id="title"></title>
     <script type="application/javascript" src="/lib/d3.v3.min.js"></script>
-    <script type="application/javascript" src="/dist/dimple.v2.1.4.min.js"></script>
+    <script type="application/javascript" src="/dist/dimple.v2.1.5.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/styles.css">
     <link rel="stylesheet" href="/stylesheets/pygment_trac.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -43,10 +43,10 @@
         </table>
         <h3>Libraries</h3>
         <p>
-          <a href="/dist/dimple.v2.1.4.js">
+          <a href="/dist/dimple.v2.1.5.js">
               Full Javascript Library With Comments
           </a><br/>
-          <a href="/dist/dimple.v2.1.4.min.js">
+          <a href="/dist/dimple.v2.1.5.min.js">
               Minified Javascript Library
           </a><br/>
           <a href="https://github.com/PMSI-AlignAlytics/dimple/zipball/master">
@@ -124,12 +124,12 @@
             $.get("examples/" + spec.id + ".html", function (page) {
                 $("#codeContainer").text(
                     page.slice(page.indexOf("<div"))
-                        .replace("src=\"/dist/dimple.v2.1.4.js\"", "src=\"http://dimplejs.org/dist/dimple.v2.1.4.min.js\"")
+                        .replace("src=\"/dist/dimple.v2.1.5.js\"", "src=\"http://dimplejs.org/dist/dimple.v2.1.5.min.js\"")
                         .replace("src=\"/lib/d3.v3.min.js\"", "src=\"http://d3js.org/d3.v3.min.js\"")
                 );
                 $("#chartBox").html(
                     page.slice(page.indexOf("<div"))
-                        .replace("src=\"/dist/dimple.v2.1.4.js\"", "")
+                        .replace("src=\"/dist/dimple.v2.1.5.js\"", "")
                         .replace("src=\"/lib/d3.v3.min.js\"", "")
                 );
             });
