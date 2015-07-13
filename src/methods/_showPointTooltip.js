@@ -50,29 +50,42 @@
             .attr("cx", cx)
             .attr("cy", cy)
             .attr("r", r)
-            .attr("opacity", 0)
-            .style("fill", "none")
-            .style("stroke", fill)
-            .style("stroke-width", 1)
+            .call(function () {
+                if (!chart.noFormats) {
+                    this.attr("opacity", 0)
+                        .style("fill", "none")
+                        .style("stroke", fill)
+                        .style("stroke-width", 1);
+                }
+            })
             .transition()
             .duration(animDuration / 2)
             .ease("linear")
-            .attr("opacity", 1)
             .attr("r", r + series.lineWeight + 2)
-            .style("stroke-width", 2);
+            .call(function () {
+                if (!chart.noFormats) {
+                    this.attr("opacity", 1)
+                        .style("stroke-width", 2);
+                }
+            });
 
         // Add a drop line to the x axis
         if (dropDest.y !== null) {
             chart._tooltipGroup.append("line")
+                .attr("class", "dimple-tooltip-dropline " + chart.customClassList.tooltipDropLine)
                 .attr("x1", cx)
                 .attr("y1", (cy < dropDest.y ? cy + r + series.lineWeight + 2 : cy - r - series.lineWeight - 2))
                 .attr("x2", cx)
                 .attr("y2", (cy < dropDest.y ? cy + r + series.lineWeight + 2 : cy - r - series.lineWeight - 2))
-                .style("fill", "none")
-                .style("stroke", fill)
-                .style("stroke-width", 2)
-                .style("stroke-dasharray", ("3, 3"))
-                .style("opacity", opacity)
+                .call(function () {
+                    if (!chart.noFormats) {
+                        this.style("fill", "none")
+                            .style("stroke", fill)
+                            .style("stroke-width", 2)
+                            .style("stroke-dasharray", ("3, 3"))
+                            .style("opacity", opacity);
+                    }
+                })
                 .transition()
                 .delay(animDuration / 2)
                 .duration(animDuration / 2)
@@ -86,15 +99,20 @@
         // Add a drop line to the y axis
         if (dropDest.x !== null) {
             chart._tooltipGroup.append("line")
+                .attr("class", "dimple-tooltip-dropline " + chart.customClassList.tooltipDropLine)
                 .attr("x1", (cx < dropDest.x ? cx + r + series.lineWeight + 2 : cx - r - series.lineWeight - 2))
                 .attr("y1", cy)
                 .attr("x2", (cx < dropDest.x ? cx + r + series.lineWeight + 2 : cx - r - series.lineWeight - 2))
                 .attr("y2", cy)
-                .style("fill", "none")
-                .style("stroke", fill)
-                .style("stroke-width", 2)
-                .style("stroke-dasharray", ("3, 3"))
-                .style("opacity", opacity)
+                .call(function () {
+                    if (!chart.noFormats) {
+                        this.style("fill", "none")
+                            .style("stroke", fill)
+                            .style("stroke-width", 2)
+                            .style("stroke-dasharray", ("3, 3"))
+                            .style("opacity", opacity);
+                    }
+                })
                 .transition()
                 .delay(animDuration / 2)
                 .duration(animDuration / 2)
@@ -109,15 +127,19 @@
         t = chart._tooltipGroup.append("g");
         // Create a box for the popup in the text group
         box = t.append("rect")
-            .attr("class", "dimple-tooltip");
+            .attr("class", "dimple-tooltip " + chart.customClassList.tooltipBox);
 
         // Create a text object for every row in the popup
         t.selectAll(".dont-select-any").data(tipText).enter()
             .append("text")
-            .attr("class", "dimple-tooltip")
+            .attr("class", "dimple-tooltip " + chart.customClassList.tooltipLabel)
             .text(function (d) { return d; })
-            .style("font-family", series.tooltipFontFamily)
-            .style("font-size", series._getTooltipFontSize());
+            .call(function () {
+                if (!chart.noFormats) {
+                    this.style("font-family", series.tooltipFontFamily)
+                        .style("font-size", series._getTooltipFontSize());
+                }
+            });
 
         // Get the max height and width of the text items
         t.each(function () {
@@ -143,10 +165,14 @@
             .attr("width", w + 2 * textMargin)
             .attr("rx", 5)
             .attr("ry", 5)
-            .style("fill", popupFillColor)
-            .style("stroke", popupStrokeColor)
-            .style("stroke-width", 2)
-            .style("opacity", 0.95);
+            .call(function () {
+                if (!chart.noFormats) {
+                    this.style("fill", popupFillColor)
+                        .style("stroke", popupStrokeColor)
+                        .style("stroke-width", 2)
+                        .style("opacity", 0.95);
+                }
+            });
 
         // Shift the popup around to avoid overlapping the svg edge
         if (cx + r + textMargin + popupMargin + w < parseFloat(chart.svg.node().getBBox().width)) {

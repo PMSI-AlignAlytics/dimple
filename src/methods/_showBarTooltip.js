@@ -64,15 +64,21 @@
             // Add a drop line to the x axis
             if (!series.x._hasCategories() && dropDest.y !== null) {
                 chart._tooltipGroup.append("line")
+                    .attr("class", "dimple-tooltip-dropline " + chart.customClassList.tooltipDropLine)
                     .attr("x1", (x < series.x._origin ? x + offset : x + width - offset))
                     .attr("y1", (y < dropDest.y ? y + height : y))
                     .attr("x2", (x < series.x._origin ? x + offset : x + width - offset))
                     .attr("y2", (y < dropDest.y ? y + height : y))
-                    .style("fill", "none")
-                    .style("stroke", fill)
-                    .style("stroke-width", 2)
-                    .style("stroke-dasharray", ("3, 3"))
-                    .style("opacity", opacity)
+                    .call(function () {
+                        // Apply formats optionally
+                        if (!chart.noFormats) {
+                            this.style("fill", "none")
+                                .style("stroke", fill)
+                                .style("stroke-width", 2)
+                                .style("stroke-dasharray", ("3, 3"))
+                                .style("opacity", opacity);
+                        }
+                    })
                     .transition()
                     .delay(animDuration / 2)
                     .duration(animDuration / 2)
@@ -88,15 +94,21 @@
             // Add a drop line to the y axis
             if (!series.y._hasCategories() && dropDest.x !== null) {
                 chart._tooltipGroup.append("line")
+                    .attr("class", "dimple-tooltip-dropline " + chart.customClassList.tooltipDropLine)
                     .attr("x1", (x < dropDest.x ? x + width : x))
                     .attr("y1", (y < series.y._origin ? y + offset : y + height - offset))
                     .attr("x2", (x < dropDest.x ? x + width : x))
                     .attr("y2", (y < series.y._origin ? y + offset : y + height - offset))
-                    .style("fill", "none")
-                    .style("stroke", fill)
-                    .style("stroke-width", 2)
-                    .style("stroke-dasharray", ("3, 3"))
-                    .style("opacity", opacity)
+                    .call(function () {
+                        // Apply formats optionally
+                        if (!chart.noFormats) {
+                            this.style("fill", "none")
+                                .style("stroke", fill)
+                                .style("stroke-width", 2)
+                                .style("stroke-dasharray", ("3, 3"))
+                                .style("opacity", opacity);
+                        }
+                    })
                     .transition()
                     .delay(animDuration / 2)
                     .duration(animDuration / 2)
@@ -120,8 +132,13 @@
             .append("text")
             .attr("class", "dimple-tooltip " + chart.customClassList.tooltipLabel)
             .text(function (d) { return d; })
-            .style("font-family", series.tooltipFontFamily)
-            .style("font-size", series._getTooltipFontSize());
+            .call(function () {
+                // Apply formats optionally
+                if (!chart.noFormats) {
+                    this.style("font-family", series.tooltipFontFamily)
+                        .style("font-size", series._getTooltipFontSize());
+                }
+            });
 
         // Get the max height and width of the text items
         t.each(function () {
@@ -147,10 +164,16 @@
             .attr("width", w + 2 * textMargin)
             .attr("rx", 5)
             .attr("ry", 5)
-            .style("fill", popupFillColor)
-            .style("stroke", popupStrokeColor)
-            .style("stroke-width", 2)
-            .style("opacity", 0.95);
+            .call(function () {
+                // Apply formats optionally
+                if (!chart.noFormats) {
+                    this.style("fill", popupFillColor)
+                        .style("stroke", popupStrokeColor)
+                        .style("stroke-width", 2)
+                        .style("opacity", 0.95);
+                }
+            });
+
 
         // Shift the popup around to avoid overlapping the svg edge
         if (transformPoint(x + width + textMargin + popupMargin + w).x < parseFloat(chart.svg.node().getBBox().width)) {

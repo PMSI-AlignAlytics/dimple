@@ -8,6 +8,7 @@
             axisTitle: 'dimple-custom-axis-title',
             tooltipBox: 'dimple-custom-tooltip-box',
             tooltipLabel: 'dimple-custom-tooltip-label',
+            tooltipDropLine: 'dimple-custom-tooltip-dropline',
             lineMarker: 'dimple-custom-line-marker',
             legendLabel: 'dimple-custom-legend-label',
             legendKey: 'dimple-custom-legend-key',
