@@ -283,60 +283,62 @@
                         });
                 }
                 // Rotate labels, this can only be done once the formats are set
-                if (axis.autoRotateLabel && (axis.measure === null || axis.measure === undefined)) {
-                    if (axis === firstX) {
-                        // If the gaps are narrower than the widest label display all labels horizontally
-                        widest = 0;
-                        axis.shapes.selectAll("text").each(function () {
-                            var w = this.getComputedTextLength();
-                            widest = (w > widest ? w : widest);
-                        });
-                        if (widest > chartWidth / axis.shapes.selectAll("text")[0].length) {
-                            rotated = true;
-                            axis.shapes.selectAll("text")
-                                .style("text-anchor", "start")
-                                .each(function () {
-                                    var rec = this.getBBox();
-                                    d3.select(this)
-                                        .attr("transform", "rotate(90," + rec.x + "," + (rec.y + (rec.height / 2)) + ") translate(-5, 0)");
-                                });
-                        } else {
-                            // For redraw operations we need to clear the transform
-                            rotated = false;
-                            axis.shapes.selectAll("text")
-                                .style("text-anchor", "middle")
-                                .attr("transform", "");
-                        }
-                    } else if (axis.position === "x") {
-                        // If the gaps are narrower than the widest label display all labels horizontally
-                        widest = 0;
-                        axis.shapes.selectAll("text")
-                            .each(function () {
+                if (axis.measure === null || axis.measure === undefined) {
+                    if (axis.autoRotateLabel) {
+                        if (axis === firstX) {
+                            // If the gaps are narrower than the widest label display all labels horizontally
+                            widest = 0;
+                            axis.shapes.selectAll("text").each(function () {
                                 var w = this.getComputedTextLength();
                                 widest = (w > widest ? w : widest);
                             });
-                        if (widest > chartWidth / axis.shapes.selectAll("text")[0].length) {
-                            rotated = true;
+                            if (widest > chartWidth / axis.shapes.selectAll("text")[0].length) {
+                                rotated = true;
+                                axis.shapes.selectAll("text")
+                                    .style("text-anchor", "start")
+                                    .each(function () {
+                                        var rec = this.getBBox();
+                                        d3.select(this)
+                                            .attr("transform", "rotate(90," + rec.x + "," + (rec.y + (rec.height / 2)) + ") translate(-5, 0)");
+                                    });
+                            } else {
+                                // For redraw operations we need to clear the transform
+                                rotated = false;
+                                axis.shapes.selectAll("text")
+                                    .style("text-anchor", "middle")
+                                    .attr("transform", "");
+                            }
+                        } else if (axis.position === "x") {
+                            // If the gaps are narrower than the widest label display all labels horizontally
+                            widest = 0;
                             axis.shapes.selectAll("text")
-                                .style("text-anchor", "end")
                                 .each(function () {
-                                    var rec = this.getBBox();
-                                    d3.select(this)
-                                        .attr("transform", "rotate(90," + (rec.x + rec.width) + "," + (rec.y + (rec.height / 2)) + ") translate(5, 0)");
+                                    var w = this.getComputedTextLength();
+                                    widest = (w > widest ? w : widest);
                                 });
-                        } else {
-                            // For redraw operations we need to clear the transform
-                            rotated = false;
-                            axis.shapes.selectAll("text")
-                                .style("text-anchor", "middle")
-                                .attr("transform", "");
+                            if (widest > chartWidth / axis.shapes.selectAll("text")[0].length) {
+                                rotated = true;
+                                axis.shapes.selectAll("text")
+                                    .style("text-anchor", "end")
+                                    .each(function () {
+                                        var rec = this.getBBox();
+                                        d3.select(this)
+                                            .attr("transform", "rotate(90," + (rec.x + rec.width) + "," + (rec.y + (rec.height / 2)) + ") translate(5, 0)");
+                                    });
+                            } else {
+                                // For redraw operations we need to clear the transform
+                                rotated = false;
+                                axis.shapes.selectAll("text")
+                                    .style("text-anchor", "middle")
+                                    .attr("transform", "");
+                            }
                         }
+                    } else {
+                        rotated = false;
+                        axis.shapes.selectAll("text")
+                            .style("text-anchor", "middle")
+                            .attr("transform", "");
                     }
-                } else {
-                    rotated = false;
-                    axis.shapes.selectAll("text")
-                        .style("text-anchor", "middle")
-                        .attr("transform", "");
                 }
                 if (axis.titleShape !== null && axis.titleShape !== undefined) {
                     axis.titleShape.remove();
