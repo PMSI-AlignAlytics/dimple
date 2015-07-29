@@ -154,6 +154,17 @@
                     }
                 }
 
+                // Special case when a line contains a single point - duplicate the point
+                // If we don't do this a path will be created with 0,0 coordinates
+                if (lineData && lineData[i] && lineData[i].points &&  lineData[i].points.length === 1) {
+                    lineData[i].points.push(
+                        {
+                            x : lineData[i].points[0].x,
+                            y : lineData[i].points[0].y
+                        }
+                    );
+                }
+
                 // Get the points that this line will appear
                 lineData[i].entry = getLine(interpolation, "_previousOrigin")(lineData[i].points);
                 lineData[i].update = getLine(interpolation)(lineData[i].points);

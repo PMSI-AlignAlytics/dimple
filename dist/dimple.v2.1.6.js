@@ -3142,6 +3142,7 @@
                 p,
                 b,
                 l,
+                lIndex,
                 lastAngle,
                 catCoord,
                 valCoord,
@@ -3408,17 +3409,20 @@
                 p = getArea(interpolation, "_previousOrigin")(finalPointArray);
                 b = getArea((interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation)), "_previousOrigin")(basePoints);
                 l = getArea("linear", "_previousOrigin")(finalPointArray);
-                areaData[i].entry = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
+                lIndex = l.indexOf("L") === -1 ? undefined : l.indexOf("L");
+                areaData[i].entry = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, lIndex) : 0);
 
                 p = getArea(interpolation)(finalPointArray);
                 b = getArea(interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation))(basePoints);
                 l = getArea("linear")(finalPointArray);
-                areaData[i].update = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
+                lIndex = l.indexOf("L") === -1 ? undefined : l.indexOf("L");
+                areaData[i].update = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, lIndex) : 0);
 
                 p = getArea(interpolation, "_origin")(finalPointArray);
                 b = getArea((interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation)), "_origin")(basePoints);
                 l = getArea("linear", "_origin")(finalPointArray);
-                areaData[i].exit = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
+                lIndex = l.indexOf("L") === -1 ? undefined : l.indexOf("L");
+                areaData[i].exit = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, lIndex) : 0);
 
                 // Add the color in this loop, it can't be done during initialisation of the row because
                 // the areas should be ordered first (to ensure standard distribution of colors
@@ -3856,6 +3860,17 @@
                             y : 2 * lineData[i].points[0].y - lineData[i].points[1].y
                         }].concat(lineData[i].points);
                     }
+                }
+
+                // Special case when a line contains a single point - duplicate the point
+                // If we don't do this a path will be created with 0,0 coordinates
+                if (lineData && lineData[i] && lineData[i].points &&  lineData[i].points.length === 1) {
+                    lineData[i].points.push(
+                        {
+                            x : lineData[i].points[0].x,
+                            y : lineData[i].points[0].y
+                        }
+                    );
                 }
 
                 // Get the points that this line will appear
