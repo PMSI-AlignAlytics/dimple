@@ -286,12 +286,12 @@
             returnData.forEach(function (ret) {
                 if (x !== null) {
                     if (useCount.x === true) { ret.xValue = ret.xValueList.length; }
-                    tot = (totals.x[ret.xField.join("/")] || 0) + (y._hasMeasure() ? Math.abs(ret.yValue) : 0);
+                    tot = (totals.x[ret.xField.join("/")] || 0) + (x._hasMeasure() ? Math.abs(ret.xValue) : 0);
                     totals.x[ret.xField.join("/")] = tot;
                 }
                 if (y !== null) {
                     if (useCount.y === true) { ret.yValue = ret.yValueList.length; }
-                    tot = (totals.y[ret.yField.join("/")] || 0) + (x._hasMeasure() ? Math.abs(ret.xValue) : 0);
+                    tot = (totals.y[ret.yField.join("/")] || 0) + (y._hasMeasure() ? Math.abs(ret.yValue) : 0);
                     totals.y[ret.yField.join("/")] = tot;
                 }
                 if (p !== null) {

@@ -24,8 +24,6 @@
             this._heightPixels = function () {
                 return dimple._parentHeight(this.svg.node()) - this._yPixels() - dimple._parseYPosition(bottom, this.svg.node());
             };
-            // Refresh the axes to redraw them against the new bounds
-            this.draw(0, true);
             // return the chart object for method chaining
             return this;
         };
