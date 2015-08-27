@@ -1145,7 +1145,6 @@
 
         };
 
-
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/_getDelay.js
@@ -1610,6 +1609,7 @@
             tooltipLabel: 'dimple-custom-tooltip-label',
             tooltipDropLine: 'dimple-custom-tooltip-dropline',
             lineMarker: 'dimple-custom-line-marker',
+            lineMarkerCircle: 'dimple-custom-line-marker-circle',
             legendLabel: 'dimple-custom-legend-label',
             legendKey: 'dimple-custom-legend-key',
             areaSeries: 'dimple-custom-series-area',
@@ -1631,6 +1631,7 @@
                 'dimple-custom-format-10'
             ]
         };
+
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/defaultColors.js
@@ -5238,6 +5239,7 @@
 
         // Add a ring around the data point
         chart._tooltipGroup.append("circle")
+            .attr("class", "dimple-line-marker-circle " + chart.customClassList.lineMarkerCircle)
             .attr("cx", cx)
             .attr("cy", cy)
             .attr("r", r)
