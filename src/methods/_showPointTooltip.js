@@ -47,6 +47,7 @@
 
         // Add a ring around the data point
         chart._tooltipGroup.append("circle")
+            .attr("class", "dimple-line-marker-circle " + chart.customClassList.lineMarkerCircle)
             .attr("cx", cx)
             .attr("cy", cy)
             .attr("r", r)
