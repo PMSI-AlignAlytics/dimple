@@ -286,12 +286,20 @@
             returnData.forEach(function (ret) {
                 if (x !== null) {
                     if (useCount.x === true) { ret.xValue = ret.xValueList.length; }
-                    tot = (totals.x[ret.xField.join("/")] || 0) + (x._hasMeasure() ? Math.abs(ret.xValue) : 0);
+                    if (x._hasMeasure() && x._hasCategories()) {
+                        tot = (totals.x[ret.xField.join("/")] || 0) + (x._hasMeasure() ? Math.abs(ret.xValue) : 0);
+                    } else {
+                        tot = (totals.x[ret.xField.join("/")] || 0) + (y._hasMeasure() ? Math.abs(ret.yValue) : 0);
+                    }
                     totals.x[ret.xField.join("/")] = tot;
                 }
                 if (y !== null) {
                     if (useCount.y === true) { ret.yValue = ret.yValueList.length; }
-                    tot = (totals.y[ret.yField.join("/")] || 0) + (y._hasMeasure() ? Math.abs(ret.yValue) : 0);
+                    if (y._hasMeasure() && y._hasCategories()) {
+                        tot = (totals.y[ret.yField.join("/")] || 0) + (y._hasMeasure() ? Math.abs(ret.yValue) : 0);
+                    } else {
+                        tot = (totals.y[ret.yField.join("/")] || 0) + (x._hasMeasure() ? Math.abs(ret.xValue) : 0);
+                    }
                     totals.y[ret.yField.join("/")] = tot;
                 }
                 if (p !== null) {
