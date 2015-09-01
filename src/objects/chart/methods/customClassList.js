@@ -10,6 +10,7 @@
             tooltipLabel: 'dimple-custom-tooltip-label',
             tooltipDropLine: 'dimple-custom-tooltip-dropline',
             lineMarker: 'dimple-custom-line-marker',
+            lineMarkerCircle: 'dimple-custom-line-marker-circle',
             legendLabel: 'dimple-custom-legend-label',
             legendKey: 'dimple-custom-legend-key',
             areaSeries: 'dimple-custom-series-area',
