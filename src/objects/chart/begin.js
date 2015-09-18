@@ -35,6 +35,10 @@
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-staggerDraw
         this.staggerDraw = false;
 
+        // By default multiple series are drawn slightly offset from the previous
+        // one, set this to false to disable that behavior
+        this.useXOffset = true;
+
         // The group within which to put all of this chart's objects
         this._group = svg.append("g");
         // The group within which to put tooltips.  This is not initialised here because
