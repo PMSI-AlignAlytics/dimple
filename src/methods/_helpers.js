@@ -5,11 +5,13 @@
 
         // Calculate the centre x position
         cx: function (d, chart, series) {
-            var returnCx = 0;
+            var returnCx = 0,
+                xOffset = chart.useXOffset ? d.xOffset : 0;
+
             if (series.x.measure !== null && series.x.measure !== undefined) {
                 returnCx = series.x._scale(d.cx);
             } else if (series.x._hasCategories() && series.x.categoryFields.length >= 2) {
-                returnCx = series.x._scale(d.cx) + dimple._helpers.xGap(chart, series) + ((d.xOffset + 0.5) * (((chart._widthPixels() / series.x._max) - 2 * dimple._helpers.xGap(chart, series)) * d.width));
+                returnCx = series.x._scale(d.cx) + dimple._helpers.xGap(chart, series) + ((xOffset + 0.5) * (((chart._widthPixels() / series.x._max) - 2 * dimple._helpers.xGap(chart, series)) * d.width));
             } else {
                 returnCx = series.x._scale(d.cx) + ((chart._widthPixels() / series.x._max) / 2);
             }
@@ -86,13 +88,15 @@
 
         // Calculate the top left x position for bar type charts
         x: function (d, chart, series) {
-            var returnX = 0;
+            var returnX = 0,
+                xOffset = chart.useXOffset ? d.xOffset : 0;
+
             if (series.x._hasTimeField()) {
                 returnX = series.x._scale(d.x) - (dimple._helpers.width(d, chart, series) / 2);
             } else if (series.x.measure !== null && series.x.measure !== undefined) {
                 returnX = series.x._scale(d.x);
             } else {
-                returnX = series.x._scale(d.x) + dimple._helpers.xGap(chart, series) + (d.xOffset * (dimple._helpers.width(d, chart, series) + 2 * dimple._helpers.xClusterGap(d, chart, series))) + dimple._helpers.xClusterGap(d, chart, series);
+                returnX = series.x._scale(d.x) + dimple._helpers.xGap(chart, series) + (xOffset * (dimple._helpers.width(d, chart, series) + 2 * dimple._helpers.xClusterGap(d, chart, series))) + dimple._helpers.xClusterGap(d, chart, series);
             }
             return returnX;
         },
