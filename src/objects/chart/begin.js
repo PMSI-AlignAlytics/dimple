@@ -49,3 +49,6 @@
         this._nextColor = 0;
         // The next series class index to use, this value is cycled around for all default classes
         this._nextClass = 0;
+
+        // Used to store attributes during draw operations so we don't mix DOM reads and writes
+        this._domCache = {};
