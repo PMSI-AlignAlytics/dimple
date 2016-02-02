@@ -181,7 +181,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = chart._group.selectAll("." + className).data(lineData);
+                theseShapes = series._group.selectAll("." + className).data(lineData);
             } else {
                 theseShapes = series.shapes.data(lineData, function (d) { return d.key; });
             }
