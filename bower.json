@@ -14,7 +14,7 @@
     "authors": [
         "johnkiernander <jkiernander@pmsi-consulting.com>"
     ],
-    "main": "dist/dimple.v2.1.4.min.js",
+    "main": "dist/dimple.latest.min.js",
     "moduleType": [
         "amd"
     ],

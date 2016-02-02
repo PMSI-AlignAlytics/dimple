@@ -42,6 +42,9 @@
         this.tooltipFontFamily = "sans-serif";
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-radius
         this.radius = "auto";
+        // The group within which to put all of this series's objects
+        this._group = chart._group.append("g");
+        this._group.attr('class', 'dimple-series-group-' + chart.series.length);
 
         // Any event handlers joined to this series
         this._eventHandlers = [];

@@ -37,6 +37,7 @@
 
         // The group within which to put all of this chart's objects
         this._group = svg.append("g");
+        this._group.attr('class', 'dimple-chart');
         // The group within which to put tooltips.  This is not initialised here because
         // the group would end up behind other chart contents in a multi chart output.  It will
         // therefore be added and removed by the mouse enter/leave events
