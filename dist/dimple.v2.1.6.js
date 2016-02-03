@@ -664,6 +664,8 @@
         this._group.attr('class', 'dimple-chart');
         this._gridlines_group = this._group.insert('g');
         this._gridlines_group.attr('class', 'dimple-gridlines-group');
+        this._axis_group = this._group.insert('g');
+        this._axis_group.attr('class', 'dimple-axis-group');
         // The group within which to put tooltips.  This is not initialised here because
         // the group would end up behind other chart contents in a multi chart output.  It will
         // therefore be added and removed by the mouse enter/leave events
@@ -1857,7 +1859,7 @@
                 }
                 if (axis.shapes === null) {
                     // Add a group for the axes to allow css formatting
-                    axis.shapes = this._group.append("g")
+                    axis.shapes = this._axis_group.append("g")
                         .attr("class", "dimple-axis dimple-axis-" + axis.position)
                         .each(function () {
                             if (!chart.noFormats) {
@@ -2045,7 +2047,7 @@
                 // Add a title for the axis - NB check for null here, by default the title is undefined, in which case
                 // use the dimension name
                 if (!axis.hidden && (axis.position === "x" || axis.position === "y") && axis.title !== null) {
-                    axis.titleShape = this._group.append("text")
+                    axis.titleShape = this._axis_group.append("text")
                         .attr("class", "dimple-axis dimple-title " + chart.customClassList.axisTitle + " dimple-axis-" + axis.position);
                     axis.titleShape
                         .attr("x", titleX)
