@@ -186,7 +186,7 @@
                 if (axis.gridlineShapes === null) {
                     if (axis.showGridlines || (axis.showGridlines === null && !axis._hasCategories() && ((!xGridSet && axis.position === "x") || (!yGridSet && axis.position === "y")))) {
                         // Add a group for the gridlines to allow css formatting
-                        axis.gridlineShapes = this._group.append("g").attr("class", "dimple-gridline");
+                        axis.gridlineShapes = this._gridlines_group.append("g").attr("class", "dimple-gridline");
                         if (axis.position === "x") {
                             xGridSet = true;
                         } else {
