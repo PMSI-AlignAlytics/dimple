@@ -9,7 +9,7 @@
     "dependencies": {
         "d3": ">=3.5.2"
     },
-    "version": "2.1.6",
+    "version": "2.2.0",
     "homepage": "dimplejs.org",
     "authors": [
         "johnkiernander <jkiernander@pmsi-consulting.com>"
