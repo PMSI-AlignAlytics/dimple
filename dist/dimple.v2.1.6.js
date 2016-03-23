@@ -661,6 +661,11 @@
 
         // The group within which to put all of this chart's objects
         this._group = svg.append("g");
+        this._group.attr('class', 'dimple-chart');
+        this._gridlines_group = this._group.insert('g');
+        this._gridlines_group.attr('class', 'dimple-gridlines-group');
+        this._axis_group = this._group.insert('g');
+        this._axis_group.attr('class', 'dimple-axis-group');
         // The group within which to put tooltips.  This is not initialised here because
         // the group would end up behind other chart contents in a multi chart output.  It will
         // therefore be added and removed by the mouse enter/leave events
@@ -1838,7 +1843,7 @@
                 if (axis.gridlineShapes === null) {
                     if (axis.showGridlines || (axis.showGridlines === null && !axis._hasCategories() && ((!xGridSet && axis.position === "x") || (!yGridSet && axis.position === "y")))) {
                         // Add a group for the gridlines to allow css formatting
-                        axis.gridlineShapes = this._group.append("g").attr("class", "dimple-gridline");
+                        axis.gridlineShapes = this._gridlines_group.append("g").attr("class", "dimple-gridline");
                         if (axis.position === "x") {
                             xGridSet = true;
                         } else {
@@ -1854,7 +1859,7 @@
                 }
                 if (axis.shapes === null) {
                     // Add a group for the axes to allow css formatting
-                    axis.shapes = this._group.append("g")
+                    axis.shapes = this._axis_group.append("g")
                         .attr("class", "dimple-axis dimple-axis-" + axis.position)
                         .each(function () {
                             if (!chart.noFormats) {
@@ -2042,7 +2047,7 @@
                 // Add a title for the axis - NB check for null here, by default the title is undefined, in which case
                 // use the dimension name
                 if (!axis.hidden && (axis.position === "x" || axis.position === "y") && axis.title !== null) {
-                    axis.titleShape = this._group.append("text")
+                    axis.titleShape = this._axis_group.append("text")
                         .attr("class", "dimple-axis dimple-title " + chart.customClassList.axisTitle + " dimple-axis-" + axis.position);
                     axis.titleShape
                         .attr("x", titleX)
@@ -2563,6 +2568,9 @@
         this.tooltipFontFamily = "sans-serif";
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-radius
         this.radius = "auto";
+        // The group within which to put all of this series's objects
+        this._group = chart._group.append("g");
+        this._group.attr('class', 'dimple-series-group-' + chart.series.length);
 
         // Any event handlers joined to this series
         this._eventHandlers = [];
@@ -3442,7 +3450,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = chart._group.selectAll("." + className).data(areaData);
+                theseShapes = series._group.selectAll("." + className).data(areaData);
             } else {
                 theseShapes = series.shapes.data(areaData, function (d) { return d.key; });
             }
@@ -3536,7 +3544,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = chart._group.selectAll("." + classes.join(".")).data(chartData);
+                theseShapes = series._group.selectAll("." + classes.join(".")).data(chartData);
             } else {
                 theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
@@ -3655,7 +3663,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = chart._group.selectAll("." + classes.join(".")).data(chartData);
+                theseShapes = series._group.selectAll("." + classes.join(".")).data(chartData);
             } else {
                 theseShapes = series.shapes.data(chartData, function (d) {
                     return d.key;
@@ -3896,7 +3904,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = chart._group.selectAll("." + className).data(lineData);
+                theseShapes = series._group.selectAll("." + className).data(lineData);
             } else {
                 theseShapes = series.shapes.data(lineData, function (d) { return d.key; });
             }
@@ -4050,7 +4058,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes =  chart._group.selectAll("." + classes.join(".")).data(chartData);
+                theseShapes =  series._group.selectAll("." + classes.join(".")).data(chartData);
             } else {
                 theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
@@ -4244,7 +4252,7 @@
             shapes;
         if (series.lineMarkers) {
             if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
-                markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.markerData);
+                markerBacks = series._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.markerData);
             } else {
                 markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.markerData, function (d) { return d.key; });
             }
@@ -4312,7 +4320,7 @@
 
         // Deal with markers in the same way as main series to fix #28
         if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
-            markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.markerData);
+            markers = series._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.markerData);
         } else {
             markers = series._markers[lineDataRow.keyString].data(lineDataRow.markerData, function (d) {
                 return d.key;

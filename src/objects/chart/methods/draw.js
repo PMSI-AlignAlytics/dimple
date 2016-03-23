@@ -186,7 +186,7 @@
                 if (axis.gridlineShapes === null) {
                     if (axis.showGridlines || (axis.showGridlines === null && !axis._hasCategories() && ((!xGridSet && axis.position === "x") || (!yGridSet && axis.position === "y")))) {
                         // Add a group for the gridlines to allow css formatting
-                        axis.gridlineShapes = this._group.append("g").attr("class", "dimple-gridline");
+                        axis.gridlineShapes = this._gridlines_group.append("g").attr("class", "dimple-gridline");
                         if (axis.position === "x") {
                             xGridSet = true;
                         } else {
@@ -202,7 +202,7 @@
                 }
                 if (axis.shapes === null) {
                     // Add a group for the axes to allow css formatting
-                    axis.shapes = this._group.append("g")
+                    axis.shapes = this._axis_group.append("g")
                         .attr("class", "dimple-axis dimple-axis-" + axis.position)
                         .each(function () {
                             if (!chart.noFormats) {
@@ -390,7 +390,7 @@
                 // Add a title for the axis - NB check for null here, by default the title is undefined, in which case
                 // use the dimension name
                 if (!axis.hidden && (axis.position === "x" || axis.position === "y") && axis.title !== null) {
-                    axis.titleShape = this._group.append("text")
+                    axis.titleShape = this._axis_group.append("text")
                         .attr("class", "dimple-axis dimple-title " + chart.customClassList.axisTitle + " dimple-axis-" + axis.position);
                     axis.titleShape
                         .attr("x", titleX)

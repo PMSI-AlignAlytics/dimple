@@ -336,7 +336,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = chart._group.selectAll("." + className).data(areaData);
+                theseShapes = series._group.selectAll("." + className).data(areaData);
             } else {
                 theseShapes = series.shapes.data(areaData, function (d) { return d.key; });
             }

@@ -37,7 +37,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = chart._group.selectAll("." + classes.join(".")).data(chartData);
+                theseShapes = series._group.selectAll("." + classes.join(".")).data(chartData);
             } else {
                 theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
