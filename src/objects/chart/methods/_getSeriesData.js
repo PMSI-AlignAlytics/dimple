@@ -120,7 +120,11 @@
 
                         // Loop again to calculate shares
                         for (i = 0; i < returnData.length; i += 1) {
-                            returnData[i].piePct = (returnData[i].pValue / pieDictionary[returnData[i].pieKey].total);
+                            if (pieDictionary[returnData[i].pieKey].total === 0) {
+                                returnData[i].piePct = 0;
+                            } else {
+                                returnData[i].piePct = (returnData[i].pValue / pieDictionary[returnData[i].pieKey].total);
+                            }
                             returnData[i].startAngle = pieDictionary[returnData[i].pieKey].angle;
                             returnData[i].endAngle = returnData[i].startAngle + returnData[i].piePct * (endAngle - startAngle);
                             pieDictionary[returnData[i].pieKey].angle = returnData[i].endAngle;
