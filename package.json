@@ -1,6 +1,6 @@
 {
   "name": "dimple",
-  "version": "2.1.6",
+  "version": "2.2.0",
   "private": false,
   "licenses": [
     {
@@ -8,6 +8,7 @@
       "url": "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     }
   ],
+  "main": "dist/dimple.latest.js",
   "devDependencies": {
     "karma-script-launcher": "~0.1.0",
     "karma-chrome-launcher": "~0.1.2",
