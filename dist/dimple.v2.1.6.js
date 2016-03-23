@@ -661,11 +661,6 @@
 
         // The group within which to put all of this chart's objects
         this._group = svg.append("g");
-        this._group.attr('class', 'dimple-chart');
-        this._gridlines_group = this._group.insert('g');
-        this._gridlines_group.attr('class', 'dimple-gridlines-group');
-        this._axis_group = this._group.insert('g');
-        this._axis_group.attr('class', 'dimple-axis-group');
         // The group within which to put tooltips.  This is not initialised here because
         // the group would end up behind other chart contents in a multi chart output.  It will
         // therefore be added and removed by the mouse enter/leave events
@@ -1017,20 +1012,12 @@
             returnData.forEach(function (ret) {
                 if (x !== null) {
                     if (useCount.x === true) { ret.xValue = ret.xValueList.length; }
-                    if (x._hasMeasure() && x._hasCategories()) {
-                        tot = (totals.x[ret.xField.join("/")] || 0) + (x._hasMeasure() ? Math.abs(ret.xValue) : 0);
-                    } else {
-                        tot = (totals.x[ret.xField.join("/")] || 0) + (y._hasMeasure() ? Math.abs(ret.yValue) : 0);
-                    }
+                    tot = (totals.x[ret.xField.join("/")] || 0) + (y._hasMeasure() ? Math.abs(ret.yValue) : 0);
                     totals.x[ret.xField.join("/")] = tot;
                 }
                 if (y !== null) {
                     if (useCount.y === true) { ret.yValue = ret.yValueList.length; }
-                    if (y._hasMeasure() && y._hasCategories()) {
-                        tot = (totals.y[ret.yField.join("/")] || 0) + (y._hasMeasure() ? Math.abs(ret.yValue) : 0);
-                    } else {
-                        tot = (totals.y[ret.yField.join("/")] || 0) + (x._hasMeasure() ? Math.abs(ret.xValue) : 0);
-                    }
+                    tot = (totals.y[ret.yField.join("/")] || 0) + (x._hasMeasure() ? Math.abs(ret.xValue) : 0);
                     totals.y[ret.yField.join("/")] = tot;
                 }
                 if (p !== null) {
@@ -1149,6 +1136,7 @@
             return returnData;
 
         };
+
 
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -1614,7 +1602,6 @@
             tooltipLabel: 'dimple-custom-tooltip-label',
             tooltipDropLine: 'dimple-custom-tooltip-dropline',
             lineMarker: 'dimple-custom-line-marker',
-            lineMarkerCircle: 'dimple-custom-line-marker-circle',
             legendLabel: 'dimple-custom-legend-label',
             legendKey: 'dimple-custom-legend-key',
             areaSeries: 'dimple-custom-series-area',
@@ -1636,7 +1623,6 @@
                 'dimple-custom-format-10'
             ]
         };
-
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/defaultColors.js
@@ -1843,7 +1829,7 @@
                 if (axis.gridlineShapes === null) {
                     if (axis.showGridlines || (axis.showGridlines === null && !axis._hasCategories() && ((!xGridSet && axis.position === "x") || (!yGridSet && axis.position === "y")))) {
                         // Add a group for the gridlines to allow css formatting
-                        axis.gridlineShapes = this._gridlines_group.append("g").attr("class", "dimple-gridline");
+                        axis.gridlineShapes = this._group.append("g").attr("class", "dimple-gridline");
                         if (axis.position === "x") {
                             xGridSet = true;
                         } else {
@@ -1859,7 +1845,7 @@
                 }
                 if (axis.shapes === null) {
                     // Add a group for the axes to allow css formatting
-                    axis.shapes = this._axis_group.append("g")
+                    axis.shapes = this._group.append("g")
                         .attr("class", "dimple-axis dimple-axis-" + axis.position)
                         .each(function () {
                             if (!chart.noFormats) {
@@ -2047,7 +2033,7 @@
                 // Add a title for the axis - NB check for null here, by default the title is undefined, in which case
                 // use the dimension name
                 if (!axis.hidden && (axis.position === "x" || axis.position === "y") && axis.title !== null) {
-                    axis.titleShape = this._axis_group.append("text")
+                    axis.titleShape = this._group.append("text")
                         .attr("class", "dimple-axis dimple-title " + chart.customClassList.axisTitle + " dimple-axis-" + axis.position);
                     axis.titleShape
                         .attr("x", titleX)
@@ -2191,6 +2177,8 @@
             this._heightPixels = function () {
                 return dimple._parentHeight(this.svg.node()) - this._yPixels() - dimple._parseYPosition(bottom, this.svg.node());
             };
+            // Refresh the axes to redraw them against the new bounds
+            this.draw(0, true);
             // return the chart object for method chaining
             return this;
         };
@@ -2568,9 +2556,6 @@
         this.tooltipFontFamily = "sans-serif";
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-radius
         this.radius = "auto";
-        // The group within which to put all of this series's objects
-        this._group = chart._group.append("g");
-        this._group.attr('class', 'dimple-series-group-' + chart.series.length);
 
         // Any event handlers joined to this series
         this._eventHandlers = [];
@@ -3157,7 +3142,6 @@
                 p,
                 b,
                 l,
-                lIndex,
                 lastAngle,
                 catCoord,
                 valCoord,
@@ -3424,20 +3408,17 @@
                 p = getArea(interpolation, "_previousOrigin")(finalPointArray);
                 b = getArea((interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation)), "_previousOrigin")(basePoints);
                 l = getArea("linear", "_previousOrigin")(finalPointArray);
-                lIndex = l.indexOf("L") === -1 ? undefined : l.indexOf("L");
-                areaData[i].entry = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, lIndex) : 0);
+                areaData[i].entry = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
 
                 p = getArea(interpolation)(finalPointArray);
                 b = getArea(interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation))(basePoints);
                 l = getArea("linear")(finalPointArray);
-                lIndex = l.indexOf("L") === -1 ? undefined : l.indexOf("L");
-                areaData[i].update = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, lIndex) : 0);
+                areaData[i].update = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
 
                 p = getArea(interpolation, "_origin")(finalPointArray);
                 b = getArea((interpolation === "step-after" ? "step-before" : (interpolation === "step-before" ? "step-after" : interpolation)), "_origin")(basePoints);
                 l = getArea("linear", "_origin")(finalPointArray);
-                lIndex = l.indexOf("L") === -1 ? undefined : l.indexOf("L");
-                areaData[i].exit = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, lIndex) : 0);
+                areaData[i].exit = p + (b && b.length > 0 ? "L" + b.substring(1) : "") + (l && l.length > 0 ? "L" + l.substring(1, l.indexOf("L")) : 0);
 
                 // Add the color in this loop, it can't be done during initialisation of the row because
                 // the areas should be ordered first (to ensure standard distribution of colors
@@ -3450,7 +3431,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = series._group.selectAll("." + className).data(areaData);
+                theseShapes = chart._group.selectAll("." + className).data(areaData);
             } else {
                 theseShapes = series.shapes.data(areaData, function (d) { return d.key; });
             }
@@ -3544,7 +3525,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = series._group.selectAll("." + classes.join(".")).data(chartData);
+                theseShapes = chart._group.selectAll("." + classes.join(".")).data(chartData);
             } else {
                 theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
@@ -3663,7 +3644,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = series._group.selectAll("." + classes.join(".")).data(chartData);
+                theseShapes = chart._group.selectAll("." + classes.join(".")).data(chartData);
             } else {
                 theseShapes = series.shapes.data(chartData, function (d) {
                     return d.key;
@@ -3877,17 +3858,6 @@
                     }
                 }
 
-                // Special case when a line contains a single point - duplicate the point
-                // If we don't do this a path will be created with 0,0 coordinates
-                if (lineData && lineData[i] && lineData[i].points &&  lineData[i].points.length === 1) {
-                    lineData[i].points.push(
-                        {
-                            x : lineData[i].points[0].x,
-                            y : lineData[i].points[0].y
-                        }
-                    );
-                }
-
                 // Get the points that this line will appear
                 lineData[i].entry = getLine(interpolation, "_previousOrigin")(lineData[i].points);
                 lineData[i].update = getLine(interpolation)(lineData[i].points);
@@ -3904,7 +3874,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = series._group.selectAll("." + className).data(lineData);
+                theseShapes = chart._group.selectAll("." + className).data(lineData);
             } else {
                 theseShapes = series.shapes.data(lineData, function (d) { return d.key; });
             }
@@ -4058,7 +4028,7 @@
             }
 
             if (series.shapes === null || series.shapes === undefined) {
-                theseShapes =  series._group.selectAll("." + classes.join(".")).data(chartData);
+                theseShapes =  chart._group.selectAll("." + classes.join(".")).data(chartData);
             } else {
                 theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
@@ -4252,7 +4222,7 @@
             shapes;
         if (series.lineMarkers) {
             if (series._markerBacks === null || series._markerBacks === undefined || series._markerBacks[lineDataRow.keyString] === undefined) {
-                markerBacks = series._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.markerData);
+                markerBacks = chart._group.selectAll("." + markerBackClasses.join(".")).data(lineDataRow.markerData);
             } else {
                 markerBacks = series._markerBacks[lineDataRow.keyString].data(lineDataRow.markerData, function (d) { return d.key; });
             }
@@ -4320,7 +4290,7 @@
 
         // Deal with markers in the same way as main series to fix #28
         if (series._markers === null || series._markers === undefined || series._markers[lineDataRow.keyString] === undefined) {
-            markers = series._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.markerData);
+            markers = chart._group.selectAll("." + markerClasses.join(".")).data(lineDataRow.markerData);
         } else {
             markers = series._markers[lineDataRow.keyString].data(lineDataRow.markerData, function (d) {
                 return d.key;
@@ -5247,7 +5217,6 @@
 
         // Add a ring around the data point
         chart._tooltipGroup.append("circle")
-            .attr("class", "dimple-line-marker-circle " + chart.customClassList.lineMarkerCircle)
             .attr("cx", cx)
             .attr("cy", cy)
             .attr("r", r)
