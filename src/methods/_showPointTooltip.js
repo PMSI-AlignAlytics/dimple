@@ -41,7 +41,7 @@
             translateY;
 
 
-        if (chart._tooltipGroups !== null && chart._tooltipGroups !== undefined) {
+        if (chart._tooltipGroups === null || chart._tooltipGroups === undefined) {
             chart._tooltipGroups = {};
         }
         if (chart._tooltipGroups[e.key] !== null && chart._tooltipGroups[e.key] !== undefined) {
@@ -51,7 +51,7 @@
         chart._tooltipGroups[e.key] = chart.svg.append('g');
 
         // Add a ring around the data point
-        chart._tooltipGroup[e.key].append("circle")
+        chart._tooltipGroups[e.key].append("circle")
             .attr("class", "dimple-line-marker-circle " + chart.customClassList.lineMarkerCircle)
             .attr("cx", cx)
             .attr("cy", cy)
@@ -77,7 +77,7 @@
 
         // Add a drop line to the x axis
         if (dropDest.y !== null) {
-            chart._tooltipGroup[e.key].append("line")
+            chart._tooltipGroups[e.key].append("line")
                 .attr("class", "dimple-tooltip-dropline " + chart.customClassList.tooltipDropLine)
                 .attr("x1", cx)
                 .attr("y1", (cy < dropDest.y ? cy + r + series.lineWeight + 2 : cy - r - series.lineWeight - 2))
@@ -104,7 +104,7 @@
 
         // Add a drop line to the y axis
         if (dropDest.x !== null) {
-            chart._tooltipGroup[e.key].append("line")
+            chart._tooltipGroups[e.key].append("line")
                 .attr("class", "dimple-tooltip-dropline " + chart.customClassList.tooltipDropLine)
                 .attr("x1", (cx < dropDest.x ? cx + r + series.lineWeight + 2 : cx - r - series.lineWeight - 2))
                 .attr("y1", cy)
@@ -130,7 +130,7 @@
         }
 
         // Add a group for text
-        t = chart._tooltipGroup[e.key].append("g");
+        t = chart._tooltipGroups[e.key].append("g");
         // Create a box for the popup in the text group
         box = t.append("rect")
             .attr("class", "dimple-tooltip " + chart.customClassList.tooltipBox);

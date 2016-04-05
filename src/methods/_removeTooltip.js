@@ -3,8 +3,8 @@
     // Source: /src/methods/_removeTooltip.js
     /*jslint unparam: true */
     dimple._removeTooltip = function (e, shape, chart, series) {
-        if (chart._tooltipGroup) {
-            chart._tooltipGroup.remove();
+        if (chart._tooltipGroups[e.key]) {
+            chart._tooltipGroups[e.key].remove();
         }
     };
     /*jslint unparam: false */
