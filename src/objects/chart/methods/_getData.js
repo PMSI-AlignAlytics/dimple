@@ -213,7 +213,8 @@
                         pValueList: [],
                         cValueList: [],
                         fill: {},
-                        stroke: {}
+                        stroke: {},
+                        dataRows: []
                     };
                     returnData.push(newRow);
                     foundIndex = returnData.length - 1;
@@ -266,6 +267,7 @@
                 updateData(z, this.storyboard);
                 updateData(p, this.storyboard);
                 updateData(c, this.storyboard);
+                returnData[foundIndex].dataRows.push(d);
             }, this);
             // Get secondary elements if necessary
             if (x && x._hasCategories() && x.categoryFields.length > 1 && secondaryElements.x !== undefined) {
