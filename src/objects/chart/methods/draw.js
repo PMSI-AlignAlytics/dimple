@@ -31,8 +31,8 @@
             // Iterate the axes and calculate bounds, this is done within the chart because an
             // axis' bounds are determined by other axes and the way that series tie them together
             this.axes.forEach(function (axis) {
-                axis._min = 0;
-                axis._max = 0;
+                axis._min = Infinity;
+                axis._max = -Infinity;
                 linkedDimensions = [];
                 // Check that the axis has a measure
                 if (axis._hasMeasure()) {

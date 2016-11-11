@@ -64,8 +64,8 @@
         // The scale determined by the update method
         this._scale = null;
         // The minimum and maximum axis values
-        this._min = 0;
-        this._max = 0;
+        this._min = Infinity;
+        this._max = -Infinity;
         // Chart origin before and after an update.  This helps
         // with transitions
         this._previousOrigin = null;
