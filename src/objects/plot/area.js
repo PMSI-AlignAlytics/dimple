@@ -28,6 +28,7 @@
                 key,
                 keyString,
                 rowIndex,
+                entered,
                 updated,
                 removed,
                 orderedSeriesArray,
@@ -78,10 +79,11 @@
                     return parseFloat(val);
                 },
                 getArea = function (inter, originProperty) {
-                    return d3.svg.line()
+                    var pt = d3.line()
                         .x(function (d) { return (series.x._hasCategories() || !originProperty ? d.x : series.x[originProperty]); })
-                        .y(function (d) { return (series.y._hasCategories() || !originProperty ? d.y : series.y[originProperty]); })
-                        .interpolate(inter);
+                        .y(function (d) { return (series.y._hasCategories() || !originProperty ? d.y : series.y[originProperty]); });
+                    dimple._interpolate(pt, inter);
+                    return pt;
                 },
                 sortByVal = function (a, b) {
                     return parseFloat(a) - parseFloat(b);
@@ -91,17 +93,17 @@
                 },
                 addNextPoint = function (source, target, startAngle) {
                     // Given a point we need to find the next point clockwise from the start angle
-                    var i,
+                    var q,
                         point = target[target.length - 1],
                         thisAngle,
                         bestAngleSoFar = 9999,
                         returnPoint = point;
-                    for (i = 0; i < source.length; i += 1) {
-                        if (source[i].x !== point.x || source[i].y !== point.y) {
+                    for (q = 0; q < source.length; q += 1) {
+                        if (source[q].x !== point.x || source[q].y !== point.y) {
                             // get the angle in degrees since start angle
-                            thisAngle = 180 - (Math.atan2(source[i].x - point.x, source[i].y - point.y) * (180 / Math.PI));
+                            thisAngle = 180 - (Math.atan2(source[q].x - point.x, source[q].y - point.y) * (180 / Math.PI));
                             if (thisAngle > startAngle && thisAngle < bestAngleSoFar) {
-                                returnPoint = source[i];
+                                returnPoint = source[q];
                                 bestAngleSoFar = thisAngle;
                             }
                         }
@@ -342,16 +344,16 @@
             }
 
             // Add
-            theseShapes
+            entered = theseShapes
                 .enter()
                 .append("path")
                 .attr("id", function (d) { return dimple._createClass([d.key]); })
                 .attr("class", function (d) { return className + " dimple-line " + d.keyString + " " + chart.customClassList.areaSeries + " " + d.css; })
                 .attr("d", function (d) { return d.entry; })
-                .call(function () {
+                .call(function (context) {
                     // Apply formats optionally
                     if (!chart.noFormats) {
-                        this.attr("opacity", function (d) { return (graded ? 1 : d.color.opacity); })
+                        context.attr("opacity", function (d) { return (graded ? 1 : d.color.opacity); })
                             .style("fill", function (d) { return (graded ? "url(#" + dimple._createClass(["fill-area-gradient-" + d.keyString]) + ")" : d.color.fill); })
                             .style("stroke", function (d) { return (graded ? "url(#" + dimple._createClass(["stroke-area-gradient-" + d.keyString]) + ")" : d.color.stroke); })
                             .style("stroke-width", series.lineWeight);
@@ -364,7 +366,7 @@
                 });
 
             // Update
-            updated = chart._handleTransition(theseShapes, duration, chart)
+            updated = chart._handleTransition(theseShapes.merge(entered), duration, chart)
                 .attr("d", function (d) { return d.update; })
                 .each(function (d) {
                     // Pass line data to markers
@@ -389,4 +391,3 @@
 
         }
     };
-

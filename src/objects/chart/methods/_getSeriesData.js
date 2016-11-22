@@ -11,9 +11,9 @@
                 this.series.forEach(function (series) {
 
                     // The data for this series
-                    var data = series.data || this.data || [],
+                    var seriesData = series.data || this.data || [],
                         cats = [].concat(series.categoryFields || "All"),
-                        returnData = this._getData(data, cats, series.aggregate, series._orderRules, series._isStacked(), series.x, series.y, series.z, series.p, series.c),
+                        returnData = this._getData(seriesData, cats, series.aggregate, series._orderRules, series._isStacked(), series.x, series.y, series.z, series.p, series.c),
                         higherLevelData = [],
                         i,
                         j,
@@ -36,7 +36,7 @@
                     if (series.p && cats.length > 0) {
                         if (series.x && series.y) {
                             cats.pop();
-                            higherLevelData = this._getData(data, ["__dimple_placeholder__"].concat(cats), series.aggregate, series._orderRules, series._isStacked(), series.x, series.y, series.z, series.p, series.c);
+                            higherLevelData = this._getData(seriesData, ["__dimple_placeholder__"].concat(cats), series.aggregate, series._orderRules, series._isStacked(), series.x, series.y, series.z, series.p, series.c);
                             for (i = 0; i < returnData.length; i += 1) {
                                 aCats = ["__dimple_placeholder__"].concat(returnData[i].aggField);
                                 aCats.pop();
@@ -137,4 +137,3 @@
                 }, this);
             }
         };
-

@@ -8,8 +8,8 @@
             } else {
                 returnShape = input.transition()
                     .duration(duration)
-                    .delay(chart._getDelay(duration, chart, series))
-                    .ease(chart.ease);
+                    .delay(chart._getDelay(duration, chart, series));
+                dimple._ease(returnShape, chart.ease);
             }
             return returnShape;
         };

@@ -1,7 +1,7 @@
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/_getCategories.js
-        this._getCategories = function() {
+        this._getCategories = function () {
             if (this._categoryFields !== this._cachedCategoryFields) {
                 // Clear the array
                 this._categories = [];

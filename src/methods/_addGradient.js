@@ -46,15 +46,15 @@
 
         if (transition) {
             chart._handleTransition(grad.selectAll("stop").data(colors), duration, chart)
-                .attr("offset", function(d) { return d.offset; })
-                .attr("stop-color", function(d) { return d.color; });
+                .attr("offset", function (d) { return d.offset; })
+                .attr("stop-color", function (d) { return d.color; });
         } else {
             grad.selectAll("stop")
                 .data(colors)
                 .enter()
                 .append("stop")
-                .attr("offset", function(d) { return d.offset; })
-                .attr("stop-color", function(d) { return d.color; });
+                .attr("offset", function (d) { return d.offset; })
+                .attr("stop-color", function (d) { return d.color; });
         }
     };
 

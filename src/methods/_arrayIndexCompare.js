@@ -19,14 +19,14 @@
             for (q = 0; q < b.length; q += 1) {
                 bMatch = bMatch && (b[q] === rowArray[q]);
             }
-            if (aMatch && bMatch) {
-                returnValue = 0;
-                break;
-            } else if (aMatch) {
-                returnValue = -1;
-                break;
-            } else if (bMatch) {
-                returnValue = 1;
+            if (aMatch || bMatch) {
+                if (aMatch && bMatch) {
+                    returnValue = 0;
+                } else if (aMatch) {
+                    returnValue = -1;
+                } else {
+                    returnValue = 1;
+                }
                 break;
             }
         }

@@ -7,14 +7,14 @@
         "url": "https://github.com/PMSI-AlignAlytics/dimple.git"
     },
     "dependencies": {
-        "d3": ">=3.5.2"
+        "d3": "4.3.0"
     },
-    "version": "2.2.0",
+    "version": "2.3.0",
     "homepage": "dimplejs.org",
     "authors": [
         "johnkiernander <jkiernander@pmsi-consulting.com>"
     ],
-    "main": "dist/dimple.latest.min.js",
+    "main": "dist/dimple.latest.js",
     "moduleType": [
         "amd"
     ],

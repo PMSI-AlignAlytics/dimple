@@ -6,7 +6,7 @@
         var i,
             returnArray = [],
             replacer;
-        replacer = function(s) {
+        replacer = function (s) {
             var c = s.charCodeAt(0),
                 returnString = "-";
             if (c >= 65 && c <= 90) {

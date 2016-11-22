@@ -18,6 +18,7 @@
             var chartData = series._positionData,
                 theseShapes = null,
                 classes = ["dimple-series-" + chart.series.indexOf(series), "dimple-bubble"],
+                entered,
                 updated,
                 removed;
 
@@ -34,7 +35,7 @@
             }
 
             // Add
-            theseShapes
+            entered = theseShapes
                 .enter()
                 .append("circle")
                 .attr("id", function (d) { return dimple._createClass([d.key]); })
@@ -51,22 +52,22 @@
                 .attr("r", 0)
                 .on("mouseover", function (e) { dimple._showPointTooltip(e, this, chart, series); })
                 .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
-                .call(function () {
+                .call(function (context) {
                     if (!chart.noFormats) {
-                        this.attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
+                        context.attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
                             .style("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
                             .style("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
                     }
                 });
 
             // Update
-            updated = chart._handleTransition(theseShapes, duration, chart, series)
+            updated = chart._handleTransition(theseShapes.merge(entered), duration, chart, series)
                 .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
                 .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
                 .attr("r", function (d) { return dimple._helpers.r(d, chart, series); })
-                .call(function () {
+                .call(function (context) {
                     if (!chart.noFormats) {
-                        this.attr("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
+                        context.attr("fill", function (d) { return dimple._helpers.fill(d, chart, series); })
                             .attr("stroke", function (d) { return dimple._helpers.stroke(d, chart, series); });
                     }
                 });

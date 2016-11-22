@@ -1,4 +1,4 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
     "use strict";
     // Project configuration.
     grunt.initConfig({
@@ -32,10 +32,6 @@ module.exports = function(grunt) {
                     "src/end.js"
                 ],
                 dest: 'dist/<%= pkg.name %>.v<%= pkg.version %>.js'
-            },
-            test: {
-                src: '<%= concat.dist.src %>',
-                dest: 'tmp/<%= pkg.name %>.js'
             }
         },
         uglify: {
@@ -62,32 +58,33 @@ module.exports = function(grunt) {
             }
         },
         jslint: {
-            files: [
-                'Gruntfile.js',
-                'test/**/*.spec.js',
-                'dist/<%= pkg.name %>.v<%= pkg.version %>.js'
-            ],
-            directives: {
-                browser: true,
-                nomen: true,
-                plusplus: true,
-                predef: [
-                    'd3',
-                    'module',
-                    'console',
-                    'jasmine',
-                    'dimple',
-                    'module',
-                    'define',
-                    'require',
-                    'exports',
-                    'describe',
-                    'it',
-                    'xdescribe',
-                    'xit',
-                    'beforeEach',
-                    'afterEach'
-                ]
+            client: {
+                src: [
+                    'Gruntfile.js',
+                    'dist/<%= pkg.name %>.v<%= pkg.version %>.js'
+                ],
+                directives: {
+                    browser: true,
+                    nomen: true,
+                    plusplus: true,
+                    predef: [
+                        'd3',
+                        'module',
+                        'console',
+                        'jasmine',
+                        'dimple',
+                        'module',
+                        'define',
+                        'require',
+                        'exports',
+                        'describe',
+                        'it',
+                        'xdescribe',
+                        'xit',
+                        'beforeEach',
+                        'afterEach'
+                    ]
+                }
             }
         },
         prop: {
@@ -107,43 +104,6 @@ module.exports = function(grunt) {
                         "<!-- AUTOMATICALLY GENERATED CODE - PLEASE EDIT TEMPLATE INSTEAD -->\n" +
                         "<!----------------------------------------------------------------->\n"
             }
-        },
-        karma: {
-            options: {
-                basepath: '',
-                frameworks: ['jasmine', 'requirejs'],
-                files: [
-                    'test/test-main.js',
-                    { pattern: 'lib/*.min.js', included: false },
-                    { pattern: 'tmp/*.js', included: false },
-                    { pattern: 'test/**/*.spec.js', included: false }
-                ],
-                reporters: ['progress'],
-                port: 9876,
-                colors: true,
-                browsers: ['PhantomJS']
-            },
-            unit: {
-                singleRun: true
-            },
-            continuous: {
-                background: true
-            }
-        },
-        watch: {
-            src: {
-                files: [
-                    '<%= concat.test.src %>'
-                ],
-                tasks: ['concat:test', 'karma:continuous:run']
-            },
-            test: {
-                files: [
-                    'test/**/*.spec.js',
-                    'test/*.spec.js'
-                ],
-                tasks: ['karma:continuous:run']
-            }
         }
     });
 
@@ -153,8 +113,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-jslint');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-karma');
 
     // Propogate version into relevant files
     grunt.registerMultiTask('prop', 'Propagate Versions.', function () {
@@ -220,7 +178,5 @@ module.exports = function(grunt) {
 
     // Default tasks
     grunt.registerTask('default', ['concat', 'jslint', 'uglify', 'copy', 'connect', 'prop']);
-    grunt.registerTask('test:unit', ['concat:test', 'karma:unit']);
-    grunt.registerTask('test', ['karma:continuous:start', 'watch']);
 
 };

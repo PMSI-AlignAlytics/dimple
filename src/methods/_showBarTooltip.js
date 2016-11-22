@@ -69,10 +69,10 @@
                     .attr("y1", (y < dropDest.y ? y + height : y))
                     .attr("x2", (x < series.x._origin ? x + offset : x + width - offset))
                     .attr("y2", (y < dropDest.y ? y + height : y))
-                    .call(function () {
+                    .call(function (context) {
                         // Apply formats optionally
                         if (!chart.noFormats) {
-                            this.style("fill", "none")
+                            context.style("fill", "none")
                                 .style("stroke", fill)
                                 .style("stroke-width", 2)
                                 .style("stroke-dasharray", ("3, 3"))
@@ -82,7 +82,7 @@
                     .transition()
                     .delay(animDuration / 2)
                     .duration(animDuration / 2)
-                    .ease("linear")
+                    .ease(d3.easeLinear)
                     // Added 1px offset to cater for svg issue where a transparent
                     // group overlapping a line can sometimes hide it in some browsers
                     // Issue #10
@@ -99,10 +99,10 @@
                     .attr("y1", (y < series.y._origin ? y + offset : y + height - offset))
                     .attr("x2", (x < dropDest.x ? x + width : x))
                     .attr("y2", (y < series.y._origin ? y + offset : y + height - offset))
-                    .call(function () {
+                    .call(function (context) {
                         // Apply formats optionally
                         if (!chart.noFormats) {
-                            this.style("fill", "none")
+                            context.style("fill", "none")
                                 .style("stroke", fill)
                                 .style("stroke-width", 2)
                                 .style("stroke-dasharray", ("3, 3"))
@@ -112,7 +112,7 @@
                     .transition()
                     .delay(animDuration / 2)
                     .duration(animDuration / 2)
-                    .ease("linear")
+                    .ease(d3.easeLinear)
                     // Added 1px offset to cater for svg issue where a transparent
                     // group overlapping a line can sometimes hide it in some browsers
                     // Issue #10
@@ -132,10 +132,10 @@
             .append("text")
             .attr("class", "dimple-tooltip " + chart.customClassList.tooltipLabel)
             .text(function (d) { return d; })
-            .call(function () {
+            .call(function (context) {
                 // Apply formats optionally
                 if (!chart.noFormats) {
-                    this.style("font-family", series.tooltipFontFamily)
+                    context.style("font-family", series.tooltipFontFamily)
                         .style("font-size", series._getTooltipFontSize());
                 }
             });
@@ -164,10 +164,10 @@
             .attr("width", w + 2 * textMargin)
             .attr("rx", 5)
             .attr("ry", 5)
-            .call(function () {
+            .call(function (context) {
                 // Apply formats optionally
                 if (!chart.noFormats) {
-                    this.style("fill", popupFillColor)
+                    context.style("fill", popupFillColor)
                         .style("stroke", popupStrokeColor)
                         .style("stroke-width", 2)
                         .style("opacity", 0.95);

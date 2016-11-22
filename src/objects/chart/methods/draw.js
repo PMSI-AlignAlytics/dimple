@@ -256,17 +256,17 @@
                 // Set some initial css values
                 handleTrans(axis.shapes.selectAll("text"))
                     .attr("class", appendClass(chart.customClassList.axisLabel))
-                    .call(function() {
+                    .call(function (context) {
                         if (!chart.noFormats) {
-                            this.style("font-family", axis.fontFamily)
+                            context.style("font-family", axis.fontFamily)
                                 .style("font-size", axis._getFontSize());
                         }
                     });
                 handleTrans(axis.shapes.selectAll("path, line"))
                     .attr("class", appendClass(chart.customClassList.axisLine))
-                    .call(function() {
+                    .call(function (context) {
                         if (!chart.noFormats) {
-                            this.style("fill", "none")
+                            context.style("fill", "none")
                                 .style("stroke", "black")
                                 .style("shape-rendering", "crispEdges");
                         }
@@ -274,9 +274,9 @@
                 if (axis.gridlineShapes !== null) {
                     handleTrans(axis.gridlineShapes.selectAll("line"))
                         .attr("class", appendClass(chart.customClassList.gridline))
-                        .call(function() {
+                        .call(function (context) {
                             if (!chart.noFormats) {
-                                this.style("fill", "none")
+                                context.style("fill", "none")
                                     .style("stroke", "lightgray")
                                     .style("opacity", 0.8);
                             }
@@ -292,7 +292,7 @@
                                 var w = this.getComputedTextLength();
                                 widest = (w > widest ? w : widest);
                             });
-                            if (widest > chartWidth / axis.shapes.selectAll("text")[0].length) {
+                            if (widest > chartWidth / axis.shapes.selectAll("text").nodes().length) {
                                 rotated = true;
                                 axis.shapes.selectAll("text")
                                     .style("text-anchor", "start")
@@ -316,7 +316,7 @@
                                     var w = this.getComputedTextLength();
                                     widest = (w > widest ? w : widest);
                                 });
-                            if (widest > chartWidth / axis.shapes.selectAll("text")[0].length) {
+                            if (widest > chartWidth / axis.shapes.selectAll("text").nodes().length) {
                                 rotated = true;
                                 axis.shapes.selectAll("text")
                                     .style("text-anchor", "end")

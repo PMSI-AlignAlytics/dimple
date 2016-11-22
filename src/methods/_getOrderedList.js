@@ -62,11 +62,11 @@
                         var total = 0,
                             i;
                         for (i = 0; i < array.length; i += 1) {
-                            if (isNaN(array[i])) {
+                            if (!isNaN(array[i])) {
+                                total += parseFloat(array[i]);
+                            } else {
                                 total = undefined;
                                 break;
-                            } else {
-                                total += parseFloat(array[i]);
                             }
                         }
                         return total;
@@ -166,4 +166,3 @@
         // Return the ordered list
         return finalArray;
     };
-

@@ -95,7 +95,7 @@
                 var returnValue = 0,
                     categories,
                     comp,
-                    p,
+                    i,
                     q,
                     aMatch,
                     bMatch;
@@ -114,22 +114,22 @@
                 if (seriesCat && seriesCat.length > 0 && returnValue === 0) {
                     categories = [].concat(seriesCat);
                     returnValue = 0;
-                    for (p = 0; p < orderedSeriesArray.length; p += 1) {
-                        comp = [].concat(orderedSeriesArray[p]);
+                    for (i = 0; i < orderedSeriesArray.length; i += 1) {
+                        comp = [].concat(orderedSeriesArray[i]);
                         aMatch = true;
                         bMatch = true;
                         for (q = 0; q < categories.length; q += 1) {
                             aMatch = aMatch && (a[categories[q]] === comp[q]);
                             bMatch = bMatch && (b[categories[q]] === comp[q]);
                         }
-                        if (aMatch && bMatch) {
-                            returnValue = 0;
-                            break;
-                        } else if (aMatch) {
-                            returnValue = -1;
-                            break;
-                        } else if (bMatch) {
-                            returnValue = 1;
+                        if (aMatch || bMatch) {
+                            if (aMatch && bMatch) {
+                                returnValue = 0;
+                            } else if (aMatch) {
+                                returnValue = -1;
+                            } else {
+                                returnValue = 1;
+                            }
                             break;
                         }
                     }
@@ -147,7 +147,7 @@
                     pField = getField(p, d),
                 // Get the aggregate field using the other fields if necessary
                     aggField = [],
-                    key,
+                    ky,
                     k,
                     i,
                     newRow,
@@ -169,11 +169,11 @@
                     }
                 }
 
-                // Add a key
-                key = aggField.join("/") + "_" + xField.join("/") + "_" + yField.join("/") + "_" + pField.join("/") + "_" + zField.join("/");
+                // Add a ky
+                ky = aggField.join("/") + "_" + xField.join("/") + "_" + yField.join("/") + "_" + pField.join("/") + "_" + zField.join("/");
                 // See if this field has already been added.
                 for (k = 0; k < returnData.length; k += 1) {
-                    if (returnData[k].key === key) {
+                    if (returnData[k].key === ky) {
                         foundIndex = k;
                         break;
                     }
@@ -181,7 +181,7 @@
                 // If the field was not added, do so here
                 if (foundIndex === -1) {
                     newRow = {
-                        key: key,
+                        key: ky,
                         aggField: aggField,
                         xField: xField,
                         xValue: null,

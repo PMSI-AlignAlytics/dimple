@@ -1,7 +1,7 @@
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/series/methods/_dropLineOrigin.js
-        this._dropLineOrigin = function() {
+        this._dropLineOrigin = function () {
 
             // Get the origin co-ordinates for axis drop lines
             var xIndex = 0,

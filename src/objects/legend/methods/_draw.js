@@ -39,12 +39,12 @@
                 .attr("class", function (d) {
                     return "dimple-legend dimple-legend-text " + dimple._createClass(d.aggField) + " " + self.chart.customClassList.legendLabel;
                 })
-                .text(function(d) {
+                .text(function (d) {
                     return d.key;
                 })
-                .call(function () {
+                .call(function (context) {
                     if (!self.chart.noFormats) {
-                        this.style("font-family", self.fontFamily)
+                        context.style("font-family", self.fontFamily)
                             .style("font-size", self._getFontSize())
                             .style("shape-rendering", "crispEdges");
                     }
@@ -99,9 +99,9 @@
                             .attr("y", self._yPixels() + runningY)
                             .attr("height", keyHeight)
                             .attr("width",  keyWidth)
-                            .call(function() {
+                            .call(function (context) {
                                 if (!self.chart.noFormats) {
-                                    this.style("fill", d.fill)
+                                    context.style("fill", d.fill)
                                         .style("stroke", d.stroke)
                                         .style("opacity", d.opacity)
                                         .style("shape-rendering", "crispEdges");

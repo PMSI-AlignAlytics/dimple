@@ -57,7 +57,7 @@
                         .domain([this._min, this._max])
                         .clamp(this.clamp);
                 } else if (this.useLog) {
-                    this._scale = d3.scale.log()
+                    this._scale = d3.scaleLog()
                         .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain([
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
@@ -74,11 +74,11 @@
                             distinctCats = distinctCats.concat(getOrderedCategories(slave, "x", "y"));
                         }, this);
                     }
-                    this._scale = d3.scale.ordinal()
-                        .rangePoints([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
+                    this._scale = d3.scalePoint()
+                        .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain(distinctCats.concat([""]));
                 } else {
-                    this._scale = d3.scale.linear()
+                    this._scale = d3.scaleLinear()
                         .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain([this._min, this._max])
                         .clamp(this.clamp)
@@ -88,16 +88,14 @@
                 if (!this.hidden) {
                     switch (this.chart._axisIndex(this, "x")) {
                     case 0:
-                        this._draw = d3.svg.axis()
-                            .orient("bottom")
+                        this._draw = d3.axisBottom()
                             .scale(this._scale);
                         if (this.ticks) {
                             this._draw.ticks(tickCount);
                         }
                         break;
                     case 1:
-                        this._draw = d3.svg.axis()
-                            .orient("top")
+                        this._draw = d3.axisTop()
                             .scale(this._scale);
                         if (this.ticks) {
                             this._draw.ticks(tickCount);
@@ -115,7 +113,7 @@
                         .domain([this._min, this._max])
                         .clamp(this.clamp);
                 } else if (this.useLog) {
-                    this._scale = d3.scale.log()
+                    this._scale = d3.scaleLog()
                         .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
@@ -132,11 +130,11 @@
                             distinctCats = distinctCats.concat(getOrderedCategories(slave, "y", "x"));
                         }, this);
                     }
-                    this._scale = d3.scale.ordinal()
-                        .rangePoints([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
+                    this._scale = d3.scalePoint()
+                        .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain(distinctCats.concat([""]));
                 } else {
-                    this._scale = d3.scale.linear()
+                    this._scale = d3.scaleLinear()
                         .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([this._min, this._max])
                         .clamp(this.clamp)
@@ -146,16 +144,14 @@
                 if (!this.hidden) {
                     switch (this.chart._axisIndex(this, "y")) {
                     case 0:
-                        this._draw = d3.svg.axis()
-                            .orient("left")
+                        this._draw = d3.axisLeft()
                             .scale(this._scale);
                         if (this.ticks) {
                             this._draw.ticks(tickCount);
                         }
                         break;
                     case 1:
-                        this._draw = d3.svg.axis()
-                            .orient("right")
+                        this._draw = d3.axisRight()
                             .scale(this._scale);
                         if (this.ticks) {
                             this._draw.ticks(tickCount);
@@ -167,7 +163,7 @@
                 }
             } else if (this.position.length > 0 && this.position[0] === "z" && this._scale === null) {
                 if (this.useLog) {
-                    this._scale = d3.scale.log()
+                    this._scale = d3.scaleLog()
                         .range([this.chart._heightPixels() / 300, this.chart._heightPixels() / 10])
                         .domain([
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
@@ -176,14 +172,14 @@
                         .clamp(this.clamp)
                         .base(this.logBase);
                 } else {
-                    this._scale = d3.scale.linear()
+                    this._scale = d3.scaleLinear()
                         .range([1, this.chart._heightPixels() / 10])
                         .domain([this._min, this._max])
                         .clamp(this.clamp);
                 }
             } else if (this.position.length > 0 && this.position[0] === "p" && this._scale === null) {
                 if (this.useLog) {
-                    this._scale = d3.scale.log()
+                    this._scale = d3.scaleLog()
                         .range([0, 360])
                         .domain([
                             (this._min === 0 ? Math.pow(this.logBase, -1) : this._min),
@@ -192,13 +188,13 @@
                         .clamp(this.clamp)
                         .base(this.logBase);
                 } else {
-                    this._scale = d3.scale.linear()
+                    this._scale = d3.scaleLinear()
                         .range([0, 360])
                         .domain([this._min, this._max])
                         .clamp(this.clamp);
                 }
             } else if (this.position.length > 0 && this.position[0] === "c" && this._scale === null) {
-                this._scale = d3.scale.linear()
+                this._scale = d3.scaleLinear()
                     .range([0, (this.colors === null || this.colors.length === 1 ? 1 : this.colors.length - 1)])
                     .domain([this._min, this._max])
                     .clamp(this.clamp);
@@ -252,4 +248,3 @@
             // Return axis for chaining
             return this;
         };
-
