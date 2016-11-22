@@ -7,7 +7,7 @@
         "url": "https://github.com/PMSI-AlignAlytics/dimple.git"
     },
     "dependencies": {
-        "d3": ">=3.5.2"
+        "d3": "<=3.5.17"
     },
     "version": "2.2.0",
     "homepage": "dimplejs.org",
