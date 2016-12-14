@@ -387,7 +387,7 @@
                     colorBounds.max = (c.overrideMax || colorBounds.max);
                     ret.cValue = (ret.cValue > colorBounds.max ? colorBounds.max : (ret.cValue < colorBounds.min ? colorBounds.min : ret.cValue));
                     // Calculate the factors for the calculations
-                    scale = d3.scale.linear().range([0, (c.colors === null || c.colors.length === 1 ? 1 : c.colors.length - 1)]).domain([colorBounds.min, colorBounds.max]);
+                    scale = d3.scaleLinear().range([0, (c.colors === null || c.colors.length === 1 ? 1 : c.colors.length - 1)]).domain([colorBounds.min, colorBounds.max]);
                     colorVal = scale(ret.cValue);
                     floatingPortion = colorVal - Math.floor(colorVal);
                     if (ret.cValue === colorBounds.max) {

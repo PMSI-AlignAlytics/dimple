@@ -68,17 +68,13 @@
               // Draw the background chart
               charts[0].draw();
               // Class all shapes as .historic
-              lastSeries.shapes.attr("class", "historic");
+              lastSeries.shapes.classed("historic", true);
                 // Reduce all opacity and remove once opacity drops below 5%
                 d3.selectAll(".historic")
                   .each(function () {
                     var shape = d3.select(this),
-                      opacity = shape.style("opacity") - 0.02;
-                    if (opacity < 0.1) {
-                      shape.remove();
-                    } else {
-                      shape.style("opacity", opacity);
-                    }
+                        opacity = shape.style("opacity") - 0.02;
+                    shape.style("opacity", opacity);
                   });
                 }
                 lastDate = d;

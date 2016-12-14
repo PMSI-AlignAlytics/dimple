@@ -86,7 +86,7 @@
 
         // Draw the text information in the top left corner
         svg.selectAll(".dimple-hover-text")
-          .data([e.xValue, d3.format(",.f")(e.yValue)])
+          .data([e.xValue, d3.format(",.0f")(e.yValue)])
             .enter()
             .append("text")
             .attr("class", "dimple-hover-text")

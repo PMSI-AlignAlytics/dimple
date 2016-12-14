@@ -89,12 +89,12 @@
                 };
 
             // Clear tool tips
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+            if (chart._tooltipGroup) {
                 chart._tooltipGroup.remove();
             }
 
-            if (series.shapes === null || series.shapes === undefined) {
-                theseShapes =  series._group.selectAll("." + classes.join(".")).data(chartData);
+            if (!series.shapes) {
+                theseShapes = series._group.selectAll("." + classes.join(".")).data(chartData, function (d) { return d.key; });
             } else {
                 theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
@@ -150,6 +150,7 @@
             dimple._postDrawHandling(series, updated, removed, duration);
 
             // Save the shapes to the series array
-            series.shapes = theseShapes;
+            series.shapes = series._group.selectAll("." + classes.join("."));
+
         }
     };

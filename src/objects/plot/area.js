@@ -333,12 +333,12 @@
                 areaData[i].css = chart.getClass(areaData[i].key.length > 0 ? areaData[i].key[areaData[i].key.length - 1] : "All");
             }
 
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+            if (chart._tooltipGroup) {
                 chart._tooltipGroup.remove();
             }
 
-            if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = series._group.selectAll("." + className).data(areaData);
+            if (!series.shapes) {
+                theseShapes = series._group.selectAll("." + className).data(areaData, function (d) { return d.key; });
             } else {
                 theseShapes = series.shapes.data(areaData, function (d) { return d.key; });
             }
@@ -387,7 +387,7 @@
             dimple._postDrawHandling(series, updated, removed, duration);
 
             // Save the shapes to the series array
-            series.shapes = theseShapes;
+            series.shapes = series._group.selectAll("." + className);
 
         }
     };

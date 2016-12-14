@@ -15,6 +15,13 @@
         // Decide whether to draw the button or the graph
         if (window.opener !== null && window.opener !== undefined) {
 
+            d3.select("html")
+                .style("height", "100%")
+                .style("overflow", "hidden");
+            d3.select("body")
+                .style("height", "100%")
+                .style("overflow", "hidden");
+
             // Set up a standard chart
             var myChart;
             d3.tsv("/data/example_data.tsv", function (data) {

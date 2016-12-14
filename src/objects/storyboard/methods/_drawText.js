@@ -16,9 +16,9 @@
                     .attr("opacity", 1)
                     .attr("x", self.chart._xPixels() + self.chart._widthPixels() * 0.01)
                     .attr("y", self.chart._yPixels() + (self.chart._heightPixels() / 35 > 10 ? self.chart._heightPixels() / 35 : 10) * (xCount > 1 ? 1.25 : -1))
-                    .call(function () {
+                    .call(function (context) {
                         if (!chart.noFormats) {
-                            self.style("font-family", self.fontFamily)
+                            context.style("font-family", self.fontFamily)
                                 .style("font-size", self._getFontSize());
                         }
                     });

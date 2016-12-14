@@ -30,45 +30,45 @@
       { "F":5, "Seg":"P", "BarX":"L", "BarY":20, "BubX":0, "BubY":0 },
       { "F":5, "Seg":"G", "BarX":"R", "BarY":40, "BubX":0, "BubY":0 },
       { "F":5, "Seg":"P", "BarX":"R", "BarY":20, "BubX":0, "BubY":0 }
-    ];        
-    
+    ];
+
     // Create the chart
     var myChart = new dimple.chart(svg, data);
     myChart.setBounds(20, 20, 550, 300)
-    
+
     myChart.assignColor("G", "#FFF", "#FFF", 0);
     myChart.assignColor("P", "#888", "#888", 1);
     myChart.assignColor("Ball", "#888", "#888", 1);
 
     var barX = myChart.addCategoryAxis("x", "BarX");
     barX.hidden = true;
-    
+
     var barY = myChart.addMeasureAxis("y", "BarY");
     barY.overrideMax = 100;
     barY.hidden = true;
-    
+
     var bubX = myChart.addMeasureAxis("x", "BubX");
     bubX.overrideMax = 60;
     bubX.hidden = true;
-    
+
     var bubY = myChart.addMeasureAxis("y", "BubY");
     bubY.overrideMax = 100;
     bubY.hidden = true;
-        
+
     var paddles = myChart.addSeries("Seg", dimple.plot.bar, [barX, barY]);
     paddles.barGap = 0.99;
-    
+
     var ball = myChart.addSeries("Ball", dimple.plot.bubble, [bubX, bubY]);
-    
+
     // Animate the chart for every date value, any dimension can be passed
     // here and dimple will animate over its values.
     var sb = myChart.setStoryboard("F");
     sb.frameDuration = 600;
-        
+
     myChart.draw();
-    
+
     sb.storyLabel.remove();
-        
+
   </script>
 </div>
 </html>

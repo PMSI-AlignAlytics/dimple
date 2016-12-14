@@ -188,7 +188,7 @@
                     returnFormat = d3.format(this.tickFormat);
                 }
             } else if (this.showPercent) {
-                returnFormat = d3.format("%");
+                returnFormat = d3.format(".0%");
             } else if (this.useLog && this.measure !== null) {
                 // With linear axes the range is used to apply uniform
                 // formatting but with a log axis it is based on each number
@@ -212,7 +212,7 @@
                         return (n === 0 ? 0 : d3.format(",." + dp + "f")(n / Math.pow(1000, chunks)) + suffix);
                     };
                 } else {
-                    dp = -Math.floor(Math.log(this._tick_step) / Math.LN10);
+                    dp = Math.max(-(this._tick_step ? Math.floor(Math.log(this._tick_step) / Math.LN10) : 0), 0);
                     returnFormat = d3.format(",." + dp + "f");
                 }
             } else {
@@ -279,7 +279,7 @@
                     rows.push(this.measure + ": " + this._getFormat()(d.height));
                     break;
                 case "p":
-                    rows.push(this.measure + ": " + this._getFormat()(d.angle) + " (" + (d3.format("%")(d.piePct)) + ")");
+                    rows.push(this.measure + ": " + this._getFormat()(d.angle) + " (" + (d3.format(".0%")(d.piePct)) + ")");
                     break;
                 default:
                     rows.push(this.measure + ": " + this._getFormat()(d[this.position + "Value"]));
@@ -287,6 +287,7 @@
                 }
             }
         };
+
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_getTopMaster.js
@@ -341,12 +342,11 @@
                     outDate = Date.parse(inDate);
                 }
             } else {
-                outDate = d3.time.format(this.dateParseFormat).parse(inDate);
+                outDate = d3.timeParse(this.dateParseFormat)(inDate);
             }
             // Return the date
             return outDate;
         };
-
 
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -1113,7 +1113,7 @@
                     colorBounds.max = (c.overrideMax || colorBounds.max);
                     ret.cValue = (ret.cValue > colorBounds.max ? colorBounds.max : (ret.cValue < colorBounds.min ? colorBounds.min : ret.cValue));
                     // Calculate the factors for the calculations
-                    scale = d3.scale.linear().range([0, (c.colors === null || c.colors.length === 1 ? 1 : c.colors.length - 1)]).domain([colorBounds.min, colorBounds.max]);
+                    scale = d3.scaleLinear().range([0, (c.colors === null || c.colors.length === 1 ? 1 : c.colors.length - 1)]).domain([colorBounds.min, colorBounds.max]);
                     colorVal = scale(ret.cValue);
                     floatingPortion = colorVal - Math.floor(colorVal);
                     if (ret.cValue === colorBounds.max) {
@@ -2921,9 +2921,9 @@
                     .attr("opacity", 1)
                     .attr("x", self.chart._xPixels() + self.chart._widthPixels() * 0.01)
                     .attr("y", self.chart._yPixels() + (self.chart._heightPixels() / 35 > 10 ? self.chart._heightPixels() / 35 : 10) * (xCount > 1 ? 1.25 : -1))
-                    .call(function () {
+                    .call(function (context) {
                         if (!chart.noFormats) {
-                            self.style("font-family", self.fontFamily)
+                            context.style("font-family", self.fontFamily)
                                 .style("font-size", self._getFontSize());
                         }
                     });
@@ -3025,11 +3025,10 @@
         // Source: /src/objects/storyboard/methods/pauseAnimation.js
         this.pauseAnimation = function () {
             if (this._animationTimer !== null) {
-                window.clearInterval(this._animationTimer);
+                this._animationTimer.stop();
                 this._animationTimer = null;
             }
         };
-
 
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -3037,7 +3036,7 @@
         this.startAnimation = function () {
             if (this._animationTimer === null) {
                 if (this.onTick !== null) { this.onTick(this.getFrameValue()); }
-                this._animationTimer = window.setInterval((function (storyboard) {
+                this._animationTimer = d3.timer((function (storyboard) {
                     return function () {
                         storyboard._goToFrameIndex(storyboard._frame + 1);
                         if (storyboard.onTick !== null) {
@@ -3045,22 +3044,20 @@
                         }
                         storyboard._drawText(storyboard.frameDuration / 2);
                     };
-                }(this)), this.frameDuration);
+                }(this)), this.frameDuration * 2);
             }
         };
-
 
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/storyboard/methods/stopAnimation.js
         this.stopAnimation = function () {
             if (this._animationTimer !== null) {
-                window.clearInterval(this._animationTimer);
+                this._animationTimer.stop();
                 this._animationTimer = null;
                 this._frame = 0;
             }
         };
-
 
     };
     // End dimple.storyboard
@@ -3446,12 +3443,12 @@
                 areaData[i].css = chart.getClass(areaData[i].key.length > 0 ? areaData[i].key[areaData[i].key.length - 1] : "All");
             }
 
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+            if (chart._tooltipGroup) {
                 chart._tooltipGroup.remove();
             }
 
-            if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = series._group.selectAll("." + className).data(areaData);
+            if (!series.shapes) {
+                theseShapes = series._group.selectAll("." + className).data(areaData, function (d) { return d.key; });
             } else {
                 theseShapes = series.shapes.data(areaData, function (d) { return d.key; });
             }
@@ -3500,7 +3497,7 @@
             dimple._postDrawHandling(series, updated, removed, duration);
 
             // Save the shapes to the series array
-            series.shapes = theseShapes;
+            series.shapes = series._group.selectAll("." + className);
 
         }
     };
@@ -3540,12 +3537,12 @@
                 cat = "y";
             }
 
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+            if (chart._tooltipGroup) {
                 chart._tooltipGroup.remove();
             }
 
-            if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = series._group.selectAll("." + classes.join(".")).data(chartData);
+            if (!series.shapes) {
+                theseShapes = series._group.selectAll("." + classes.join(".")).data(chartData, function (d) { return d.key; });
             } else {
                 theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
@@ -3631,7 +3628,7 @@
             dimple._postDrawHandling(series, updated, removed, duration);
 
             // Save the shapes to the series array
-            series.shapes = theseShapes;
+            series.shapes = series._group.selectAll("." + classes.join("."));
         }
     };
 
@@ -3659,16 +3656,14 @@
                 updated,
                 removed;
 
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+            if (chart._tooltipGroup) {
                 chart._tooltipGroup.remove();
             }
 
-            if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = series._group.selectAll("." + classes.join(".")).data(chartData);
+            if (!series.shapes) {
+                theseShapes = series._group.selectAll("." + classes.join(".")).data(chartData, function (d) { return d.key; });
             } else {
-                theseShapes = series.shapes.data(chartData, function (d) {
-                    return d.key;
-                });
+                theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
 
             // Add
@@ -3718,7 +3713,8 @@
             dimple._postDrawHandling(series, updated, removed, duration);
 
             // Save the shapes to the series array
-            series.shapes = theseShapes;
+            series.shapes = series._group.selectAll("." + classes.join("."));
+
         }
     };
 
@@ -3902,12 +3898,12 @@
                 lineData[i].css = chart.getClass(lineData[i].key.length > 0 ? lineData[i].key[lineData[i].key.length - 1] : "All");
             }
 
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+            if (chart._tooltipGroup) {
                 chart._tooltipGroup.remove();
             }
 
-            if (series.shapes === null || series.shapes === undefined) {
-                theseShapes = series._group.selectAll("." + className).data(lineData);
+            if (!series.shapes) {
+                theseShapes = series._group.selectAll("." + className).data(lineData, function (d) { return d.key; });
             } else {
                 theseShapes = series.shapes.data(lineData, function (d) { return d.key; });
             }
@@ -3960,7 +3956,7 @@
             dimple._postDrawHandling(series, updated, removed, duration);
 
             // Save the shapes to the series array
-            series.shapes = theseShapes;
+            series.shapes = series._group.selectAll("." + className);
 
         }
     };
@@ -4056,12 +4052,12 @@
                 };
 
             // Clear tool tips
-            if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
+            if (chart._tooltipGroup) {
                 chart._tooltipGroup.remove();
             }
 
-            if (series.shapes === null || series.shapes === undefined) {
-                theseShapes =  series._group.selectAll("." + classes.join(".")).data(chartData);
+            if (!series.shapes) {
+                theseShapes = series._group.selectAll("." + classes.join(".")).data(chartData, function (d) { return d.key; });
             } else {
                 theseShapes = series.shapes.data(chartData, function (d) { return d.key; });
             }
@@ -4117,7 +4113,8 @@
             dimple._postDrawHandling(series, updated, removed, duration);
 
             // Save the shapes to the series array
-            series.shapes = theseShapes;
+            series.shapes = series._group.selectAll("." + classes.join("."));
+
         }
     };
 
@@ -4286,7 +4283,7 @@
                 .attr("stroke", "none");
 
             // Update
-            chart._handleTransition(markerBacks, duration, chart)
+            chart._handleTransition(markerBacks.merge(shapes), duration, chart)
                 .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
                 .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
                 .attr("r", 2 + series.lineWeight);
@@ -4376,7 +4373,7 @@
             });
 
         // Update
-        chart._handleTransition(markers, duration, chart)
+        chart._handleTransition(markers.merge(shapes), duration, chart)
             .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
             .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
             .attr("r", 2 + series.lineWeight)
@@ -4982,22 +4979,23 @@
         // Run after transition methods
         if (duration === 0) {
             updated.each(function (d, i) {
-                if (series.afterDraw !== null && series.afterDraw !== undefined) {
+                if (series.afterDraw) {
                     series.afterDraw(this, d, i);
                 }
             });
             removed.remove();
         } else {
-            updated.each("end", function (d, i) {
-                if (series.afterDraw !== null && series.afterDraw !== undefined) {
+            updated.on("end", function (d, i) {
+                if (series.afterDraw) {
                     series.afterDraw(this, d, i);
                 }
             });
-            removed.each("end", function () {
-                d3.select(this).remove();
+            removed.call(function () {
+                series.shapes.exit().remove();
             });
         }
     };
+
     // Copyright: 2015 AlignAlytics
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/methods/_removeTooltip.js

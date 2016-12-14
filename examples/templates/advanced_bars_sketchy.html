@@ -83,7 +83,7 @@
                   .attr("y", labelY)
                   .style("pointer-events", "none")
                   .style("text-anchor", "middle")
-                  .text(e.xValue + " (" + d3.format(",.f")(e.yValue) + ")");
+                  .text(e.xValue + " (" + d3.format(",.0f")(e.yValue) + ")");
           svg.append("path")
                   .attr("class", "tooltip line")
                   .attr("transform", "translate(" + labelX + "," + labelY + ")")

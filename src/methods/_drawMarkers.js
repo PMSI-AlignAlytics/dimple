@@ -61,7 +61,7 @@
             });
 
         // Update
-        chart._handleTransition(markers, duration, chart)
+        chart._handleTransition(markers.merge(shapes), duration, chart)
             .attr("cx", function (d) { return dimple._helpers.cx(d, chart, series); })
             .attr("cy", function (d) { return dimple._helpers.cy(d, chart, series); })
             .attr("r", 2 + series.lineWeight)

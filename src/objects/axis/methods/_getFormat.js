@@ -16,7 +16,7 @@
                     returnFormat = d3.format(this.tickFormat);
                 }
             } else if (this.showPercent) {
-                returnFormat = d3.format("%");
+                returnFormat = d3.format(".0%");
             } else if (this.useLog && this.measure !== null) {
                 // With linear axes the range is used to apply uniform
                 // formatting but with a log axis it is based on each number
@@ -40,7 +40,7 @@
                         return (n === 0 ? 0 : d3.format(",." + dp + "f")(n / Math.pow(1000, chunks)) + suffix);
                     };
                 } else {
-                    dp = -Math.floor(Math.log(this._tick_step) / Math.LN10);
+                    dp = Math.max(-(this._tick_step ? Math.floor(Math.log(this._tick_step) / Math.LN10) : 0), 0);
                     returnFormat = d3.format(",." + dp + "f");
                 }
             } else {

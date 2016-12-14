@@ -5,19 +5,19 @@
         // Run after transition methods
         if (duration === 0) {
             updated.each(function (d, i) {
-                if (series.afterDraw !== null && series.afterDraw !== undefined) {
+                if (series.afterDraw) {
                     series.afterDraw(this, d, i);
                 }
             });
             removed.remove();
         } else {
-            updated.each("end", function (d, i) {
-                if (series.afterDraw !== null && series.afterDraw !== undefined) {
+            updated.on("end", function (d, i) {
+                if (series.afterDraw) {
                     series.afterDraw(this, d, i);
                 }
             });
-            removed.each("end", function () {
-                d3.select(this).remove();
+            removed.call(function () {
+                series.shapes.exit().remove();
             });
         }
     };

@@ -16,9 +16,8 @@
                     outDate = Date.parse(inDate);
                 }
             } else {
-                outDate = d3.time.format(this.dateParseFormat).parse(inDate);
+                outDate = d3.timeParse(this.dateParseFormat)(inDate);
             }
             // Return the date
             return outDate;
         };
-
