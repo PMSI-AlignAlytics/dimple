@@ -51,7 +51,7 @@
             // If this is an x axis
             if (this.position === "x" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
-                    this._scale = d3.time.scale()
+                    this._scale = d3.scaleTime()
                         // Previously used rangeRound which causes problems with the area chart (Issue #79)
                         .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain([this._min, this._max])
@@ -107,7 +107,7 @@
                 }
             } else if (this.position === "y" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
-                    this._scale = d3.time.scale()
+                    this._scale = d3.scaleTime()
                         // Previously used rangeRound which causes problems with the area chart (Issue #79)
                         .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([this._min, this._max])

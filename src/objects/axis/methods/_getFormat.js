@@ -11,7 +11,7 @@
                 dp;
             if (this.tickFormat !== null && this.tickFormat !== undefined) {
                 if (this._hasTimeField()) {
-                    returnFormat = d3.time.format(this.tickFormat);
+                    returnFormat = d3.timeFormat(this.tickFormat);
                 } else {
                     returnFormat = d3.format(this.tickFormat);
                 }

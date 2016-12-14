@@ -183,7 +183,7 @@
                 dp;
             if (this.tickFormat !== null && this.tickFormat !== undefined) {
                 if (this._hasTimeField()) {
-                    returnFormat = d3.time.format(this.tickFormat);
+                    returnFormat = d3.timeFormat(this.tickFormat);
                 } else {
                     returnFormat = d3.format(this.tickFormat);
                 }
@@ -234,25 +234,24 @@
                 // which in the case of seconds kills the browser.  All constants are straight sums of milliseconds
                 // except months taken as (86400000 * 365.25) / 12 = 2629800000
                 if (diff / 1000 <= maxPeriods) {
-                    outPeriod = d3.time.seconds;
+                    outPeriod = d3.timeSecond;
                 } else if (diff / 60000 <= maxPeriods) {
-                    outPeriod = d3.time.minutes;
+                    outPeriod = d3.timeMinute;
                 } else if (diff / 3600000 <= maxPeriods) {
-                    outPeriod = d3.time.hours;
+                    outPeriod = d3.timeHour;
                 } else if (diff / 86400000 <= maxPeriods) {
-                    outPeriod = d3.time.days;
+                    outPeriod = d3.timeHay;
                 } else if (diff / 604800000 <= maxPeriods) {
-                    outPeriod = d3.time.weeks;
+                    outPeriod = d3.timeWeek;
                 } else if (diff / 2629800000 <= maxPeriods) {
-                    outPeriod = d3.time.months;
+                    outPeriod = d3.timeMonth;
                 } else {
-                    outPeriod = d3.time.years;
+                    outPeriod = d3.timeYear;
                 }
             }
             // Return the date
             return outPeriod;
         };
-
 
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
@@ -401,7 +400,7 @@
             // If this is an x axis
             if (this.position === "x" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
-                    this._scale = d3.time.scale()
+                    this._scale = d3.scaleTime()
                         // Previously used rangeRound which causes problems with the area chart (Issue #79)
                         .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain([this._min, this._max])
@@ -457,7 +456,7 @@
                 }
             } else if (this.position === "y" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
-                    this._scale = d3.time.scale()
+                    this._scale = d3.scaleTime()
                         // Previously used rangeRound which causes problems with the area chart (Issue #79)
                         .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([this._min, this._max])

@@ -57,19 +57,19 @@
     // Create the chart as usual
     var myChart = new dimple.chart(svg, data);
     myChart.setBounds(70, 40, 490, 320)
-    
+
     // Add the x axis reading dates in the format 01 Jan 2012
     // and displaying them 01 Jan
     var x = myChart.addTimeAxis("x", "Day", "%d %b %Y", "%d %b");
 
     // Add the y axis reading dates and times but only outputting
-    // times.  
+    // times.
     var y = myChart.addTimeAxis("y", "Time of Day",
         "%Y-%m-%d %H:%M", "%H:%M");
 
     // Size the bubbles by volume
     var z = myChart.addMeasureAxis("z", "Value");
-    
+
     // Setting min and max dates requires them to be set
     // as actual javascript date objects
     x.overrideMin = new Date("2010-06-20");
@@ -78,10 +78,10 @@
     y.overrideMax = new Date("01/01/2000 6:00 pm");
 
     // Show a label for every 4 weeks.
-    x.timePeriod = d3.time.weeks;
+    x.timePeriod = d3.timeWeek;
     x.timeInterval = 4;
 
-    // Control bubble sizes by setting the max and min values    
+    // Control bubble sizes by setting the max and min values
     z.overrideMin = 900;
     z.overrideMax = 3000;
 

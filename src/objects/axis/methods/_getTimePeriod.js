@@ -11,22 +11,21 @@
                 // which in the case of seconds kills the browser.  All constants are straight sums of milliseconds
                 // except months taken as (86400000 * 365.25) / 12 = 2629800000
                 if (diff / 1000 <= maxPeriods) {
-                    outPeriod = d3.time.seconds;
+                    outPeriod = d3.timeSecond;
                 } else if (diff / 60000 <= maxPeriods) {
-                    outPeriod = d3.time.minutes;
+                    outPeriod = d3.timeMinute;
                 } else if (diff / 3600000 <= maxPeriods) {
-                    outPeriod = d3.time.hours;
+                    outPeriod = d3.timeHour;
                 } else if (diff / 86400000 <= maxPeriods) {
-                    outPeriod = d3.time.days;
+                    outPeriod = d3.timeHay;
                 } else if (diff / 604800000 <= maxPeriods) {
-                    outPeriod = d3.time.weeks;
+                    outPeriod = d3.timeWeek;
                 } else if (diff / 2629800000 <= maxPeriods) {
-                    outPeriod = d3.time.months;
+                    outPeriod = d3.timeMonth;
                 } else {
-                    outPeriod = d3.time.years;
+                    outPeriod = d3.timeYear;
                 }
             }
             // Return the date
             return outPeriod;
         };
-
