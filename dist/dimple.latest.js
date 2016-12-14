@@ -653,6 +653,8 @@
         this.ease = d3.easeCubicInOut;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-staggerDraw
         this.staggerDraw = false;
+        // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-transition
+        this.transition = {};
 
         // The group within which to put all of this chart's objects
         this._group = svg.append("g");
@@ -3025,7 +3027,7 @@
         // Source: /src/objects/storyboard/methods/pauseAnimation.js
         this.pauseAnimation = function () {
             if (this._animationTimer !== null) {
-                this._animationTimer.stop();
+                window.clearInterval(this._animationTimer);
                 this._animationTimer = null;
             }
         };
@@ -3036,7 +3038,7 @@
         this.startAnimation = function () {
             if (this._animationTimer === null) {
                 if (this.onTick !== null) { this.onTick(this.getFrameValue()); }
-                this._animationTimer = d3.timer((function (storyboard) {
+                this._animationTimer = window.setInterval((function (storyboard) {
                     return function () {
                         storyboard._goToFrameIndex(storyboard._frame + 1);
                         if (storyboard.onTick !== null) {
@@ -3044,7 +3046,7 @@
                         }
                         storyboard._drawText(storyboard.frameDuration / 2);
                     };
-                }(this)), this.frameDuration * 2);
+                }(this)), this.frameDuration);
             }
         };
 
@@ -3053,7 +3055,7 @@
         // Source: /src/objects/storyboard/methods/stopAnimation.js
         this.stopAnimation = function () {
             if (this._animationTimer !== null) {
-                this._animationTimer.stop();
+                window.clearInterval(this._animationTimer);
                 this._animationTimer = null;
                 this._frame = 0;
             }

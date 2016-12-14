@@ -4,7 +4,7 @@
         this.startAnimation = function () {
             if (this._animationTimer === null) {
                 if (this.onTick !== null) { this.onTick(this.getFrameValue()); }
-                this._animationTimer = d3.timer((function (storyboard) {
+                this._animationTimer = window.setInterval((function (storyboard) {
                     return function () {
                         storyboard._goToFrameIndex(storyboard._frame + 1);
                         if (storyboard.onTick !== null) {

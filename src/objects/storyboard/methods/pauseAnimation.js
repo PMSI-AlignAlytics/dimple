@@ -3,7 +3,7 @@
         // Source: /src/objects/storyboard/methods/pauseAnimation.js
         this.pauseAnimation = function () {
             if (this._animationTimer !== null) {
-                this._animationTimer.stop();
+                window.clearInterval(this._animationTimer);
                 this._animationTimer = null;
             }
         };
