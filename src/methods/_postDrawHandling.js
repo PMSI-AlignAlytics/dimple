@@ -17,7 +17,9 @@
                 }
             });
             removed.call(function () {
-                series.shapes.exit().remove();
+                if (series.shapes) {
+                    series.shapes.exit().remove();
+                }
             });
         }
     };

@@ -1931,6 +1931,7 @@
                         }
                     });
                 if (axis.gridlineShapes !== null) {
+                    handleTrans(axis.gridlineShapes.selectAll("path")).remove();
                     handleTrans(axis.gridlineShapes.selectAll("line"))
                         .attr("class", appendClass(chart.customClassList.gridline))
                         .call(function (context) {
