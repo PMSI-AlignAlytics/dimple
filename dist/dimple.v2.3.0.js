@@ -1931,7 +1931,7 @@
                         }
                     });
                 if (axis.gridlineShapes !== null) {
-                    handleTrans(axis.gridlineShapes.selectAll("path")).remove();
+                    axis.gridlineShapes.selectAll("path").remove();
                     handleTrans(axis.gridlineShapes.selectAll("line"))
                         .attr("class", appendClass(chart.customClassList.gridline))
                         .call(function (context) {
@@ -4993,7 +4993,9 @@
                 }
             });
             removed.call(function () {
-                series.shapes.exit().remove();
+                if (series.shapes) {
+                    series.shapes.exit().remove();
+                }
             });
         }
     };
