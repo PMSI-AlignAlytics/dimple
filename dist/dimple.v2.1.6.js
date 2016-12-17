@@ -4780,7 +4780,7 @@
     // Source: /src/methods/_parentHeight.js
     dimple._parentHeight = function (parent) {
         // This one seems to work in Chrome - good old Chrome!
-        var returnValue = parent.offsetHeight;
+        var returnValue = parent.getBoundingClientRect().height;
         // This does it for IE
         if (returnValue <= 0 || returnValue === null || returnValue === undefined) {
             returnValue = parent.clientHeight;
@@ -4807,7 +4807,7 @@
     // Source: /src/methods/_parentWidth.js
     dimple._parentWidth = function (parent) {
         // This one seems to work in Chrome - good old Chrome!
-        var returnValue = parent.offsetWidth;
+        var returnValue = parent.getBoundingClientRect().width;
         // This does it for IE
         if (!returnValue || returnValue < 0) {
             returnValue = parent.clientWidth;
