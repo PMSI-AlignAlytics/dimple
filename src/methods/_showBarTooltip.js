@@ -52,10 +52,14 @@
                 return position.matrixTransform(matrix);
             };
 
-        if (chart._tooltipGroup !== null && chart._tooltipGroup !== undefined) {
-            chart._tooltipGroup.remove();
+        if (chart._tooltipGroups === null || chart._tooltipGroups === undefined) {
+            chart._tooltipGroups = {};
         }
-        chart._tooltipGroup = chart.svg.append("g");
+        if (chart._tooltipGroups[e.key] !== null && chart._tooltipGroups[e.key] !== undefined) {
+            chart._tooltipGroups[e.key].remove();
+        }
+
+        chart._tooltipGroups[e.key] = chart.svg.append('g');
 
         if (!series.p) {
 
@@ -63,7 +67,7 @@
 
             // Add a drop line to the x axis
             if (!series.x._hasCategories() && dropDest.y !== null) {
-                chart._tooltipGroup.append("line")
+                chart._tooltipGroups[e.key].append("line")
                     .attr("class", "dimple-tooltip-dropline " + chart.customClassList.tooltipDropLine)
                     .attr("x1", (x < series.x._origin ? x + offset : x + width - offset))
                     .attr("y1", (y < dropDest.y ? y + height : y))
@@ -93,7 +97,7 @@
 
             // Add a drop line to the y axis
             if (!series.y._hasCategories() && dropDest.x !== null) {
-                chart._tooltipGroup.append("line")
+                chart._tooltipGroups[e.key].append("line")
                     .attr("class", "dimple-tooltip-dropline " + chart.customClassList.tooltipDropLine)
                     .attr("x1", (x < dropDest.x ? x + width : x))
                     .attr("y1", (y < series.y._origin ? y + offset : y + height - offset))
@@ -122,7 +126,7 @@
         }
 
         // Add a group for text
-        t = chart._tooltipGroup.append("g");
+        t = chart._tooltipGroups[e.key].append("g");
         // Create a box for the popup in the text group
         box = t.append("rect")
             .attr("class", "dimple-tooltip " + chart.customClassList.tooltipBox);
