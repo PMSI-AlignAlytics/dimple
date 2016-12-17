@@ -2283,7 +2283,7 @@
         this._draw = function () {
 
             // Create an array of distinct color elements from the series
-            var legendArray = this._getEntries(),
+            var legendArray = this._getEntries().reverse(),
                 maxWidth = 0,
                 maxHeight = 0,
                 runningX = 0,
