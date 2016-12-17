@@ -2,7 +2,7 @@
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/series/methods/_axisBounds.js
         this._axisBounds = function (position) {
-            var bounds = { min: 0, max: 0 },
+            var bounds = { min: Infinity, max: -Infinity },
                 // The primary axis for this comparison
                 primaryAxis = null,
                 // The secondary axis for this comparison
@@ -78,7 +78,11 @@
                     }
                     // Get the index of the field
                     if (categoryTotals[index] === undefined) {
-                        categoryTotals[index] = { min: 0, max: 0 };
+                        if (this.stacked) {
+                            categoryTotals[index] = { min: 0, max: 0 };
+                        } else {
+                            categoryTotals[index] = { min: Infinity, max: -Infinity };
+                        }
                         if (index >= catCount) {
                             catCount = index + 1;
                         }
