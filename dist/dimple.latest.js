@@ -181,6 +181,9 @@
                 chunks,
                 suffix,
                 dp;
+            if (typeof this.tickFormat == 'function') {
+                return this.tickFormat;
+            }
             if (this.tickFormat !== null && this.tickFormat !== undefined) {
                 if (this._hasTimeField()) {
                     returnFormat = d3.timeFormat(this.tickFormat);
