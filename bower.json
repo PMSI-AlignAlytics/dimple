@@ -1,0 +1,42 @@
+{
+    "name": "dimple",
+    "description": "An object-oriented charting API for d3",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/PMSI-AlignAlytics/dimple.git"
+    },
+    "dependencies": {
+        "d3": "4.3.0"
+    },
+    "version": "2.3.0",
+    "homepage": "dimplejs.org",
+    "authors": [
+        "johnkiernander <jkiernander@pmsi-consulting.com>"
+    ],
+    "main": "dist/dimple.latest.js",
+    "moduleType": [
+        "amd"
+    ],
+    "keywords": [
+        "dimple",
+        "d3",
+        "charting"
+    ],
+    "ignore": [
+        "**/.*",
+        "app.js",
+        "Gruntfile.js",
+        "package.json",
+        "node_modules",
+        "bower_components",
+        "test",
+        "adhoc",
+        "data",
+        "example",
+        "image_creator",
+        "lib",
+        "src",
+        "tmp"
+    ]
+}

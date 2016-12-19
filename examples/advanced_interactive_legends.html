@@ -5,8 +5,8 @@
 <meta charset="utf-8">
 <html>
 <div id="chartContainer">
-  <script src="/lib/d3.v3.4.8.js"></script>
-  <script src="/dist/dimple.v2.2.0.js"></script>
+  <script src="/lib/d3.v4.3.0.js"></script>
+  <script src="/dist/dimple.v2.3.0.js"></script>
   <script type="text/javascript">
     var svg = dimple.newSvg("#chartContainer", 590, 400);
       d3.tsv("/data/example_data.tsv", function (data) {
@@ -23,7 +23,7 @@
         myChart.addSeries(["SKU", "Channel", "Owner"], dimple.plot.bubble);
         var myLegend = myChart.addLegend(530, 100, 60, 300, "Right");
         myChart.draw();
-        
+
         // This is a critical step.  By doing this we orphan the legend. This
         // means it will not respond to graph updates.  Without this the legend
         // will redraw when the chart refreshes removing the unchecked item and

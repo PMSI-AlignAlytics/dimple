@@ -19,7 +19,7 @@
         myChart.addSeries(["SKU", "Channel", "Owner"], dimple.plot.bubble);
         var myLegend = myChart.addLegend(530, 100, 60, 300, "Right");
         myChart.draw();
-        
+
         // This is a critical step.  By doing this we orphan the legend. This
         // means it will not respond to graph updates.  Without this the legend
         // will redraw when the chart refreshes removing the unchecked item and
