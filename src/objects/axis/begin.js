@@ -58,6 +58,8 @@
         this.fontFamily = "sans-serif";
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-autoRotateLabel
         this.autoRotateLabel = (autoRotateLabel === null || autoRotateLabel === undefined ? true : autoRotateLabel);
+        // whether the tickCount (if specified) should be applied to call to .nice() when building the axis scale
+        this.forceTickCount = false;
 
         // If this is a composite axis, store links to all slaves
         this._slaves = [];

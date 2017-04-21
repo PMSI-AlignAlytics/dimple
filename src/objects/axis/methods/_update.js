@@ -9,6 +9,7 @@
                 remainder,
                 origin,
                 tickCount = this.ticks || 10,
+                niceTickCount = this.forceTickCount && this.ticks ? tickCount : undefined,
                 getOrderedCategories = function (self, axPos, oppPos) {
                     var category = self.categoryFields[0],
                         axisData = self._getAxisData(),
@@ -65,7 +66,7 @@
                         ])
                         .clamp(this.clamp)
                         .base(this.logBase)
-                        .nice();
+                        .nice(niceTickCount);
                 } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "x", "y");
                     // If there are any slaves process accordingly
@@ -82,7 +83,7 @@
                         .range([this.chart._xPixels(), this.chart._xPixels() + this.chart._widthPixels()])
                         .domain([this._min, this._max])
                         .clamp(this.clamp)
-                        .nice();
+                        .nice(niceTickCount);
                 }
                 // If it's visible, orient it at the top or bottom if it's first or second respectively
                 if (!this.hidden) {
@@ -121,7 +122,7 @@
                         ])
                         .clamp(this.clamp)
                         .base(this.logBase)
-                        .nice();
+                        .nice(niceTickCount);
                 } else if (this.measure === null || this.measure === undefined) {
                     distinctCats = getOrderedCategories(this, "y", "x");
                     // If there are any slaves process accordingly
@@ -138,7 +139,7 @@
                         .range([this.chart._yPixels() + this.chart._heightPixels(), this.chart._yPixels()])
                         .domain([this._min, this._max])
                         .clamp(this.clamp)
-                        .nice();
+                        .nice(niceTickCount);
                 }
                 // if it's visible, orient it at the left or right if it's first or second respectively
                 if (!this.hidden) {
