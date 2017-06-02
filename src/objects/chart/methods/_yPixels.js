@@ -3,5 +3,5 @@
         // Source: /src/objects/chart/methods/_yPixels.js
         // Access the pixel position of the y co-ordinate of the plot area
         this._yPixels = function () {
-            return dimple._parseYPosition(this.y, this.svg.node());
+            return this._parseYPosition(this.y);
         };

@@ -3,5 +3,5 @@
         // Source: /src/objects/chart/methods/_widthPixels.js
         // Access the pixel value of the width of the plot area
         this._widthPixels = function () {
-            return dimple._parseXPosition(this.width, this.svg.node());
+            return this._parseXPosition(this.width);
         };

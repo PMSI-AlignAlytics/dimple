@@ -10,19 +10,19 @@
             this.height = 0;
             // Access the pixel value of the x coordinate
             this._xPixels = function () {
-                return dimple._parseXPosition(this.x, this.svg.node());
+                return this._parseXPosition(this.x);
             };
             // Access the pixel value of the y coordinate
             this._yPixels = function () {
-                return dimple._parseYPosition(this.y, this.svg.node());
+                return this._parseYPosition(this.y);
             };
             // Access the pixel value of the width coordinate
             this._widthPixels = function () {
-                return dimple._parentWidth(this.svg.node()) - this._xPixels() - dimple._parseXPosition(right, this.svg.node());
+                return this._parentWidth() - this._xPixels() - this._parseXPosition(right);
             };
             // Access the pixel value of the width coordinate
             this._heightPixels = function () {
-                return dimple._parentHeight(this.svg.node()) - this._yPixels() - dimple._parseYPosition(bottom, this.svg.node());
+                return this._parentHeight() - this._yPixels() - this._parseYPosition(bottom);
             };
             // return the chart object for method chaining
             return this;
