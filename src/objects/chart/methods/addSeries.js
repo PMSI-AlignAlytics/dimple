@@ -25,7 +25,7 @@
                         zAxis = axis;
                     } else if (colorAxis === null && axis.position[0] === "c") {
                         colorAxis = axis;
-                    } else if (colorAxis === null && axis.position[0] === "p") {
+                    } else if (pieAxis === null && axis.position[0] === "p") {
                         pieAxis = axis;
                     }
                 }
