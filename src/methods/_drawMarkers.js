@@ -36,11 +36,11 @@
                 }
                 return dimple._createClass(fields) + " " + markerClasses.join(" ") + " " + chart.customClassList.lineMarker + " " + css;
             })
-            .on("mouseover", function (e) {
-                enterEventHandler(e, this, chart, series);
+            .on("mouseover", function (e, d) {
+                enterEventHandler(d, this, chart, series);
             })
-            .on("mouseleave", function (e) {
-                leaveEventHandler(e, this, chart, series);
+            .on("mouseleave", function (e, d) {
+                leaveEventHandler(d, this, chart, series);
             })
             .attr("cx", function (d) {
                 return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin);

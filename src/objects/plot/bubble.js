@@ -48,8 +48,8 @@
                 .attr("cx", function (d) { return (series.x._hasCategories() ? dimple._helpers.cx(d, chart, series) : series.x._previousOrigin); })
                 .attr("cy", function (d) { return (series.y._hasCategories() ? dimple._helpers.cy(d, chart, series) : series.y._previousOrigin); })
                 .attr("r", 0)
-                .on("mouseover", function (e) { dimple._showPointTooltip(e, this, chart, series); })
-                .on("mouseleave", function (e) { dimple._removeTooltip(e, this, chart, series); })
+                .on("mouseover", function (e, d) { dimple._showPointTooltip(d, this, chart, series); })
+                .on("mouseleave", function (e, d) { dimple._removeTooltip(d, this, chart, series); })
                 .call(function (context) {
                     if (!chart.noFormats) {
                         context.attr("opacity", function (d) { return dimple._helpers.opacity(d, chart, series); })
