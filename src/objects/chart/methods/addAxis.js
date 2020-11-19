@@ -2,7 +2,7 @@
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addAxis
-        this.addAxis  = function (position, categoryFields, measure, timeField) {
+        this.addAxis  = function (position, categoryFields, measure, timeField, textMaxLength) {
             // The axis to return
             var axis = null,
                 master = null,
@@ -19,7 +19,9 @@
                     position,
                     categoryFields,
                     measure,
-                    timeField
+                    timeField,
+                    null,
+                    textMaxLength
                 );
                 // Add the axis to the array for the chart
                 this.axes.push(axis);
@@ -34,7 +36,9 @@
                     master.position,
                     categoryFields,
                     measure,
-                    timeField
+                    timeField,
+                    null,
+                    textMaxLength
                 );
                 // Validate that the master and child axes are compatible
                 if (axis._hasMeasure() !== master._hasMeasure()) {
