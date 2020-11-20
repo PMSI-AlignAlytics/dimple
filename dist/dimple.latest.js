@@ -46,7 +46,7 @@
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/axis/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis
-    dimple.axis = function (chart, position, categoryFields, measure, timeField, autoRotateLabel) {
+    dimple.axis = function (chart, position, categoryFields, measure, timeField, autoRotateLabel, textMaxLength) {
 
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-chart
         this.chart = chart;
@@ -118,8 +118,8 @@
         this._orderRules = [];
         // The group order definition array
         this._groupOrderRules = [];
-
-
+        // Length for multiline
+        this.textMaxLength = textMaxLength;
         // Copyright: 2015 AlignAlytics
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/axis/methods/_draw.js
@@ -1394,7 +1394,7 @@
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addAxis
-        this.addAxis  = function (position, categoryFields, measure, timeField) {
+        this.addAxis  = function (position, categoryFields, measure, timeField, textMaxLength) {
             // The axis to return
             var axis = null,
                 master = null,
@@ -1411,7 +1411,9 @@
                     position,
                     categoryFields,
                     measure,
-                    timeField
+                    timeField,
+                    null,
+                    textMaxLength
                 );
                 // Add the axis to the array for the chart
                 this.axes.push(axis);
@@ -1426,7 +1428,9 @@
                     master.position,
                     categoryFields,
                     measure,
-                    timeField
+                    timeField,
+                    null,
+                    textMaxLength
                 );
                 // Validate that the master and child axes are compatible
                 if (axis._hasMeasure() !== master._hasMeasure()) {
@@ -1450,8 +1454,8 @@
         // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
         // Source: /src/objects/chart/methods/addCategoryAxis.js
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#wiki-addCategoryAxis
-        this.addCategoryAxis = function (position, categoryFields) {
-            return this.addAxis(position, categoryFields, null);
+        this.addCategoryAxis = function (position, categoryFields, textMaxLength) {
+            return this.addAxis(position, categoryFields, null, null, textMaxLength);
         };
 
 
@@ -1949,7 +1953,15 @@
                             // If the gaps are narrower than the widest label display all labels horizontally
                             widest = 0;
                             axis.shapes.selectAll("text").each(function () {
-                                var w = this.getComputedTextLength();
+                                var w = null;
+                                if (axis.textMaxLength) {
+                                    const text = d3.select(this);
+                                    const savedHTML = text.html();
+                                    w = text.text(text.text().substr(0, axis.textMaxLength)).node().getComputedTextLength();
+                                    text.html(savedHTML);
+                                } else {
+                                    w = this.getComputedTextLength();
+                                }
                                 widest = (w > widest ? w : widest);
                             });
                             if (widest > chartWidth / axis.shapes.selectAll("text").nodes().length) {
@@ -2018,7 +2030,7 @@
                                 box.t = rec.y + rec.height - rec.width;
                             }
                             if (box.b === null || rec.height + rec.width > box.b) {
-                                box.b = rec.height + rec.width;
+                                box.b = (axis.textMaxLength ? 20 : rec.height) + rec.width;
                             }
                         } else {
                             if (box.t === null || rec.y < box.t) {

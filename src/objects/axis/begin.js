@@ -2,7 +2,7 @@
     // License: "https://github.com/PMSI-AlignAlytics/dimple/blob/master/MIT-LICENSE.txt"
     // Source: /src/objects/axis/begin.js
     // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis
-    dimple.axis = function (chart, position, categoryFields, measure, timeField, autoRotateLabel) {
+    dimple.axis = function (chart, position, categoryFields, measure, timeField, autoRotateLabel, textMaxLength) {
 
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-chart
         this.chart = chart;
@@ -74,4 +74,5 @@
         this._orderRules = [];
         // The group order definition array
         this._groupOrderRules = [];
-
+        // Length for multiline
+        this.textMaxLength = textMaxLength;
