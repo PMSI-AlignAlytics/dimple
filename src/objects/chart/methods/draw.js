@@ -293,7 +293,7 @@
                                 var w  = axis.maxTextWidth || this.getComputedTextLength();
                                 widest = (w > widest ? w : widest);
                             });
-                            if (widest > axis._scale.step()) {
+                            if (widest > (axis._scale.step ? axis._scale.step() : chartWidth / axis.shapes.selectAll("text").nodes().length)) {
                                 rotated = true;
                                 axis.shapes.selectAll("text")
                                     .style("text-anchor", "start")
