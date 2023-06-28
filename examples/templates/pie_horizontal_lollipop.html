@@ -5,7 +5,7 @@
   {scriptDependencies}
   <script type="text/javascript">
     var svg = dimple.newSvg("#chartContainer", 590, 400);
-      d3.tsv("/data/example_data.tsv", function (data) {
+      d3.tsv("/data/example_data.tsv").then((data) => {
         data = dimple.filterData(data, "Date", [
           "01/07/2012", "01/08/2012", "01/09/2012",
           "01/10/2012", "01/11/2012", "01/12/2012"]);

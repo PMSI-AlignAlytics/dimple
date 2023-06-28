@@ -52,6 +52,7 @@
         this.clamp = true;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-ticks
         this.ticks = null;
+        this.scaleStep = null;
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontSize
         this.fontSize = "10px";
         // Help: http://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.axis#wiki-fontFamily

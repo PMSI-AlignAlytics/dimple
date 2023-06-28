@@ -20,7 +20,7 @@
 
             // Set up a standard chart
             var myChart;
-            d3.tsv("/data/example_data.tsv", function (data) {
+            d3.tsv("/data/example_data.tsv").then((data) => {
                 myChart = new dimple.chart(svg, data);
 
                 // Fix the margins

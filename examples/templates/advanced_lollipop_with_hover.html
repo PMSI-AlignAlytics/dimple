@@ -6,7 +6,7 @@
   <script type="text/javascript">
     
     var svg = dimple.newSvg("#chartContainer", 590, 400);
-    d3.tsv("/data/example_data.tsv", function (data) {
+    d3.tsv("/data/example_data.tsv").then((data) => {
       
       // Focus on the top 6 brands
       data = dimple.filterData(data, "Brand", ["Theta", "Omicron", "Kappa", "Beta", "Lambda", "Alpha"]);

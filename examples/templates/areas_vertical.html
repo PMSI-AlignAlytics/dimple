@@ -5,7 +5,7 @@
   {scriptDependencies}
   <script type="text/javascript">
     var svg = dimple.newSvg("#chartContainer", 590, 400);
-    d3.tsv("/data/example_data.tsv", function (data) {
+    d3.tsv("/data/example_data.tsv").then((data) => {
       data = dimple.filterData(data, "Owner", ["Aperture", "Black Mesa"])
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(75, 30, 485, 330)
