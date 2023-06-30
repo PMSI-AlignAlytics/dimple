@@ -8,7 +8,7 @@
     // Create the svg and set the dimensions
     var svg = dimple.newSvg("#chartContainer", 590, 400);
 
-    d3.tsv("/data/example_data.tsv", function (data) {
+    d3.tsv("/data/example_data.tsv").then((data) => {
 
       // Split the months into Years and Quarters.  This could
       // be better done in the data, but I've included it here

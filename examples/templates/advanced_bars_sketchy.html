@@ -52,7 +52,7 @@
     </svg>
     <script type="text/javascript">
       var svg = dimple.newSvg("#chartContainer", 590, 400);
-      d3.tsv("/data/example_data.tsv", function (data) {
+      d3.tsv("/data/example_data.tsv").then((data) => {
         var myChart = new dimple.chart(svg, data);
         myChart.setMargins(110, 60, 20, 80);
         myChart.noFormats = true;

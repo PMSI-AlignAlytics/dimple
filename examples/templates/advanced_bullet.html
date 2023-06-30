@@ -8,7 +8,7 @@
     // Create the svg and set the dimensions
     var svg = dimple.newSvg("#chartContainer", 590, 400);
 
-    d3.tsv("/data/example_data.tsv", function (data) {
+    d3.tsv("/data/example_data.tsv").then((data) => {
 
       // Add a bullet chart to the svg
       function addBullet(x, y, height, width, measure, lowMark,
