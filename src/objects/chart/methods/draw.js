@@ -290,10 +290,10 @@
                             // If the gaps are narrower than the widest label display all labels horizontally
                             widest = 0;
                             axis.shapes.selectAll("text").each(function () {
-                                var w = this.getComputedTextLength();
+                                var w  = axis.maxTextWidth || this.getComputedTextLength();
                                 widest = (w > widest ? w : widest);
                             });
-                            if (widest > chartWidth / axis.shapes.selectAll("text").nodes().length) {
+                            if (widest > (axis._scale.step ? axis._scale.step() : chartWidth / axis.shapes.selectAll("text").nodes().length)) {
                                 rotated = true;
                                 axis.shapes.selectAll("text")
                                     .style("text-anchor", "start")
@@ -359,7 +359,7 @@
                                 box.t = rec.y + rec.height - rec.width;
                             }
                             if (box.b === null || rec.height + rec.width > box.b) {
-                                box.b = rec.height + rec.width;
+                                box.b = (axis.maxTextWidth ? 20 : rec.height) + rec.width;
                             }
                         } else {
                             if (box.t === null || rec.y < box.t) {

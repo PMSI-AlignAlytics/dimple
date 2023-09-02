@@ -5,7 +5,7 @@
   {scriptDependencies}
   <script type="text/javascript">
     var svg = dimple.newSvg("#chartContainer", 590, 400);
-      d3.tsv("/data/example_data.tsv", function (data) {
+      d3.tsv("/data/example_data.tsv").then((data) => {
         
         // Filter the data for a single channel
         data = dimple.filterData(data, "Channel", "Hypermarkets");

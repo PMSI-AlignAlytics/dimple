@@ -6,7 +6,7 @@
   <script type="text/javascript">
     // This is the simple vertical grouped stacked 100% bar example
     var svg = dimple.newSvg("#chartContainer", 590, 400);
-    d3.tsv("/data/example_data.tsv", function (data) {
+    d3.tsv("/data/example_data.tsv").then((data) => {
       var myChart = new dimple.chart(svg, data);
       myChart.setBounds(65, 45, 505, 315)
       var x = myChart.addCategoryAxis("x", ["Price Tier", "Channel"]);

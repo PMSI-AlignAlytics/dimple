@@ -48,6 +48,23 @@
             this._min = (this.overrideMin !== null ? this.overrideMin : this._min);
             this._max = (this.overrideMax !== null ? this.overrideMax : this._max);
 
+            const setTickValues = () => {
+                const TICKS_NUMBER_LIMIT = 200;
+                const {_draw: axisDraw, _scale: axisScale, scaleStep } = this;
+
+                if (scaleStep && axisDraw && axisScale) {
+                    const [minTick, maxTick] = axisScale.domain();
+                    const ticksRange =  d3.range(minTick, maxTick, scaleStep);
+
+                    const lastTick = ticksRange[ticksRange.length - 1];
+                    if (lastTick + scaleStep === maxTick) {
+                        ticksRange.push(maxTick);
+                    }
+
+                    ticksRange.length <= TICKS_NUMBER_LIMIT && this._draw.tickValues(ticksRange);
+                }
+            }
+
             // If this is an x axis
             if (this.position === "x" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
@@ -104,6 +121,8 @@
                     default:
                         break;
                     }
+
+                    setTickValues();
                 }
             } else if (this.position === "y" && (this._scale === null || refactor)) {
                 if (this._hasTimeField()) {
@@ -160,6 +179,8 @@
                     default:
                         break;
                     }
+
+                    setTickValues();
                 }
             } else if (this.position.length > 0 && this.position[0] === "z" && this._scale === null) {
                 if (this.useLog) {
